@@ -6,7 +6,7 @@ archlinux(7)
 
 NAME
 ----
-ArchLinux - basic configuration
+archlinux - basic configuration
 
 SYNOPSIS
 --------

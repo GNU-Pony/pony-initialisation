@@ -27,7 +27,7 @@ install: installdirs doc
 	install -m755 -t $(DESTDIR)/etc/profile.d locale.sh
 	install -m755 -t $(DESTDIR)/usr/sbin rc.d
 	install -m644 -t $(DESTDIR)/usr/share/man/man5 rc.conf.5
-	install -m644 -t $(DESTDIR)/usr/share/man/man7 ArchLinux.7
+	install -m644 -t $(DESTDIR)/usr/share/man/man7 archlinux.7
 	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8
 	install -m644 tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
 	install -m644 -T bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
@@ -42,10 +42,10 @@ install: installdirs doc
 %.8: %.8.txt
 	a2x -d manpage -f manpage $<
 
-doc: rc.conf.5 ArchLinux.7 rc.d.8
+doc: rc.conf.5 archlinux.7 rc.d.8
 
 clean:
-	rm -f rc.conf.5 ArchLinux.7 rc.d.8
+	rm -f rc.conf.5 archlinux.7 rc.d.8
 
 tar:
 	git archive HEAD --prefix=initscripts-$(VER)/ | xz > initscripts-$(VER).tar.xz
