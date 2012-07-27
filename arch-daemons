@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# /usr/lib/systemd/system-generators/arch-daemons
+#
+
+. /etc/rc.conf
+
+[[ $1 ]] || exit 1
+
+# when called at boot, this is /run/systemd/generator.late
+dest=$3
+
+# list of services that have to be started before the next one
+deps=()
+
+# Make service file
+create_unit() {
+  local deps= daemon=${1%.service}
+
+  (( $# > 1 )) && printf -v deps 'After=%s\n' "${*:2}"
+
+  printf \
+'[Unit]
+SourcePath=/etc/rc.conf
+Documentation=https://raw.github.com/falconindy/initscripts-systemd/master/README
+Description=Legacy unit for %s
+%s
+[Service]
+ExecStart=/etc/rc.d/%s start
+ExecStop=/etc/rc.d/%s stop
+RemainAfterExit=yes
+Type=forking
+' "$daemon" "$deps" "$daemon" "$daemon" > "$dest/$1"
+
+}
+
+for daemon in /etc/rc.d/*; do
+  create_unit "${daemon##*/}".service
+done
+
+[[ -d $dest/multi-user.target.wants ]] || /bin/mkdir -p "$dest/multi-user.target.wants"
+
+for daemon in "${DAEMONS[@]}"; do
+  service="$daemon.service"
+  case ${daemon:0:1} in
+    '!') continue ;;
+    '@') create_unit "${service:1}" "${deps[@]}"
+         ln -s "../${service:1}" "$dest/multi-user.target.wants"
+        ;;
+    *) create_unit "$service" "${deps[@]}"
+       deps+=("$service")
+       ln -s "../$service" "$dest/multi-user.target.wants"
+      ;;
+   esac
+done
+
+# vim: et sw=2:

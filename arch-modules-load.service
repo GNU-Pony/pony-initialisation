@@ -1,0 +1,10 @@
+[Unit]
+SourcePath=/etc/rc.conf
+Documentation=https://raw.github.com/falconindy/initscripts-systemd/master/README
+Description=Load modules defined in rc.conf
+DefaultDependencies=no
+Before=systemd-modules-load.service
+
+[Service]
+ExecStart=/usr/lib/systemd/arch-modules-load
+Type=oneshot

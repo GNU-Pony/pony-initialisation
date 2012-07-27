@@ -1,0 +1,10 @@
+[Unit]
+Description=/etc/rc.local.shutdown Compatibility
+After=rc-local.service
+ConditionPathIsExecutable=/etc/rc.local.shutdown
+
+[Service]
+Type=oneshot
+ExecStart=/etc/rc.local.shutdown
+StandardInput=tty
+RemainAfterExit=yes

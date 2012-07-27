@@ -8,6 +8,7 @@ license=('GPL')
 groups=('base')
 conflicts=('initscripts')
 provides=('initscripts=9999')
+replaces=('initscripts-systemd')
 backup=(etc/inittab etc/rc.conf etc/rc.local etc/rc.local.shutdown)
 makedepends=('asciidoc')
 depends=('glibc' 'bash' 'coreutils' 'systemd-tools' 'iproute2'
