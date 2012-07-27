@@ -10,7 +10,7 @@ archlinux - basic configuration
 
 SYNOPSIS
 --------
-Overview of the basic configuartion of Arch Linux.
+Overview of the basic configuration of Arch Linux.
 
 DESCRIPTION
 -----------
@@ -66,7 +66,7 @@ GRUB's configuration is generated from /etc/default/grub by grub-mkconfig. Sysli
 
 MODULES[[M]]
 ------------
-Most modules should be loaded on-demand. Modules to be unconditioanlly loaded at boot can be specified in /etc/modules-load.d/,
+Most modules should be loaded on-demand. Modules to be unconditionally loaded at boot can be specified in /etc/modules-load.d/,
 and modules to be blacklisted from auto-loading can be configured in /etc/modprobe.d/.
 
 SEE ALSO
