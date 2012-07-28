@@ -13,9 +13,18 @@ dest=$3
 # list of services that have to be started before the next one
 deps=()
 
+# Check if $1 is a valid daemon name
+have_daemon() {
+  [[ -f /etc/rc.d/$1 && -x /etc/rc.d/$1 ]]
+}
+
 # Make service file
 create_unit() {
   local deps= daemon=${1%.service}
+
+  if ! have_daemon $daemon; then
+    return
+  fi
 
   (( $# > 1 )) && printf -v deps 'After=%s\n' "${*:2}"
 
