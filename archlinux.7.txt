@@ -72,7 +72,7 @@ and modules to be blacklisted from auto-loading can be configured in /etc/modpro
 SEE ALSO
 --------
 
-rc.conf(5), hostname(5), hosts(5), nsswitch.conf(5), locale.conf(5), vconsole(5), timezone(3), hwclock(8), fstab(5), crypttab(5),
+rc.conf(5), hostname(5), hosts(5), nsswitch.conf(5), locale.conf(5), vconsole.conf(5), timezone(3), hwclock(8), fstab(5), crypttab(5),
 mkinitcpio(8), pacman(8), pacman.conf(5), grub-mkconfig(8), syslinux(1), modules-load.d(5), modprobe.d(5)
 
 AUTHORS
