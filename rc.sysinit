@@ -139,7 +139,7 @@ stat_busy "Saving dmesg log"
 (( $? == 0 )) && stat_done || stat_fail
 
 if [[ -f /etc/adjtime ]]; then
-	( read ; read ; read ADJTIME) < /etc/adjtime
+	{ read ; read ; read ADJTIME; } < /etc/adjtime
 
 	if [[ $ADJTIME == 'LOCAL' ]]; then
 		if	[[ $HARDWARECLOCK == 'UTC' ]]; then
