@@ -40,7 +40,7 @@ other things. Note that these settings only apply to the console, and not if you
 
 TIME[[T]]
 ---------
-The local timezone is configured by symlinking /etc/localtime to the correct zoneinfo file under
+The local timezone is configured by *symlinking* /etc/localtime to the correct zoneinfo file under
 /usr/share/zoneinfo/. E.g.,
 
     /etc/localtime -> /usr/share/zoneinfo/Europe/Paris
