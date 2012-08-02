@@ -62,7 +62,7 @@ The package manager, pacman, is configured in /etc/pacman.conf.
 
 BOOTLOADER[[B]]
 ---------------
-GRUB's configuration is generated from /etc/default/grub by grub-mkconfig. Syslinux is configured in /boot/syslinux/syslinux.conf
+GRUB's configuration is generated from /etc/default/grub by grub-mkconfig. Syslinux is configured in /boot/syslinux/syslinux.cfg
 
 MODULES[[M]]
 ------------
