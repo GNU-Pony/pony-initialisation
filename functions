@@ -357,13 +357,13 @@ print_welcome() {
 load_modules() {
 	local rc=0
 
-	/usr/lib/systemd/systemd-modules-load &>/dev/null
-	rc=$?
-
-	if (( ${#MODULES[*]} )); then
-		modprobe -ab "${MODULES[@]}"
-		(( rc += $? ))
+	if [[ $MODULES ]]; then
+		/usr/lib/systemd/arch-modules-load
+		rc=$?
 	fi
+
+	/usr/lib/systemd/systemd-modules-load
+	(( rc+=$? ))
 
 	return $rc
 }
