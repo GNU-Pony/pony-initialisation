@@ -223,7 +223,7 @@ case "$1" in
 		# deprecation check
 		need_legacy && deprecated
 		if ! ck_daemon network; then
-			echo "Network is already running. Try 'network restart'"
+			echo "Network is already running. Try 'rc.d restart network'"
 			exit
 		fi
 		stat_busy "Starting network"
