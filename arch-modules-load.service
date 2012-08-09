@@ -1,6 +1,6 @@
 [Unit]
 SourcePath=/etc/rc.conf
-Documentation=https://raw.github.com/falconindy/initscripts-systemd/master/README
+Documentation=man:arch-modules-load(8)
 Description=Load modules defined in rc.conf
 DefaultDependencies=no
 Before=systemd-modules-load.service

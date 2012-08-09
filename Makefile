@@ -32,7 +32,7 @@ install: installdirs doc
 	install -m755 -t $(DESTDIR)/usr/sbin rc.d
 	install -m644 -t $(DESTDIR)/usr/share/man/man5 rc.conf.5
 	install -m644 -t $(DESTDIR)/usr/share/man/man7 archlinux.7
-	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8
+	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8 arch-modules-load.8 arch-daemons.8
 	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators arch-daemons
 	install -m755 -t $(DESTDIR)/usr/lib/systemd arch-modules-load
 	install -m644 -t $(DESTDIR)/usr/lib/systemd/system arch-modules-load.service rc-local.service rc-local-shutdown.service
@@ -53,10 +53,10 @@ install: installdirs doc
 %.8: %.8.txt
 	a2x -d manpage -f manpage $<
 
-doc: rc.conf.5 archlinux.7 rc.d.8
+doc: rc.conf.5 archlinux.7 rc.d.8 arch-modules-load.8 arch-daemons.8
 
 clean:
-	rm -f rc.conf.5 archlinux.7 rc.d.8
+	rm -f rc.conf.5 archlinux.7 rc.d.8 arch-modules-load.8 arch-daemons.8
 
 tar:
 	git archive HEAD --prefix=initscripts-$(VER)/ | xz > initscripts-$(VER).tar.xz
