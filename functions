@@ -475,6 +475,16 @@ do_unlock_legacy() {
 do_unlock_systemd() {
 	local name=$1 device=$2 password=$3 options=$4 failed=0
 
+	# lazily convert tags to udev symlinks
+	case $device in
+		UUID=*)
+			device=/dev/disk/by-uuid/${device#UUID=}
+			;;
+		PARTUUID=*)
+			device=/dev/disk/by-partuuid/${device#PARTUUID=}
+			;;
+	esac
+
 	if ! /usr/lib/systemd/systemd-cryptsetup attach "$name" "$device" "$password" $options; then
 		failed=1
 	else
