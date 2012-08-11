@@ -4,5 +4,8 @@ hostname.5
 locale.conf.5
 vconsole.conf.5
 rc.conf.5
+archlinux.7
+arch-daemons.8
+arch-modules-load.8
 rc.d.8
 pkg/
