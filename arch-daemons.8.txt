@@ -10,7 +10,7 @@ arch-daemons - Compatibility layer for rc scripts and rc.conf's DAEMONS array
 
 SYNOPSIS
 --------
-/usr/lib/systemd/arch-daemons
+/usr/lib/systemd/system-generators/arch-daemons
 
 DESCRIPTION
 -----------
