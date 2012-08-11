@@ -72,9 +72,19 @@ unset TZ
 # sanitize the locale settings
 unset "${localevars[@]}"
 
+unquote() {
+	local -r quotes=$'[\'"]'
+
+	if [[ ${1:0:1} = $quotes && ${1:(-1)} = "${1:0:1}" ]]; then
+		printf '%s' "${1:1:(-1)}"
+	else
+		printf '%s' "$1"
+	fi
+}
+
 parse_envfile() {
 	local file=$1 validkeys=("${@:2}") ret=0 lineno=0 key= val=
-	local -r quotes=$'[\'"]' comments=$'[;#]*'
+	local -r comments=$'[;#]*'
 
 	if [[ -z $file ]]; then
 		printf "error: no environment file specified\n"
@@ -101,8 +111,7 @@ parse_envfile() {
 		[[ -z $key || ${key:0:1} = $comments ]] && continue
 
 		# trim whitespace, strip matching quotes
-		val=$(echo "$val" | { read -r val; echo "$val"; })
-		[[ ${val:0:1} = $quotes && ${val:(-1)} = "${val:0:1}" ]] && val=${val:1:(-1)}
+		val=$(echo "$val" | { read -r val; unquote "$val"; })
 
 		if [[ -z $val ]]; then
 			printf "error: found key \`%s' without value on line %s of %s\n" \
@@ -478,10 +487,10 @@ do_unlock_systemd() {
 	# lazily convert tags to udev symlinks
 	case $device in
 		UUID=*)
-			device=/dev/disk/by-uuid/${device#UUID=}
+			device=/dev/disk/by-uuid/$(unquote "${device#UUID=}")
 			;;
 		PARTUUID=*)
-			device=/dev/disk/by-partuuid/${device#PARTUUID=}
+			device=/dev/disk/by-partuuid/$(unquote "${device#PARTUUID=}")
 			;;
 	esac
 
