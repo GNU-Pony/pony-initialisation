@@ -190,20 +190,13 @@ FONT_MAP in /etc/vconsole.conf takes precedence (see vconsole.conf(5)), and is r
 This sets your system language, which will be used by all i18n-friendly applications and utilities.
 See `locale -a` (or locale.gen) for available options.
 
-LANG in /etc/locale.conf takes precedence (see locale.conf(5)), and is recommended.
+LANG in /etc/locale.conf takes precedence (see locale.conf(5)), and is recommended. User-specific
+locale settings which override both /etc/locale.conf and /etc/rc.conf are set in
+$XDG_CONFIG_HOME/locale.conf using the same syntax as /etc/locale.conf.
 
 If unset, it falls back to the C locale.
 
 	LOCALE="en_US.UTF-8"
-
-*DAEMON_LOCALE=*
-
-	- If set to 'no', export the C locale to daemons and during the boot process.
-	- Otherwise, export LANG (or LOCALE) as configured in /etc/locale.conf (or /etc/rc.conf).
-
-Leave this unset, unless you have a specific reason to set it to 'no'.
-
-	DAEMON_LOCALE="yes"
 
 *USECOLOR=*
 
