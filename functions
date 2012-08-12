@@ -536,7 +536,7 @@ do_unlock() {
 				do_unlock_legacy "$name" "$device" "$password" "$options"
 			fi
 			;;
-		/*|none|-)
+		/*|none|-|'')
 			do_unlock_systemd "$name" "$device" "$password" "$options"
 			;;
 		*)
