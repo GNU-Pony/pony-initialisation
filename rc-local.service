@@ -1,6 +1,6 @@
 [Unit]
 Description=/etc/rc.local Compatibility
-ConditionPathIsExecutable=/etc/rc.local
+ConditionFileIsExecutable=/etc/rc.local
 
 [Service]
 Type=oneshot

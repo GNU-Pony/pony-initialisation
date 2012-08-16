@@ -1,6 +1,6 @@
 [Unit]
 Description=/etc/rc.local.shutdown Compatibility
-ConditionPathIsExecutable=/etc/rc.local.shutdown
+ConditionFileIsExecutable=/etc/rc.local.shutdown
 DefaultDependencies=no
 After=rc-local.service basic.target
 Before=shutdown.target
