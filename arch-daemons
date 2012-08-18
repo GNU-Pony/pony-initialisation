@@ -47,18 +47,18 @@ for daemon in /etc/rc.d/*; do
   create_unit "${daemon##*/}".service
 done
 
-[[ -d $dest/multi-user.target.wants ]] || /bin/mkdir -p "$dest/multi-user.target.wants"
+[[ -d $dest/arch-daemons.target.wants ]] || /bin/mkdir -p "$dest/arch-daemons.target.wants"
 
 for daemon in "${DAEMONS[@]}"; do
   service="$daemon.service"
   case ${daemon:0:1} in
     '!') continue ;;
     '@') create_unit "${service:1}" "${deps[@]}"
-         ln -s "../${service:1}" "$dest/multi-user.target.wants"
+         ln -s "../${service:1}" "$dest/arch-daemons.target.wants"
         ;;
     *) create_unit "$service" "${deps[@]}"
        deps+=("$service")
-       ln -s "../$service" "$dest/multi-user.target.wants"
+       ln -s "../$service" "$dest/arch-daemons.target.wants"
       ;;
    esac
 done

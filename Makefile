@@ -35,12 +35,13 @@ install: installdirs doc
 	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8 arch-modules-load.8 arch-daemons.8
 	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators arch-daemons
 	install -m755 -t $(DESTDIR)/usr/lib/systemd arch-modules-load
-	install -m644 -t $(DESTDIR)/usr/lib/systemd/system arch-modules-load.service rc-local.service rc-local-shutdown.service
+	install -m644 -t $(DESTDIR)/usr/lib/systemd/system arch-modules-load.service rc-local.service rc-local-shutdown.service arch-daemons.target
 	install -m644 tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
 	install -m644 -T bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
 	install -m644 -T zsh-completion $(DESTDIR)/usr/share/zsh/site-functions/_rc.d
 	ln -s /dev/null ${DESTDIR}/usr/lib/systemd/system/netfs.service
 	ln -s ../rc-local.service ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
+	ln -s ../arch-daemons.target ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
 	ln -s ../rc-local-shutdown.service ${DESTDIR}/usr/lib/systemd/system/shutdown.target.wants/
 	ln -s ../arch-modules-load.service ${DESTDIR}/usr/lib/systemd/system/sysinit.target.wants/
 
