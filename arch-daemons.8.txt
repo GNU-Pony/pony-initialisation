@@ -6,7 +6,7 @@ arch-daemons(8)
 
 NAME
 ----
-arch-daemons - Compatibility layer for rc scripts and rc.conf's DAEMONS array
+arch-daemons, arch-daemons.target - Compatibility layer for rc scripts and rc.conf's DAEMONS array
 
 SYNOPSIS
 --------
@@ -26,6 +26,9 @@ arch-daemons is executed by systemd at very early boot. It has two purposes:
 Note: this is meant as a compatibility layer only for the purposes of easing users' transition
 from initscripts to systemd. You are strongly encouraged to not rely on this, but rather use
 native systemd services.
+
+The generated services that are enabled in the DAEMONS array is pulled in via arch-daemons.target.
+arch-daemons.target can be masked in order to ignore the DAEMONS array when booting with systemd.
 
 SEE ALSO
 --------
