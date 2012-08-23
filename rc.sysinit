@@ -35,12 +35,28 @@ bootlogd -p /run/bootlogd.pid
 run_hook sysinit_start
 
 HWCLOCK_PARAMS="--systz"
-case $HARDWARECLOCK in
-	"") ;;
-	UTC) HWCLOCK_PARAMS+=" --utc --noadjfile";;
-	localtime) HWCLOCK_PARAMS+=" --localtime --noadjfile";;
-	*) HWCLOCK_PARAMS="";;
-esac
+
+if [[ $HARDWARECLOCK ]]; then
+	print_depr "HARDWARECLOCK=" "rc.conf(5) and hwclock(8)"
+
+	[[ -f /etc/adjtime ]] && { read ; read ; read ADJTIME; } < /etc/adjtime
+
+	if [[ $ADJTIME == 'LOCAL' ]]; then
+		if	[[ $HARDWARECLOCK == 'UTC' ]]; then
+			printf "${C_FAIL}/etc/rc.conf says the RTC is in UTC, but /etc/adjtime says it is in localtime.\n${C_OTHER}."
+		fi
+	else
+		if [[ $HARDWARECLOCK == 'LOCALTIME' ]]; then
+			printf "${C_FAIL}/etc/rc.conf says the RTC is in localtime, but hwclock (/etc/adjtime) thinks it is in UTC.\n${C_OTHER}."
+		fi
+	fi
+
+	case $HARDWARECLOCK in
+		UTC) HWCLOCK_PARAMS+=" --utc --noadjfile";;
+		localtime) HWCLOCK_PARAMS+=" --localtime --noadjfile";;
+		*) HWCLOCK_PARAMS="";;
+	esac
+fi
 
 if [[ $HWCLOCK_PARAMS ]]; then
 	stat_busy "Adjusting system time and setting kernel time zone"
@@ -48,11 +64,11 @@ if [[ $HWCLOCK_PARAMS ]]; then
 	# Adjust the system time for time zone offset if rtc is not in UTC, as
 	# filesystem checks can depend on system time. This also sets the kernel
 	# time zone, used by e.g. vfat.
-	# If TIMEZONE is not set in rc.conf, the time zone stored in /etc/localtime
-	# is used. If HARDWARECLOCK is not set in rc.conf, the value in
-	# /etc/adjfile is used.
 
-	[[ $TIMEZONE ]] && export TZ=$TIMEZONE
+	if [[ $TIMEZONE ]]; then
+		print_depr "TIMEZONE=" "rc.conf(5)"
+		export TZ=$TIMEZONE
+	fi
 
 	hwclock $HWCLOCK_PARAMS && stat_done || stat_fail
 
@@ -121,6 +137,9 @@ status 'Initializing random seed' /usr/lib/systemd/systemd-random-seed load
 # Remove leftover files
 remove_leftover
 
+if [[ $HOSTNAME ]]; then
+	print_depr "HOSTNAME=" "rc.conf(5) and hostname(5)"
+fi
 if [[ -s /etc/hostname ]]; then
 	HOSTNAME=$(< /etc/hostname)
 fi
@@ -137,20 +156,6 @@ stat_busy "Saving dmesg log"
 		install -Tm 0644 <( dmesg ) /var/log/dmesg.log
 	fi
 (( $? == 0 )) && stat_done || stat_fail
-
-if [[ -f /etc/adjtime ]]; then
-	{ read ; read ; read ADJTIME; } < /etc/adjtime
-
-	if [[ $ADJTIME == 'LOCAL' ]]; then
-		if	[[ $HARDWARECLOCK == 'UTC' ]]; then
-			printf "${C_FAIL}/etc/rc.conf says the RTC is in UTC, but /etc/adjtime says it is in localtime.\n${C_OTHER}."
-		fi
-	else
-		if [[ $HARDWARECLOCK == 'LOCALTIME' ]]; then
-			printf "${C_FAIL}/etc/rc.conf says the RTC is in localtime, but hwclock (/etc/adjtime) thinks it is in UTC.\n${C_OTHER}."
-		fi
-	fi
-fi
 
 run_hook sysinit_end
 

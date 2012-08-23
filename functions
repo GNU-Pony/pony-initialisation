@@ -137,6 +137,10 @@ deltext() {
 	printf "${DEL_TEXT}"
 }
 
+print_depr() {
+	printf "${C_FAIL} ${1} is deprecated. See ${2} for details.${C_CLEAR} \n"
+}
+
 printhl() {
 	printf "${C_OTHER}${PREFIX_HL} ${C_H1}${1}${C_CLEAR} \n"
 }
@@ -367,6 +371,7 @@ load_modules() {
 	local rc=0
 
 	if [[ $MODULES ]]; then
+		print_depr "MODULES=" "rc.conf(5) and modules-load.d(5)"
 		/usr/lib/systemd/arch-modules-load
 		rc=$?
 	fi
@@ -414,7 +419,7 @@ do_unlock_legacy() {
 	# $2 = source device
 	# $3 = password
 	# $4 = options
-	printf "${C_FAIL}Using legacy crypttab format. This will stop working in the future. See crypttab(5).${C_CLEAR}\n"
+	print_depr "The legacy crypttab format" "crypttab(5)"
 	local open=create a=$1 b=$2 failed=0
 	# Ordering of options is different if you are using LUKS vs. not.
 	# Use ugly swizzling to deal with it.
