@@ -5,11 +5,10 @@
 # sanitize PATH (will be overridden later when /etc/profile is sourced but is useful for udev)
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-localevars=(LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY
-            LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE
-            LC_MEASUREMENT LC_IDENTIFICATION LC_ALL)
+# clear the TZ envvar, so daemons always respect /etc/localtime
+unset TZ
 
-vconsolevars=(KEYMAP KEYMAP_TOGGLE FONT FONT_MAP FONT_UNIMAP)
+. /etc/profile.d/locale.sh
 
 if [[ $1 == "start" ]]; then
 	if [[ $STARTING ]]; then
@@ -65,12 +64,6 @@ if (( $? != 3 )); then
 	esac
 fi
 unset TERM_COLORS
-
-# clear the TZ envvar, so daemons always respect /etc/localtime
-unset TZ
-
-# sanitize the locale settings
-unset "${localevars[@]}"
 
 unquote() {
 	local -r quotes=$'[\'"]'
@@ -745,15 +738,6 @@ if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
 
 	declare -fr add_hook run_hook
 	declare -r RC_FUNCTIONS_HOOK_FUNCS_DEFINED=1
-fi
-
-if [[ $DAEMON_LOCALE != [nN][oO] ]]; then
-	export LANG=${LOCALE:-C}
-	if [[ -r /etc/locale.conf ]]; then
-		parse_envfile /etc/locale.conf "${localevars[@]}"
-	fi
-else
-	export LANG=C
 fi
 
 # set colors
