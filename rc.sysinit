@@ -3,8 +3,20 @@
 # /etc/rc.sysinit
 #
 
+unset HOSTNAME
+
 . /etc/rc.conf
 . /etc/rc.d/functions
+
+if [[ $HOSTNAME ]]; then
+	print_depr "HOSTNAME=" "rc.conf(5) and hostname(5)"
+fi
+if [[ -s /etc/hostname ]]; then
+	HOSTNAME=$(< /etc/hostname)
+fi
+if [[ $HOSTNAME ]]; then
+	echo "$HOSTNAME" >| /proc/sys/kernel/hostname
+fi
 
 # don't let all the systemd tools be too verbose
 export SYSTEMD_LOG_LEVEL="notice"
@@ -136,17 +148,6 @@ status 'Initializing random seed' /usr/lib/systemd/systemd-random-seed load
 
 # Remove leftover files
 remove_leftover
-
-if [[ $HOSTNAME ]]; then
-	print_depr "HOSTNAME=" "rc.conf(5) and hostname(5)"
-fi
-if [[ -s /etc/hostname ]]; then
-	HOSTNAME=$(< /etc/hostname)
-fi
-if [[ $HOSTNAME ]]; then
-	stat_busy "Setting hostname: $HOSTNAME"
-	echo "$HOSTNAME" >| /proc/sys/kernel/hostname && stat_done || stat_fail
-fi
 
 stat_busy "Saving dmesg log"
 	if [[ -e /proc/sys/kernel/dmesg_restrict ]] &&
