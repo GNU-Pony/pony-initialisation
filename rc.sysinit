@@ -14,9 +14,6 @@ fi
 if [[ -s /etc/hostname ]]; then
 	HOSTNAME=$(< /etc/hostname)
 fi
-if [[ $HOSTNAME ]]; then
-	echo "$HOSTNAME" >| /proc/sys/kernel/hostname
-fi
 
 # don't let all the systemd tools be too verbose
 export SYSTEMD_LOG_LEVEL="notice"
@@ -45,6 +42,11 @@ fi
 bootlogd -p /run/bootlogd.pid
 
 run_hook sysinit_start
+
+if [[ $HOSTNAME ]]; then
+	stat_busy "Setting hostname: $HOSTNAME"
+	echo "$HOSTNAME" >| /proc/sys/kernel/hostname && stat_done || stat_fail
+fi
 
 HWCLOCK_PARAMS="--systz"
 
