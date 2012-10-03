@@ -11,12 +11,13 @@ provides=('initscripts=9999')
 replaces=('initscripts-systemd')
 backup=(etc/inittab etc/rc.conf etc/rc.local etc/rc.local.shutdown)
 makedepends=('asciidoc')
-depends=('glibc' 'bash' 'coreutils' 'systemd-tools' 'iproute2'
-         'ncurses' 'kbd' 'findutils' 'sysvinit')
+depends=('glibc' 'bash' 'coreutils' 'systemd' 'iproute2'
+         'ncurses' 'kbd' 'findutils')
 optdepends=('net-tools: legacy networking support'
             'bridge-utils: Network bridging support'
             'dhcpcd: DHCP network configuration'
-            'wireless_tools: Wireless networking')
+            'wireless_tools: Wireless networking'
+            'sysvinit: Legacy init support')
 source=()
 sha256sums=()
 
