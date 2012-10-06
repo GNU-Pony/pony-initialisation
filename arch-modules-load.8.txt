@@ -6,20 +6,19 @@ arch-modules-load(8)
 
 NAME
 ----
-arch-modules-load, arch-modules-load.service - Compatibility layer for rc.conf's MODULES array
+arch-modules-load - Compatibility layer for rc.conf's MODULES array
 
 SYNOPSIS
 --------
 /usr/lib/systemd/arch-modules-load
-
-arch-modules-load.service
 
 DESCRIPTION
 -----------
 Parses the MODULES array from rc.conf at early boot and passes on the list of modules to load to
 systemd-modules-load.
 
-arch-modules-load and systemd-modules-load are used the same by both initscripts and systemd.
+arch-modules-load is only used by initscripts, and systemd-modules-load is used the same by both
+initscripts and systemd.
 
 Note: this is meant as a compatibility layer only for the purposes of easing users' transition from
 the old rc.conf syntax to the new systemd syntax. You are strongly encouraged to not rely on this,
