@@ -35,7 +35,9 @@ make a difference if the hwclock program has been calibrated correctly.
 
 If you use a network filesystem, you should enable 'netfs'.
 
-	DAEMONS=('syslog-ng' 'network' 'crond')
+You might also want to enable 'syslog-ng', 'network' and 'crond'.
+
+	DAEMONS=()
 
 STORAGE[[S]]
 ------------
