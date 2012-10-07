@@ -32,9 +32,10 @@ create_unit() {
 '[Unit]
 SourcePath=/etc/rc.conf
 Documentation=man:arch-daemons(8)
-Description=Legacy unit for %s
+Description=LEGACY unit for "%s" rc script
 %s
 [Service]
+ExecStartPre=/usr/bin/echo "WARNING: A legacy rc script is being used. Consider removing this from your DAEMONS array and enabling a native systemd service instead."
 ExecStart=/etc/rc.d/%s start
 ExecStop=/etc/rc.d/%s stop
 RemainAfterExit=yes
