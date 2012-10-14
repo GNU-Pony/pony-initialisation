@@ -6,7 +6,7 @@ rc.conf(5)
 
 NAME
 ----
-rc.conf - Arch Linux main configuration file
+rc.conf - configuration file for initscripts
 
 SYNOPSIS
 --------
