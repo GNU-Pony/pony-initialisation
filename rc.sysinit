@@ -100,7 +100,7 @@ if [[ ${LOCALE,,} =~ utf ]]; then
                 # this code is needed not only for older kernels,
                 # but also when user has set vt.default_utf8=0 but LOCALE is *.UTF-8.
                 for i in /dev/tty[0-9]*; do
-                        kbd_mode -u < ${i}
+                        kbd_mode -u -C ${i}
                         printf "\e%%G" > ${i}
                 done
                 echo 1 >| /sys/module/vt/parameters/default_utf8
@@ -109,7 +109,7 @@ else
         stat_busy "Setting Consoles to legacy mode"
                 # make non-UTF-8 consoles work on 2.6.24 and newer kernels
                 for i in /dev/tty[0-9]*; do
-                        kbd_mode -a < ${i}
+                        kbd_mode -a -C ${i}
                         printf "\e%%@" > ${i}
                 done
                 echo 0 >| /sys/module/vt/parameters/default_utf8
@@ -117,8 +117,8 @@ else
 fi
 
 # Set console font and keymap if required
-set_consolefont
-
+[[ $CONSOLEFONT ]] &&
+        status "Loading Console Font: $CONSOLEFONT" set_consolefont
 [[ $KEYMAP ]] &&
         status "Loading Keyboard Map: $KEYMAP" loadkeys -q $KEYMAP
 
