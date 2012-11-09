@@ -4,6 +4,7 @@ DIRS := \
 	/etc/rc.d \
 	/etc/rc.d/functions.d \
 	/etc/logrotate.d \
+	/usr/lib/initscripts \
 	/usr/lib/tmpfiles.d \
 	/usr/lib/systemd/system-generators \
 	/usr/lib/systemd/system/multi-user.target.wants \
@@ -29,6 +30,7 @@ install: installdirs doc
 	install -m755 -t $(DESTDIR)/usr/sbin rc.d
 	install -m644 -t $(DESTDIR)/usr/share/man/man5 rc.conf.5
 	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8 arch-daemons.8
+	install -m755 -t $(DESTDIR)/usr/lib/initscripts arch-tmpfiles arch-sysctl arch-binfmt
 	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators arch-daemons
 	install -m644 -t $(DESTDIR)/usr/lib/systemd/system rc-local.service rc-local-shutdown.service arch-daemons.target
 	install -m644 tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
