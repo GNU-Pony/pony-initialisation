@@ -360,21 +360,6 @@ print_welcome() {
 	printsep
 }
 
-load_modules() {
-	local rc=0
-
-	if [[ $MODULES ]]; then
-		print_depr "MODULES=" "rc.conf(5) and modules-load.d(5)"
-		/usr/lib/systemd/arch-modules-load
-		rc=$?
-	fi
-
-	/usr/lib/systemd/systemd-modules-load
-	(( rc+=$? ))
-
-	return $rc
-}
-
 # Start/trigger udev, load MODULES, and settle udev
 udevd_modprobe() {
 	# $1 = where we are being called from.
@@ -389,7 +374,9 @@ udevd_modprobe() {
 	stat_done
 
 	# Load modules from the MODULES array and modules-load.d
-	status "Loading user-specified modules" load_modules
+	#status "Loading user-specified modules" load_modules
+	(( ${#MODULES[*]} )) &&
+                status "Loading User-specified Modules" modprobe -ab "${MODULES[@]}"
 
 	status "Waiting for udev uevents to be processed" \
 		udevadm settle
