@@ -22,7 +22,19 @@ run_hook shutdown_start
 
 stop_all_daemons
 
-status 'Saving random seed' /usr/lib/systemd/systemd-random-seed save
+#status 'Saving random seed' /usr/lib/systemd/systemd-random-seed save
+stat_busy "Saving Random Seed"
+        RANDOM_SEED=/var/lib/misc/random-seed
+        install -TDm 0600 /dev/null $RANDOM_SEED
+        POOL_FILE=/proc/sys/kernel/random/poolsize
+        if [[ -r $POOL_FILE ]]; then
+                read POOL_SIZE < $POOL_FILE
+                (( POOL_SIZE /= 8 ))
+        else
+                POOL_SIZE=512
+        fi
+        dd if=/dev/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &>/dev/null
+stat_done
 
 [[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
 
