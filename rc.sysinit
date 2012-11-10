@@ -28,8 +28,8 @@ mountpoint -q /sys     || mount -t sysfs sys /sys -o nosuid,noexec,nodev
 mountpoint -q /run     || mount -t tmpfs run /run -o mode=0755,nosuid,nodev
 mountpoint -q /dev     || mount -t devtmpfs dev /dev -o mode=0755,nosuid
 mkdir -p /dev/{pts,shm}
-mountpoint -q /dev/pts || mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
-mountpoint -q /dev/shm || mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
+mountpoint -q /dev/pts || mount /dev/pts &>/dev/null || mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
+mountpoint -q /dev/shm || mount /dev/shm &>/dev/null || mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
 
 if [[ ! -e /run/initramfs/root-fsck ]]; then
 	# remount root ro to allow for fsck later on, we remount now to
@@ -155,8 +155,10 @@ run_hook sysinit_postfsck
 # Single-user login and/or automatic reboot if needed
 fsck_reboot $fsckret
 
-status "Remounting root and API filesystems" \
-	/usr/lib/systemd/systemd-remount-fs
+#status "Remounting root and API filesystems" \
+#	/usr/lib/systemd/systemd-remount-fs
+status "Remounting Root" \
+       mount -o remount /
 
 # Now mount all the local filesystems
 run_hook sysinit_premount
