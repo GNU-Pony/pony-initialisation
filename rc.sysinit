@@ -111,6 +111,12 @@ else
         stat_done
 fi
 
+if [[ -s /etc/vconsole.conf ]]; then
+        parse_envfile /etc/vconsole.conf "${vconsolevars[@]}"
+        [[ $FONT ]] && CONSOLEFONT=$FONT
+        [[ $FONT_MAP ]] && CONSOLEMAP=$FONT_MAP
+fi
+
 # Set console font and keymap if required
 [[ $CONSOLEFONT ]] &&
         status "Loading Console Font: $CONSOLEFONT" set_consolefont
