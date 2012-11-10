@@ -80,7 +80,7 @@ If leave empty, LANG in /etc/locale.conf will be used.
 
 Use ANSI color sequences in start-up messages, unless set to 'no'.
 
-Default: "yes"
+Default: 'yes'
 
 HARDWARE[[H]]
 -------------
@@ -141,6 +141,11 @@ Default route.
 Required for manual configuration, ignored for DHCP.
 
 The following options might be needed for advanced use-cases.
+
+*NETWORK_PERSIST=*
+
+Setting this to "yes" will skip network shutdown. This is required if your
+root device is on NFS.
 
 DAEMONS[[D]]
 ------------
