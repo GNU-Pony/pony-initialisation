@@ -375,10 +375,13 @@ udevd_modprobe() {
 		udevadm trigger --action=add --type=devices
 	stat_done
 
-	# Load modules from the MODULES array and modules-load.d
+	# Load modules from the MODULES array or modules-load.d
 	#status "Loading user-specified modules" load_modules
-	(( ${#MODULES[*]} )) &&
+	if (( ${#MODULES[*]} )); then
                 status "Loading User-specified Modules" modprobe -ab "${MODULES[@]}"
+	else
+		/usr/lib/initscripts/arch-modules
+	fi
 
 	status "Waiting for udev uevents to be processed" \
 		udevadm settle

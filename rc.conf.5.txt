@@ -88,6 +88,8 @@ HARDWARE[[H]]
 
 Modules to load at boot-up.  To blacklist modules, see man modprobe.d(5).
 
+If leave commented, contents of modules-load.d will be used.
+
 *USEDMRAID=*
 
 Scan for FakeRAID (dmraid) volumes at start-up.
