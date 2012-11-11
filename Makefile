@@ -4,6 +4,7 @@ DIRS := \
 	/etc/rc.d \
 	/etc/rc.d/functions.d \
 	/etc/logrotate.d \
+	/etc/profile.d \
 	/usr/lib/initscripts \
 	/usr/lib/tmpfiles.d \
 	/usr/lib/systemd/system-generators \
@@ -28,6 +29,7 @@ install: installdirs doc
 	install -m644 -t $(DESTDIR)/etc/rc.d functions
 	install -m755 -t $(DESTDIR)/etc/rc.d hwclock network netfs
 	install -m755 -t $(DESTDIR)/usr/sbin rc.d
+	install -m755 -t $(DESTDIR)/etc/profile.d read_locale.sh
 	install -m644 -t $(DESTDIR)/usr/share/man/man5 rc.conf.5
 	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8 arch-daemons.8
 	install -m755 -t $(DESTDIR)/usr/lib/initscripts arch-tmpfiles arch-sysctl arch-binfmt arch-modules

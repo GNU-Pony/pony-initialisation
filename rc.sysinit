@@ -8,7 +8,7 @@ unset HOSTNAME
 . /etc/rc.conf
 . /etc/rc.d/functions
 
-if [[ -s /etc/hostname ]]; then
+if [[ -z $HOSTNAME && -s /etc/hostname ]]; then
 	HOSTNAME=$(< /etc/hostname)
 fi
 
@@ -89,7 +89,7 @@ udevd_modprobe sysinit
 
 # this must be done after udev has loaded the KMS modules
 #status 'Configuring virtual consoles' /usr/lib/systemd/systemd-vconsole-setup
-if [[ ${LOCALE,,} =~ utf ]]; then
+if [[ ${LANG,,} =~ utf ]]; then
         stat_busy "Setting Consoles to UTF-8 mode"
                 # UTF-8 consoles are default since 2.6.24 kernel
                 # this code is needed not only for older kernels,
@@ -111,7 +111,7 @@ else
         stat_done
 fi
 
-if [[ -s /etc/vconsole.conf ]]; then
+if [[ -z $CONSOLEFONT && -z $CONSOLEMAP && -s /etc/vconsole.conf ]]; then
         parse_envfile /etc/vconsole.conf "${vconsolevars[@]}"
         [[ $FONT ]] && CONSOLEFONT=$FONT
         [[ $FONT_MAP ]] && CONSOLEMAP=$FONT_MAP

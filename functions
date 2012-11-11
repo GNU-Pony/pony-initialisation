@@ -10,7 +10,7 @@ unset TZ
 
 RANDOM_SEED=/var/lib/misc/random-seed
 
-. /etc/profile.d/locale.sh
+[[ -z $LANG ]] && . /etc/profile.d/read_locale.sh
 
 if [[ $1 == "start" ]]; then
 	if [[ $STARTING ]]; then
