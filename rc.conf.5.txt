@@ -22,6 +22,13 @@ hardware, networking, and daemons.
 
 LOCALIZATION[[L]]
 -----------------
+*LOCALE=*
+
+This sets your system language, which will be used by all i18n-friendly applications and utilities.
+See `locale -a` (or locale.gen) for available options.
+
+If leave empty, LANG in /etc/locale.conf will be used. If unset in both, it falls back to the C locale.
+
 *TIMEZONE=*
 
 Specifies the time zone. The setting takes effect on boot by ensuring that /etc/localtime is a symlink
@@ -45,20 +52,12 @@ Options:
 	  (note that recent Windows versions can use UTC, which is preferable).
 	- any other value will result in the hardware clock being left untouched (useful for virtualization)
 
-*KEYMAP=*
-
-Defines the keymap to load with the loadkeys program on boot. Possible keymaps are
-found in /usr/share/kbd/keymaps. Please note that this setting is only valid for
-your TTYs, not any graphical window managers or X.
-
-If leave empty, KEYMAP in /etc/vconsole.conf will be used.
-
 *CONSOLEFONT=*
 
 Defines the console font to load with the setfont program on boot.
 Possible fonts are found in /usr/share/kbd/consolefonts (only needed for non-US).
 
-If leave empty, FONT in /etc/vconsole.conf will be used.
+If both CONSOLEFONT and KEYMAP leave empty, FONT in /etc/vconsole.conf will be used.
 
 *CONSOLEMAP=*
 
@@ -67,14 +66,15 @@ Defines the console map to load with the setfont program on boot. Possible maps 
 for example) if you're using an UTF-8 locale and use programs that generate 8-bit output. If you're
 using X11 for everyday work, don't bother, as it only affects the output of Linux console applications.
 
-If leave empty, FONT_MAP in /etc/vconsole.conf will be used.
+If both CONSOLEFONT and KEYMAP leave empty, FONT_MAP in /etc/vconsole.conf will be used.
 
-*LOCALE=*
+*KEYMAP=*
 
-This sets your system language, which will be used by all i18n-friendly applications and utilities.
-See `locale -a` (or locale.gen) for available options. If unset, it falls back to the C locale.
+Defines the keymap to load with the loadkeys program on boot. Possible keymaps are
+found in /usr/share/kbd/keymaps. Please note that this setting is only valid for
+your TTYs, not any graphical window managers or X.
 
-If leave empty, LANG in /etc/locale.conf will be used.
+If both CONSOLEFONT and KEYMAP leave empty, KEYMAP in /etc/vconsole.conf will be used.
 
 *USECOLOR=*
 
