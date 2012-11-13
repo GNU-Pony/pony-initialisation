@@ -17,27 +17,60 @@ DIRS := \
 	/usr/share/man/man5 \
 	/usr/share/man/man8
 
+CONFIGS := \
+	conf/inittab \
+	conf/rc.conf
+
+SCRIPTS := \
+	scripts/rc.local \
+	scripts/rc.local.shutdown \
+	scripts/rc.multi \
+	scripts/rc.shutdown \
+	scripts/rc.single \
+	scripts/rc.sysinit
+
+DAEMONS := \
+	daemon/hwclock \
+	daemon/network \
+	daemon/netfs
+
+MAN_PAGES := \
+	man/rc.conf.5 \
+	man/rc.d.8 \
+	man/arch-daemons.8
+
+TOOLS := \
+	tools/arch-binfmt \
+	tools/arch-modules \
+	tools/arch-sysctl \
+	tools/arch-tmpfiles
+
+UNITS := \
+	systemd/arch-daemons.target \
+	systemd/rc-local.service \
+	systemd/rc-local-shutdown.service
+
 all: doc
 
 installdirs:
 	install -dm755 $(foreach DIR, $(DIRS), $(DESTDIR)$(DIR))
 
 install: installdirs doc
-	install -m644 -t $(DESTDIR)/etc inittab rc.conf
-	install -m755 -t $(DESTDIR)/etc rc.local rc.local.shutdown rc.multi rc.shutdown rc.single rc.sysinit
-	install -m644 -t $(DESTDIR)/etc/logrotate.d bootlog
-	install -m644 -t $(DESTDIR)/etc/rc.d functions
-	install -m755 -t $(DESTDIR)/etc/rc.d hwclock network netfs
-	install -m755 -t $(DESTDIR)/usr/sbin rc.d
-	install -m755 -t $(DESTDIR)/etc/profile.d read_locale.sh
-	install -m644 -t $(DESTDIR)/usr/share/man/man5 rc.conf.5
-	install -m644 -t $(DESTDIR)/usr/share/man/man8 rc.d.8 arch-daemons.8
-	install -m755 -t $(DESTDIR)/usr/lib/initscripts arch-tmpfiles arch-sysctl arch-binfmt arch-modules
-	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators arch-daemons
-	install -m644 -t $(DESTDIR)/usr/lib/systemd/system rc-local.service rc-local-shutdown.service arch-daemons.target
-	install -m644 tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
-	install -m644 -T bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
-	install -m644 -T zsh-completion $(DESTDIR)/usr/share/zsh/site-functions/_rc.d
+	install -m644 -t $(DESTDIR)/etc $(CONFIGS)
+	install -m755 -t $(DESTDIR)/etc $(SCRIPTS)
+	install -m644 -t $(DESTDIR)/etc/logrotate.d misc/bootlog
+	install -m644 -t $(DESTDIR)/etc/rc.d scripts/functions
+	install -m755 -t $(DESTDIR)/etc/rc.d $(DAEMONS)
+	install -m755 -t $(DESTDIR)/usr/sbin tools/rc.d
+	install -m755 -t $(DESTDIR)/etc/profile.d misc/read_locale.sh
+	install -m644 -t $(DESTDIR)/usr/share/man/man5 $(filter %.5, $(MAN_PAGES))
+	install -m644 -t $(DESTDIR)/usr/share/man/man8 $(filter %.8, $(MAN_PAGES))
+	install -m755 -t $(DESTDIR)/usr/lib/initscripts $(TOOLS)
+	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators systemd/arch-daemons
+	install -m644 -t $(DESTDIR)/usr/lib/systemd/system $(UNITS)
+	install -m644 conf/tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
+	install -m644 -T complection/bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
+	install -m644 -T complection/zsh-completion $(DESTDIR)/usr/share/zsh/site-functions/_rc.d
 	ln -s /dev/null ${DESTDIR}/usr/lib/systemd/system/netfs.service
 	ln -s ../rc-local.service ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
 	ln -s ../arch-daemons.target ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
@@ -49,16 +82,9 @@ install: installdirs doc
 %.8: %.8.txt
 	a2x -d manpage -f manpage $<
 
-doc: rc.conf.5 rc.d.8 arch-daemons.8
+doc: $(MAN_PAGES)
 
 clean:
-	rm -f rc.conf.5 rc.d.8 arch-daemons.8
+	rm -f $(MAN_PAGES)
 
-tar:
-	git archive HEAD --prefix=initscripts-$(VER)/ | xz > initscripts-$(VER).tar.xz
-
-release: tar
-	scp initscripts-$(VER).tar.xz pkgbuild.com:~/packages/initscripts/trunk/
-	scp initscripts-$(VER).tar.xz gerolde.archlinux.org:/srv/ftp/other/initscripts/
-
-.PHONY: all installdirs install doc clean tar release
+.PHONY: all installdirs install doc clean
