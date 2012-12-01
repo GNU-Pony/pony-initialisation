@@ -1,0 +1,10 @@
+Maintained fork of initialization and rc scripts for Arch Linux.
+
+Primary changes:
+------------------
+    * Support of udev-fork (https://bitbucket.org/braindamaged/udev/src).
+    * Perfectly commented rc.conf.
+    * Easy kernel modules blacklisting via rc.conf.
+    * Fully transparent bootup proccess without using systemd-reinvented-wheels.
+
+See https://bitbucket.org/TZ86/initscripts-fork/src.
