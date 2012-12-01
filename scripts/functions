@@ -513,6 +513,11 @@ do_unlock_legacy() {
 do_unlock_systemd() {
 	local name=$1 device=$2 password=$3 options=$4 failed=0
 
+	if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
+		echo "Unable to find systemd-cryptsetup binary"
+		return 1
+	fi
+
 	# lazily convert tags to udev symlinks
 	case $device in
 		UUID=*)
@@ -580,7 +585,14 @@ do_unlock() {
 }
 
 do_lock() {
-	status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
+	#status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
+	stat_busy "Detaching encrypted device ${1}"
+	if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
+		/usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
+	else
+		cryptsetup remove "$1" &>/dev/null
+	fi
+	(( $? == 0 )) && stat_done || stat_fail
 }
 
 read_crypttab() {
