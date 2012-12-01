@@ -438,13 +438,12 @@ activate_vgs() {
 	(( $? == 0 )) && stat_done || stat_fail
 }
 
-do_unlock() {
+do_unlock_legacy() {
 	# $1 = requested name
 	# $2 = source device
 	# $3 = password
 	# $4 = options
-	#print_depr "The legacy crypttab format" "crypttab(5)"
-	printf "${C_MAIN}Unlocking $1${C_CLEAR}\n"
+	print_depr "The legacy crypttab format" "crypttab(5)"
 	local open=create a=$1 b=$2 failed=0
 	# Ordering of options is different if you are using LUKS vs. not.
 	# Use ugly swizzling to deal with it.
@@ -508,6 +507,71 @@ do_unlock() {
 		*)
 			echo "$3" | cryptsetup $4 $open "$a" "$b" >/dev/null;;
 	esac
+	return $?
+}
+
+do_unlock_systemd() {
+	local name=$1 device=$2 password=$3 options=$4 failed=0
+
+	# lazily convert tags to udev symlinks
+	case $device in
+		UUID=*)
+			device=/dev/disk/by-uuid/$(unquote "${device#UUID=}")
+			;;
+		PARTUUID=*)
+			device=/dev/disk/by-partuuid/$(unquote "${device#PARTUUID=}")
+			;;
+	esac
+
+	if ! /usr/lib/systemd/systemd-cryptsetup attach "$name" "$device" "$password" $options; then
+		failed=1
+	else
+		options=${options//,/ }
+		if in_array swap ${options[@]}; then
+			# create swap on the device only if no fs signature exists
+			blkid -p "$2" &>/dev/null
+			if (( $? != 2 )) || ! mkswap -f /dev/mapper/$name >/dev/null; then
+				failed=1
+			fi
+		elif in_array tmp ${options[@]}; then
+			# create fs on the device only if no fs signature exists
+			blkid -p "$2" &>/dev/null
+			if (( $? != 2 )) || ! mke2fs /dev/mapper/$name >/dev/null; then
+				failed=1
+			fi
+		fi
+	fi
+	return $failed
+}
+
+do_unlock() {
+	local name=$1 device=$2 password=$3 options=$4
+
+	printf "${C_MAIN}Unlocking $1${C_CLEAR}\n"
+
+	if [[ ${options:0:2} =~ -. ]]; then
+		do_unlock_legacy "$name" "$device" "$password" "$options"
+		return $?
+	fi
+
+	case $password in
+		ASK|SWAP)
+			do_unlock_legacy "$name" "$device" "$password" "$options"
+			;;
+		/dev/*)
+			if [[ ${password##*:} == $password ]]; then
+				do_unlock_systemd "$name" "$device" "$password" "$options"
+			else
+				do_unlock_legacy "$name" "$device" "$password" "$options"
+			fi
+			;;
+		/*|none|-|'')
+			do_unlock_systemd "$name" "$device" "$password" "$options"
+			;;
+		*)
+			do_unlock_legacy "$name" "$device" "$password" "$options"
+			;;
+	esac
 	failed=$?
 	if (( $failed )); then
 		printf "${C_FAIL}Unlocking of $1 failed.${C_CLEAR}\n"
@@ -515,78 +579,8 @@ do_unlock() {
 	return $?
 }
 
-#do_unlock_systemd() {
-#	local name=$1 device=$2 password=$3 options=$4 failed=0
-#
-#	# lazily convert tags to udev symlinks
-#	case $device in
-#		UUID=*)
-#			device=/dev/disk/by-uuid/$(unquote "${device#UUID=}")
-#			;;
-#		PARTUUID=*)
-#			device=/dev/disk/by-partuuid/$(unquote "${device#PARTUUID=}")
-#			;;
-#	esac
-#
-#	if ! /usr/lib/systemd/systemd-cryptsetup attach "$name" "$device" "$password" $options; then
-#		failed=1
-#	else
-#		options=${options//,/ }
-#		if in_array swap ${options[@]}; then
-#			# create swap on the device only if no fs signature exists
-#			blkid -p "$2" &>/dev/null
-#			if (( $? != 2 )) || ! mkswap -f /dev/mapper/$name >/dev/null; then
-#				failed=1
-#			fi
-#		elif in_array tmp ${options[@]}; then
-#			# create fs on the device only if no fs signature exists
-#			blkid -p "$2" &>/dev/null
-#			if (( $? != 2 )) || ! mke2fs /dev/mapper/$name >/dev/null; then
-#				failed=1
-#			fi
-#		fi
-#	fi
-#	return $failed
-#}
-
-#do_unlock() {
-#	local name=$1 device=$2 password=$3 options=$4
-#
-#	printf "${C_MAIN}Unlocking $1${C_CLEAR}\n"
-#
-#	if [[ ${options:0:2} =~ -. ]]; then
-#		do_unlock_legacy "$name" "$device" "$password" "$options"
-#		return $?
-#	fi
-#
-#	case $password in
-#		ASK|SWAP)
-#			do_unlock_legacy "$name" "$device" "$password" "$options"
-#			;;
-#		/dev/*)
-#			if [[ ${password##*:} == $password ]]; then
-#				do_unlock_systemd "$name" "$device" "$password" "$options"
-#			else
-#				do_unlock_legacy "$name" "$device" "$password" "$options"
-#			fi
-#			;;
-#		/*|none|-|'')
-#			do_unlock_systemd "$name" "$device" "$password" "$options"
-#			;;
-#		*)
-#			do_unlock_legacy "$name" "$device" "$password" "$options"
-#			;;
-#	esac
-#	failed=$?
-#	if (( $failed )); then
-#		printf "${C_FAIL}Unlocking of $1 failed.${C_CLEAR}\n"
-#	fi
-#	return $?
-#}
-
 do_lock() {
-	#status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
-	status "Detaching encrypted device ${1}" cryptsetup remove "$1" &>/dev/null
+	status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
 }
 
 read_crypttab() {
