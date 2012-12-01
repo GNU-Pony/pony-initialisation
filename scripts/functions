@@ -366,7 +366,17 @@ print_welcome() {
 udevd_modprobe() {
 	# $1 = where we are being called from.
 	# This is used to determine which hooks to run.
-	status "Starting udev daemon" /usr/lib/systemd/systemd-udevd --daemon
+        if [ -x /usr/lib/systemd/systemd-udevd ]; then
+                UDEVD_COMMAND=/usr/lib/systemd/systemd-udevd
+        elif [ -x /usr/sbin/udevd ]; then
+                # Try to use udev-fork
+                UDEVD_COMMAND=/usr/sbin/udevd
+        else
+                echo "Unable to find udevd binary"
+                return 1
+        fi
+
+	status "Starting udev daemon" $UDEVD_COMMAND --daemon
 
 	run_hook "$1_udevlaunched"
 
