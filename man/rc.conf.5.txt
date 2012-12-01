@@ -86,9 +86,16 @@ HARDWARE[[H]]
 -------------
 *MODULES=*
 
-Modules to load at boot-up.  To blacklist modules, see man modprobe.d(5).
+Modules to load at boot-up.
 
-If leave commented, contents of modules-load.d will be used.
+Prefix with a ! to blacklist. Alternatively you can add following line in a
+file in /etc/modprobe.d:
+
+        blacklist <module>
+
+See man modprobe.d(5) for details.
+
+If leave empty, contents of modules-load.d will be used.
 
 *USEDMRAID=*
 
