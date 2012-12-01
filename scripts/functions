@@ -386,12 +386,13 @@ udevd_modprobe() {
 	stat_done
 
 	# Load modules from the MODULES array or modules-load.d
-	#status "Loading user-specified modules" load_modules
+	stat_busy "Loading user-specified modules"
 	if (( ${#MODULES[*]} )); then
-                status "Loading User-specified Modules" modprobe -ab "${MODULES[@]}"
+                modprobe -ab "${MODULES[@]}"
 	else
 		/usr/lib/initscripts/arch-modules
 	fi
+	(( $? == 0 )) && stat_done || stat_fail
 
 	status "Waiting for udev uevents to be processed" \
 		udevadm settle
