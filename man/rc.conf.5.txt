@@ -76,9 +76,9 @@ your TTYs, not any graphical window managers or X.
 
 If both CONSOLEFONT and KEYMAP leave empty, KEYMAP in /etc/vconsole.conf will be used.
 
-*USECOLOR=*
+*USECOLOUR=*
 
-Use ANSI color sequences in start-up messages, unless set to 'no'.
+Use ANSI colour sequences in start-up messages, unless set to 'no'.
 
 Default: 'yes'
 

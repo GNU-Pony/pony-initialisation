@@ -24,7 +24,7 @@ fi
 calc_columns () {
 	STAT_COL=80
 	if [[ ! -t 1 ]]; then
-		USECOLOR=""
+		USECOLOUR=""
 	elif [[ -t 0 ]]; then
 		# stty will fail when stdin isn't a terminal
 		STAT_COL=$(stty size)
@@ -37,7 +37,7 @@ calc_columns () {
 	if (( STAT_COL == 0 )); then
 		# if output was 0 (serial console), set default width to 80
 		STAT_COL=80
-		USECOLOR=""
+		USECOLOUR=""
 	fi
 
 	# we use 13 characters for our own stuff
@@ -56,16 +56,16 @@ calc_columns () {
 
 calc_columns
 
-# disable colors on broken terminals
-TERM_COLORS=$(tput colors 2>/dev/null)
+# disable colours on broken terminals
+TERM_COLOURS=$(tput colors 2>/dev/null)
 if (( $? != 3 )); then
-	case $TERM_COLORS in
-		*[!0-9]*) USECOLOR="";;
-		[0-7])    USECOLOR="";;
-		'')       USECOLOR="";;
+	case $TERM_COLOURS in
+		*[!0-9]*) USECOLOUR="";;
+		[0-7])    USECOLOUR="";;
+		'')       USECOLOUR="";;
 	esac
 fi
-unset TERM_COLORS
+unset TERM_COLOURS
 
 unquote() {
 	local -r quotes=$'[\'"]'
@@ -784,8 +784,8 @@ if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
 	declare -r RC_FUNCTIONS_HOOK_FUNCS_DEFINED=1
 fi
 
-# set colors
-if [[ $USECOLOR != [nN][oO] ]]; then
+# set colours
+if [[ $USECOLOUR != [nN][oO] ]]; then
 	if tput setaf 0 &>/dev/null; then
 		C_CLEAR=$(tput sgr0)                      # clear text
 		C_MAIN=${C_CLEAR}$(tput bold)        # main text
