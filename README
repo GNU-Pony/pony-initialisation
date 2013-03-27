@@ -1,10 +1,4 @@
-Maintained fork of initialization and rc scripts for Arch Linux.
+System initialisation for GNU/PONY
 
-Primary changes:
-------------------
-    * Support of udev-fork (https://bitbucket.org/braindamaged/udev/src).
-    * Perfectly commented rc.conf.
-    * Easy kernel modules blacklisting via rc.conf.
-    * Fully transparent bootup proccess without using systemd-reinvented-wheels.
 
-See https://bitbucket.org/TZ86/initscripts-fork/src.
+This is a fork of initscripts-fork which is a fork of Arch Linux's initscripts.

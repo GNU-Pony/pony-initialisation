@@ -1,0 +1,26 @@
+REQUIRED MAKE DEPENDENCIES::
+
+asciidoc
+
+
+REQUIRED RUNTIME DEPENDENCIES::
+
+glibc
+bash
+coreutils
+systemd
+iproute2
+ncurses
+kbd
+findutils
+
+
+OPTIONAL RUNTIME DPEENDENCIES:
+
+net-tools:	legacy networking support
+bridge-utils:	Network bridging support
+dhcpcd:		DHCP network configuration
+wireless_tools:	Wireless networking
+sysvinit:	Legacy init support
+
+

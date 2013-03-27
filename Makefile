@@ -69,8 +69,8 @@ install: installdirs doc
 	install -m755 -t $(DESTDIR)/usr/lib/systemd/system-generators systemd/arch-daemons
 	install -m644 -t $(DESTDIR)/usr/lib/systemd/system $(UNITS)
 	install -m644 conf/tmpfiles.conf $(DESTDIR)/usr/lib/tmpfiles.d/initscripts.conf
-	install -m644 -T complection/bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
-	install -m644 -T complection/zsh-completion $(DESTDIR)/usr/share/zsh/site-functions/_rc.d
+	install -m644 -T completion/bash-completion $(DESTDIR)/usr/share/bash-completion/completions/rc.d
+	install -m644 -T completion/zsh-completion $(DESTDIR)/usr/share/zsh/site-functions/_rc.d
 	ln -s /dev/null ${DESTDIR}/usr/lib/systemd/system/netfs.service
 	ln -s ../rc-local.service ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
 	ln -s ../arch-daemons.target ${DESTDIR}/usr/lib/systemd/system/multi-user.target.wants/
