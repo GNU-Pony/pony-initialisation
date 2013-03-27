@@ -10,11 +10,11 @@ run_hook multi_start
 
 # Load sysctl config files
 #/usr/lib/systemd/systemd-sysctl
-/usr/lib/initscripts/arch-sysctl
+/usr/lib/initscripts/pony-sysctl
 
 # Load additional binary formats
 #/usr/lib/systemd/systemd-binfmt
-/usr/lib/initscripts/arch-binfmt
+/usr/lib/initscripts/pony-binfmt
 
 # Start daemons
 for daemon in "${DAEMONS[@]}"; do

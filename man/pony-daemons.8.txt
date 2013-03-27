@@ -1,20 +1,20 @@
 /////
 vim:set ts=4 sw=4 syntax=asciidoc noet:
 /////
-arch-daemons(8)
+pony-daemons(8)
 ===============
 
 NAME
 ----
-arch-daemons, arch-daemons.target - Compatibility layer for rc scripts and rc.conf's DAEMONS array
+pony-daemons, pony-daemons.target - Compatibility layer for rc scripts and rc.conf's DAEMONS array
 
 SYNOPSIS
 --------
-/usr/lib/systemd/system-generators/arch-daemons
+/usr/lib/systemd/system-generators/pony-daemons
 
 DESCRIPTION
 -----------
-arch-daemons is executed by systemd at very early boot. It has two purposes:
+pony-daemons is executed by systemd at very early boot. It has two purposes:
 
  * For every rc script in /etc/rc.d/ a wrapper service file is created which will start and stop
    daemons by calling the corresponding rc script. In case a native systemd service file exists
@@ -27,8 +27,8 @@ Note: this is meant as a compatibility layer only for the purposes of easing use
 from initscripts to systemd. You are strongly encouraged to not rely on this, but rather use
 native systemd services.
 
-The generated services that are enabled in the DAEMONS array is pulled in via arch-daemons.target.
-arch-daemons.target can be masked in order to ignore the DAEMONS array when booting with systemd.
+The generated services that are enabled in the DAEMONS array is pulled in via pony-daemons.target.
+pony-daemons.target can be masked in order to ignore the DAEMONS array when booting with systemd.
 
 SEE ALSO
 --------

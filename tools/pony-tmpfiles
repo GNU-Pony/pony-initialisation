@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# /usr/lib/initscripts/arch-tmpfiles
+# /usr/lib/initscripts/pony-tmpfiles
 #
 # Control creation, deletion, and cleaning of volatile and temporary files
 #
 
 warninvalid() {
-    printf "arch-tmpfiles: ignoring invalid entry on line %d of \`%s'\n" "$LINENUM" "$FILE"
+    printf "pony-tmpfiles: ignoring invalid entry on line %d of \`%s'\n" "$LINENUM" "$FILE"
     (( ++error ))
 } >&2
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/initscripts/arch-modules
+# /usr/lib/initscripts/pony-modules
 #
 # Configure kernel modules to load at boot following
 # http://0pointer.de/public/systemd-man/modules-load.d.html

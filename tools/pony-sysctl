@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/initscripts/arch-sysctl
+# /usr/lib/initscripts/pony-sysctl
 #
 # Load sysctl configuration files following
 # http://0pointer.de/public/systemd-man/sysctl.d.html

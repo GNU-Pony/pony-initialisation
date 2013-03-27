@@ -407,7 +407,7 @@ udevd_modprobe() {
     if (( ${#MODULES[*]} )); then
                 modprobe -ab "${MODULES[@]/!*/}"
     else
-        /usr/lib/initscripts/arch-modules
+        /usr/lib/initscripts/pony-modules
     fi
     (( $? == 0 )) && stat_done || stat_fail
 
@@ -716,7 +716,7 @@ umount_all() {
 
 remove_leftover() {
     #status 'Removing leftover files' systemd-tmpfiles --create --remove --clean
-    status 'Removing leftover files' /usr/lib/initscripts/arch-tmpfiles --create --remove
+    status 'Removing leftover files' /usr/lib/initscripts/pony-tmpfiles --create --remove
 }
 
 bootlogd_stop() {

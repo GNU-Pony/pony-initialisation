@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/systemd/system-generators/arch-daemons
+# /usr/lib/systemd/system-generators/pony-daemons
 #
 
 . /etc/rc.conf
@@ -31,7 +31,7 @@ create_unit() {
     printf \
 '[Unit]
 SourcePath=/etc/rc.conf
-Documentation=man:arch-daemons(8)
+Documentation=man:pony-daemons(8)
 Description=LEGACY unit for "%s" rc script
 %s
 [Service]
@@ -48,19 +48,19 @@ for daemon in /etc/rc.d/*; do
     create_unit "${daemon##*/}".service
 done
 
-[[ -d $dest/arch-daemons.target.wants ]] || \
-    /bin/mkdir -p "$dest/arch-daemons.target.wants"
+[[ -d $dest/pony-daemons.target.wants ]] || \
+    /bin/mkdir -p "$dest/pony-daemons.target.wants"
 
 for daemon in "${DAEMONS[@]}"; do
     service="$daemon.service"
     case ${daemon:0:1} in
       '!') continue ;;
       '@') create_unit "${service:1}" "${deps[@]}"
-           ln -s "../${service:1}" "$dest/arch-daemons.target.wants"
+           ln -s "../${service:1}" "$dest/pony-daemons.target.wants"
           ;;
       *) create_unit "$service" "${deps[@]}"
          deps+=("$service")
-         ln -s "../$service" "$dest/arch-daemons.target.wants"
+         ln -s "../$service" "$dest/pony-daemons.target.wants"
         ;;
     esac
 done
