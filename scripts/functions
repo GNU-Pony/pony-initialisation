@@ -13,45 +13,45 @@ RANDOM_SEED=/var/lib/misc/random-seed
 [[ -z $LANG ]] && . /etc/profile.d/read_locale.sh
 
 if [[ $1 == "start" ]]; then
-	if [[ $STARTING ]]; then
-		echo "A daemon is starting another daemon; this is unlikely to work as intended."
-	else
-		export STARTING=1
-	fi
+    if [[ $STARTING ]]; then
+        echo "A daemon is starting another daemon; this is unlikely to work as intended."
+    else
+        export STARTING=1
+    fi
 fi
 
 # width:
 calc_columns () {
-	STAT_COL=80
-	if [[ ! -t 1 ]]; then
-		USECOLOUR=""
-	elif [[ -t 0 ]]; then
-		# stty will fail when stdin isn't a terminal
-		STAT_COL=$(stty size)
-		# stty gives "rows cols"; strip the rows number, we just want columns
-		STAT_COL=${STAT_COL##* }
-	elif tput cols &>/dev/null; then
-		# is /usr/share/terminfo already mounted, and TERM recognized?
-		STAT_COL=$(tput cols)
-	fi
-	if (( STAT_COL == 0 )); then
-		# if output was 0 (serial console), set default width to 80
-		STAT_COL=80
-		USECOLOUR=""
-	fi
+    STAT_COL=80
+    if [[ ! -t 1 ]]; then
+        USECOLOUR=""
+    elif [[ -t 0 ]]; then
+        # stty will fail when stdin isn't a terminal
+        STAT_COL=$(stty size)
+        # stty gives "rows cols"; strip the rows number, we just want columns
+        STAT_COL=${STAT_COL##* }
+    elif tput cols &>/dev/null; then
+        # is /usr/share/terminfo already mounted, and TERM recognized?
+        STAT_COL=$(tput cols)
+    fi
+    if (( STAT_COL == 0 )); then
+        # if output was 0 (serial console), set default width to 80
+        STAT_COL=80
+        USECOLOUR=""
+    fi
 
-	# we use 13 characters for our own stuff
-	STAT_COL=$(( STAT_COL - 13 ))
+    # we use 13 characters for our own stuff
+    STAT_COL=$(( STAT_COL - 13 ))
 
-	if [[ -t 1 ]]; then
-		SAVE_POSITION="\e[s"
-		RESTORE_POSITION="\e[u"
-		DEL_TEXT="\e[$(( STAT_COL + 4 ))G"
-	else
-		SAVE_POSITION=""
-		RESTORE_POSITION=""
-		DEL_TEXT=""
-	fi
+    if [[ -t 1 ]]; then
+        SAVE_POSITION="\e[s"
+        RESTORE_POSITION="\e[u"
+        DEL_TEXT="\e[$(( STAT_COL + 4 ))G"
+    else
+        SAVE_POSITION=""
+        RESTORE_POSITION=""
+        DEL_TEXT=""
+    fi
 }
 
 calc_columns
@@ -59,572 +59,572 @@ calc_columns
 # disable colours on broken terminals
 TERM_COLOURS=$(tput colors 2>/dev/null)
 if (( $? != 3 )); then
-	case $TERM_COLOURS in
-		*[!0-9]*) USECOLOUR="";;
-		[0-7])    USECOLOUR="";;
-		'')       USECOLOUR="";;
-	esac
+    case $TERM_COLOURS in
+        *[!0-9]*) USECOLOUR="";;
+        [0-7])    USECOLOUR="";;
+        '')       USECOLOUR="";;
+    esac
 fi
 unset TERM_COLOURS
 
 unquote() {
-	local -r quotes=$'[\'"]'
+    local -r quotes=$'[\'"]'
 
-	if [[ ${1:0:1} = $quotes && ${1:(-1)} = "${1:0:1}" ]]; then
-		printf '%s' "${1:1:(-1)}"
-	else
-		printf '%s' "$1"
-	fi
+    if [[ ${1:0:1} = $quotes && ${1:(-1)} = "${1:0:1}" ]]; then
+        printf '%s' "${1:1:(-1)}"
+    else
+        printf '%s' "$1"
+    fi
 }
 
 parse_envfile() {
-	local file=$1 validkeys=("${@:2}") ret=0 lineno=0 key= val=
-	local -r comments=$'[;#]*'
+    local file=$1 validkeys=("${@:2}") ret=0 lineno=0 key= val=
+    local -r comments=$'[;#]*'
 
-	if [[ -z $file ]]; then
-		printf "error: no environment file specified\n"
-		return 1
-	fi
+    if [[ -z $file ]]; then
+        printf "error: no environment file specified\n"
+        return 1
+    fi
 
-	if [[ ! -f $file ]]; then
-		printf "error: cannot parse \`%s': No such file or directory\n" "$file"
-		return 1
-	fi
+    if [[ ! -f $file ]]; then
+        printf "error: cannot parse \`%s': No such file or directory\n" "$file"
+        return 1
+    fi
 
-	if [[ ! -r $file ]]; then
-		printf "error: cannot read \`%s': Permission denied\n" "$file"
-		return 1
-	fi
+    if [[ ! -r $file ]]; then
+        printf "error: cannot read \`%s': Permission denied\n" "$file"
+        return 1
+    fi
 
-	while IFS='=' read -r key val; do
-		(( ++lineno ))
+    while IFS='=' read -r key val; do
+        (( ++lineno ))
 
-		# trim whitespace, avoiding usage of a tempfile
-		key=$(echo "$key" | { read -r key; echo "$key"; })
+        # trim whitespace, avoiding usage of a tempfile
+        key=$(echo "$key" | { read -r key; echo "$key"; })
 
-		# key must exist and line must not be a comment
-		[[ -z $key || ${key:0:1} = $comments ]] && continue
+        # key must exist and line must not be a comment
+        [[ -z $key || ${key:0:1} = $comments ]] && continue
 
-		# trim whitespace, strip matching quotes
-		val=$(echo "$val" | { read -r val; unquote "$val"; })
+        # trim whitespace, strip matching quotes
+        val=$(echo "$val" | { read -r val; unquote "$val"; })
 
-		if [[ -z $val ]]; then
-			printf "error: found key \`%s' without value on line %s of %s\n" \
-					"$key" "$lineno" "$file"
-			(( ++ret ))
-			continue
-		fi
+        if [[ -z $val ]]; then
+            printf "error: found key \`%s' without value on line %s of %s\n" \
+                    "$key" "$lineno" "$file"
+            (( ++ret ))
+            continue
+        fi
 
-		# ignore invalid keys if we have a list of valid ones
-		if (( ${#validkeys[*]} )) && ! in_array "$key" "${validkeys[@]}"; then
-			continue
-		fi
+        # ignore invalid keys if we have a list of valid ones
+        if (( ${#validkeys[*]} )) && ! in_array "$key" "${validkeys[@]}"; then
+            continue
+        fi
 
-		export "$key=$val" || (( ++ret ))
-	done <"$file"
+        export "$key=$val" || (( ++ret ))
+    done <"$file"
 
-	return $ret
+    return $ret
 }
 
 # functions:
 
 deltext() {
-	printf "${DEL_TEXT}"
+    printf "${DEL_TEXT}"
 }
 
 print_depr() {
-	printf "${C_FAIL} ${1} is deprecated. See ${2} for details.${C_CLEAR} \n"
+    printf "${C_FAIL} ${1} is deprecated. See ${2} for details.${C_CLEAR} \n"
 }
 
 printhl() {
-	printf "${C_OTHER}${PREFIX_HL} ${C_H1}${1}${C_CLEAR} \n"
+    printf "${C_OTHER}${PREFIX_HL} ${C_H1}${1}${C_CLEAR} \n"
 }
 
 printsep() {
-	printf "\n${C_SEPARATOR}   ------------------------------\n"
+    printf "\n${C_SEPARATOR}   ------------------------------\n"
 }
 
 stat_bkgd() {
-	printf "${C_OTHER}${PREFIX_REG} ${C_MAIN}${1}${C_CLEAR} "
-	deltext
-	printf "   ${C_OTHER}[${C_BKGD}BKGD${C_OTHER}]${C_CLEAR} \n"
+    printf "${C_OTHER}${PREFIX_REG} ${C_MAIN}${1}${C_CLEAR} "
+    deltext
+    printf "   ${C_OTHER}[${C_BKGD}BKGD${C_OTHER}]${C_CLEAR} \n"
 }
 
 stat_busy() {
-	printf "${C_OTHER}${PREFIX_REG} ${C_MAIN}${1}${C_CLEAR} "
-	printf "${SAVE_POSITION}"
-	deltext
-	printf "   ${C_OTHER}[${C_BUSY}BUSY${C_OTHER}]${C_CLEAR} "
+    printf "${C_OTHER}${PREFIX_REG} ${C_MAIN}${1}${C_CLEAR} "
+    printf "${SAVE_POSITION}"
+    deltext
+    printf "   ${C_OTHER}[${C_BUSY}BUSY${C_OTHER}]${C_CLEAR} "
 }
 
 stat_append() {
-	printf "${RESTORE_POSITION}"
-	printf -- "${C_MAIN}${1}${C_CLEAR}"
-	printf "${SAVE_POSITION}"
+    printf "${RESTORE_POSITION}"
+    printf -- "${C_MAIN}${1}${C_CLEAR}"
+    printf "${SAVE_POSITION}"
 }
 
 stat_done() {
-	deltext
-	printf "   ${C_OTHER}[${C_DONE}DONE${C_OTHER}]${C_CLEAR} \n"
+    deltext
+    printf "   ${C_OTHER}[${C_DONE}DONE${C_OTHER}]${C_CLEAR} \n"
 }
 
 stat_fail() {
-	deltext
-	printf "   ${C_OTHER}[${C_FAIL}FAIL${C_OTHER}]${C_CLEAR} \n"
+    deltext
+    printf "   ${C_OTHER}[${C_FAIL}FAIL${C_OTHER}]${C_CLEAR} \n"
 }
 
 stat_die() {
-	stat_fail
-	exit ${1:-1}
+    stat_fail
+    exit ${1:-1}
 }
 
 status() {
-	local quiet
-	case $1 in
-		-q)
-			quiet=1
-			;;&
-		-v)
-			# NOOP: supported for backwards compat
-			shift
-			;;
-	esac
-	stat_busy "$1"
-	shift
-	if (( quiet )); then
-		"$@" &>/dev/null
-	else
-		"$@"
-	fi
-	local ret=$?
-	(( ret == 0 )) && stat_done || stat_fail
-	return $ret
+    local quiet
+    case $1 in
+        -q)
+            quiet=1
+            ;;&
+        -v)
+            # NOOP: supported for backwards compat
+            shift
+            ;;
+    esac
+    stat_busy "$1"
+    shift
+    if (( quiet )); then
+        "$@" &>/dev/null
+    else
+        "$@"
+    fi
+    local ret=$?
+    (( ret == 0 )) && stat_done || stat_fail
+    return $ret
 }
 
 #  usage : in_array( $needle, $haystack )
 # return : 0 - found
 #          1 - not found
 in_array() {
-	local needle=$1; shift
-	local item
-	for item; do
-		[[ $item = "${needle}" ]] && return 0
-	done
-	return 1 # Not Found
+    local needle=$1; shift
+    local item
+    for item; do
+        [[ $item = "${needle}" ]] && return 0
+    done
+    return 1 # Not Found
 }
 
 # daemons:
 
 add_daemon() {
-	[[ -d /run/daemons ]] || mkdir -p /run/daemons
-	>| /run/daemons/"$1"
+    [[ -d /run/daemons ]] || mkdir -p /run/daemons
+    >| /run/daemons/"$1"
 }
 
 rm_daemon() {
-	rm -f /run/daemons/"$1"
+    rm -f /run/daemons/"$1"
 }
 
 ck_daemon() {
-	[[ ! -f /run/daemons/$1 ]]
+    [[ ! -f /run/daemons/$1 ]]
 }
 
 # Check if $1 is a valid daemon name
 have_daemon() {
-	[[ -f /etc/rc.d/$1 && -x /etc/rc.d/$1 ]]
+    [[ -f /etc/rc.d/$1 && -x /etc/rc.d/$1 ]]
 }
 
 # Check if $1 is started at boot
 ck_autostart() {
-	local daemon
-	for daemon in "${DAEMONS[@]}"; do
-		[[ $1 = "${daemon#@}" ]] && return 1
-	done
-	return 0
+    local daemon
+    for daemon in "${DAEMONS[@]}"; do
+        [[ $1 = "${daemon#@}" ]] && return 1
+    done
+    return 0
 }
 
 start_daemon() {
-	have_daemon "$1" && /etc/rc.d/"$1" start
+    have_daemon "$1" && /etc/rc.d/"$1" start
 }
 
 start_daemon_bkgd() {
-	stat_bkgd "Starting $1"
-	(start_daemon "$1") >/dev/null &
+    stat_bkgd "Starting $1"
+    (start_daemon "$1") >/dev/null &
 }
 
 stop_daemon() {
-	have_daemon "$1" && /etc/rc.d/"$1" stop
+    have_daemon "$1" && /etc/rc.d/"$1" stop
 }
 
 # Status functions
 status_started() {
-	deltext
-	echo -ne "$C_OTHER[${C_STRT}STARTED$C_OTHER]$C_CLEAR "
+    deltext
+    echo -ne "$C_OTHER[${C_STRT}STARTED$C_OTHER]$C_CLEAR "
 }
 
 status_stopped() {
-	deltext
-	echo -ne "$C_OTHER[${C_STRT}STOPPED$C_OTHER]$C_CLEAR "
+    deltext
+    echo -ne "$C_OTHER[${C_STRT}STOPPED$C_OTHER]$C_CLEAR "
 }
 
 ck_status() {
-	! ck_daemon "$1" && status_started || status_stopped
+    ! ck_daemon "$1" && status_started || status_stopped
 }
 
 # Return PID of $1
 get_pid() {
-	pidof -o %PPID $1 || return 1
+    pidof -o %PPID $1 || return 1
 }
 
 # Check if PID-file $1 is still the active PID-file for command $2
 ck_pidfile() {
-	if [[ -f $1 ]]; then
-		local fpid ppid
-		read -r fpid <"$1"
-		ppid=$(get_pid "$2")
-		[[ $fpid = "${ppid}" ]] && return 0
-	fi
-	return 1
+    if [[ -f $1 ]]; then
+        local fpid ppid
+        read -r fpid <"$1"
+        ppid=$(get_pid "$2")
+        [[ $fpid = "${ppid}" ]] && return 0
+    fi
+    return 1
 }
 
 # PIDs to be omitted by killall5
 declare -a omit_pids
 
 add_omit_pids() {
-	omit_pids+=( $@ )
+    omit_pids+=( $@ )
 }
 
 # Stop all daemons
 # This function should *never* ever perform any other actions beside calling stop_daemon()!
 # It might be used by a splash system etc. to get a list of daemons to be stopped.
 stop_all_daemons() {
-	# Find daemons NOT in the DAEMONS array. Shut these down first
-	local daemon
-	for daemon in /run/daemons/*; do
-		[[ -f $daemon ]] || continue
-		daemon=${daemon##*/}
-		ck_autostart "$daemon" && stop_daemon "$daemon"
-	done
+    # Find daemons NOT in the DAEMONS array. Shut these down first
+    local daemon
+    for daemon in /run/daemons/*; do
+        [[ -f $daemon ]] || continue
+        daemon=${daemon##*/}
+        ck_autostart "$daemon" && stop_daemon "$daemon"
+    done
 
-	# Shutdown daemons in reverse order
-	local i daemon
-	for (( i=${#DAEMONS[@]}-1; i>=0; i-- )); do
-		[[ ${DAEMONS[i]} = '!'* ]] && continue
-		daemon=${DAEMONS[i]#@}
-		ck_daemon "$daemon" || stop_daemon "$daemon"
-	done
+    # Shutdown daemons in reverse order
+    local i daemon
+    for (( i=${#DAEMONS[@]}-1; i>=0; i-- )); do
+        [[ ${DAEMONS[i]} = '!'* ]] && continue
+        daemon=${DAEMONS[i]#@}
+        ck_daemon "$daemon" || stop_daemon "$daemon"
+    done
 }
 
 # $1 - signal
 # $2 - iterations
 kill_all_wait() {
-	# Send SIGTERM/SIGKILL all processes and wait until killall5
-	# reports all done or timeout.
-	# Unfortunately killall5 does not support the 0 signal, so just
-	# use SIGCONT for checking (which should be ignored).
+    # Send SIGTERM/SIGKILL all processes and wait until killall5
+    # reports all done or timeout.
+    # Unfortunately killall5 does not support the 0 signal, so just
+    # use SIGCONT for checking (which should be ignored).
 
-	local i
+    local i
 
-	killall5 -${1} ${omit_pids[@]/#/-o } &>/dev/null
+    killall5 -${1} ${omit_pids[@]/#/-o } &>/dev/null
 
-	for (( i=0; i<${2}; i++ )); do
+    for (( i=0; i<${2}; i++ )); do
 
-		sleep .25 # 1/4 second
+        sleep .25 # 1/4 second
 
-		# sending SIGCONT to processes to check if they are there
-		killall5 -18 ${omit_pids[@]/#/-o } &>/dev/null
+        # sending SIGCONT to processes to check if they are there
+        killall5 -18 ${omit_pids[@]/#/-o } &>/dev/null
 
-		if (( $? == 2 )); then
-			return 0
-		fi
-	done
+        if (( $? == 2 )); then
+            return 0
+        fi
+    done
 
-	return 1
+    return 1
 }
 
 kill_all() {
-	stat_busy "Sending SIGTERM to processes"
-		kill_all_wait 15 40
-		if (( $? == 0 )); then
-			stat_done
-		else
-			stat_fail
-			status "Sending SIGKILL to processes" kill_all_wait 9 60
-		fi
+    stat_busy "Sending SIGTERM to processes"
+        kill_all_wait 15 40
+        if (( $? == 0 )); then
+            stat_done
+        else
+            stat_fail
+            status "Sending SIGKILL to processes" kill_all_wait 9 60
+        fi
 }
 
 print_welcome() {
-	# see os-release(5)
-	. /etc/os-release
+    # see os-release(5)
+    . /etc/os-release
 
-	echo " "
-	printhl "${PRETTY_NAME}\n"
-	printhl "${C_H2}${HOME_URL}"
-	printsep
+    echo " "
+    printhl "${PRETTY_NAME}\n"
+    printhl "${C_H2}${HOME_URL}"
+    printsep
 }
 
 create_blacklist() {
-	# $* = list of blacklisted modules
+    # $* = list of blacklisted modules
 
-	stat_busy "Creating UDev blacklist"
+    stat_busy "Creating UDev blacklist"
 
-	mkdir -p /run/modprobe.d
-	echo "# Autogenerated from rc.conf at boot, do not edit" > /run/modprobe.d/modprobe-blacklist.conf
-	(( ${#*} )) && printf 'blacklist %s\n' "${*}" >> /run/modprobe.d/modprobe-blacklist.conf
+    mkdir -p /run/modprobe.d
+    echo "# Autogenerated from rc.conf at boot, do not edit" > /run/modprobe.d/modprobe-blacklist.conf
+    (( ${#*} )) && printf 'blacklist %s\n' "${*}" >> /run/modprobe.d/modprobe-blacklist.conf
 
-	(( $? == 0 )) && stat_done || stat_fail
+    (( $? == 0 )) && stat_done || stat_fail
 }
 
 # Start/trigger udev, load MODULES, and settle udev
 udevd_modprobe() {
-	# $1 = where we are being called from.
-	# This is used to determine which hooks to run.
+    # $1 = where we are being called from.
+    # This is used to determine which hooks to run.
 
-	# Modules prefixed with ! should be blacklisted
-	blacklist=(${MODULES[@]##[^!]*})
-	[[ $blacklist ]] && create_blacklist ${blacklist[@]/!/}
+    # Modules prefixed with ! should be blacklisted
+    blacklist=(${MODULES[@]##[^!]*})
+    [[ $blacklist ]] && create_blacklist ${blacklist[@]/!/}
 
-	if [ -x /usr/lib/systemd/systemd-udevd ]; then
-		UDEVD_COMMAND=/usr/lib/systemd/systemd-udevd
-	elif [ -x /usr/sbin/udevd ]; then
-		# Try to use udev-fork
-		UDEVD_COMMAND=/usr/sbin/udevd
-	else
-		echo "Unable to find udevd binary"
-		return 1
-	fi
+    if [ -x /usr/lib/systemd/systemd-udevd ]; then
+        UDEVD_COMMAND=/usr/lib/systemd/systemd-udevd
+    elif [ -x /usr/sbin/udevd ]; then
+        # Try to use udev-fork
+        UDEVD_COMMAND=/usr/sbin/udevd
+    else
+        echo "Unable to find udevd binary"
+        return 1
+    fi
 
-	status "Starting udev daemon" $UDEVD_COMMAND --daemon
+    status "Starting udev daemon" $UDEVD_COMMAND --daemon
 
-	run_hook "$1_udevlaunched"
+    run_hook "$1_udevlaunched"
 
-	stat_busy "Triggering udev uevents"
-		udevadm trigger --action=add --type=subsystems
-		udevadm trigger --action=add --type=devices
-	stat_done
+    stat_busy "Triggering udev uevents"
+        udevadm trigger --action=add --type=subsystems
+        udevadm trigger --action=add --type=devices
+    stat_done
 
-	# Load modules from the MODULES array or modules-load.d
-	stat_busy "Loading user-specified modules"
-	if (( ${#MODULES[*]} )); then
+    # Load modules from the MODULES array or modules-load.d
+    stat_busy "Loading user-specified modules"
+    if (( ${#MODULES[*]} )); then
                 modprobe -ab "${MODULES[@]/!*/}"
-	else
-		/usr/lib/initscripts/arch-modules
-	fi
-	(( $? == 0 )) && stat_done || stat_fail
+    else
+        /usr/lib/initscripts/arch-modules
+    fi
+    (( $? == 0 )) && stat_done || stat_fail
 
-	status "Waiting for udev uevents to be processed" \
-		udevadm settle
+    status "Waiting for udev uevents to be processed" \
+        udevadm settle
 
-	run_hook "$1_udevsettled"
+    run_hook "$1_udevsettled"
 
-	# in case loading a module changed the display mode
-	calc_columns
+    # in case loading a module changed the display mode
+    calc_columns
 }
 
 set_consolefont() {
-	#CONSOLEMAP in UTF-8 shouldn't be used
-	[[ $CONSOLEMAP && ${LOCALE,,} =~ utf ]] && CONSOLEMAP=""
-	local i
-	for i in /dev/tty[0-9]*; do
-	  setfont ${CONSOLEMAP:+-m "${CONSOLEMAP}"} \
-	    "$CONSOLEFONT" -C ${i} &>/dev/null
-	done
-	return $?
+    #CONSOLEMAP in UTF-8 shouldn't be used
+    [[ $CONSOLEMAP && ${LOCALE,,} =~ utf ]] && CONSOLEMAP=""
+    local i
+    for i in /dev/tty[0-9]*; do
+      setfont ${CONSOLEMAP:+-m "${CONSOLEMAP}"} \
+        "$CONSOLEFONT" -C ${i} &>/dev/null
+    done
+    return $?
 }
 
 activate_vgs() {
-	[[ $USELVM = [yY][eE][sS] && -x $(type -P lvm) && -d /sys/block ]] || return 0
-	stat_busy "Activating LVM2 groups"
-		vgchange --sysinit -a y >/dev/null
-	(( $? == 0 )) && stat_done || stat_fail
+    [[ $USELVM = [yY][eE][sS] && -x $(type -P lvm) && -d /sys/block ]] || return 0
+    stat_busy "Activating LVM2 groups"
+        vgchange --sysinit -a y >/dev/null
+    (( $? == 0 )) && stat_done || stat_fail
 }
 
 do_unlock_legacy() {
-	# $1 = requested name
-	# $2 = source device
-	# $3 = password
-	# $4 = options
-	print_depr "The legacy crypttab format" "crypttab(5)"
-	local open=create a=$1 b=$2 failed=0
-	# Ordering of options is different if you are using LUKS vs. not.
-	# Use ugly swizzling to deal with it.
-	# isLuks only gives an exit code but no output to stdout or stderr.
-	if cryptsetup isLuks "$2" 2>/dev/null; then
-		open=luksOpen
-		a=$2
-		b=$1
-	fi
-	case $3 in
-		SWAP)
-			local _overwriteokay=0
-			if [[ -b $2 && -r $2 ]]; then
-				# This is DANGEROUS! If there is any known file system,
-				# partition table, RAID, or LVM volume on the device,
-				# we don't overwrite it.
-				#
-				# 'blkid' returns 2 if no valid signature has been found.
-				# Only in this case should we allow overwriting the device.
-				#
-				# This sanity check _should_ be sufficient, but it might not.
-				# This may cause data loss if it is not used carefully.
-				blkid -p "$2" &>/dev/null
-				(( $? == 2 )) && _overwriteokay=1
-			fi
-			if (( _overwriteokay == 0 )); then
-				false
-			elif cryptsetup -d /dev/urandom $4 $open "$a" "$b" >/dev/null; then
-				printf "creating swapspace..\n"
-				mkswap -f -L $1 /dev/mapper/$1 >/dev/null
-			fi;;
-		ASK)
-			printf "\nOpening '$1' volume:\n"
-			cryptsetup $4 $open "$a" "$b" < /dev/console;;
-		/dev*)
-			local ckdev=${3%%:*}
-			local cka=${3#*:}
-			local ckb=${cka#*:}
-			local cka=${cka%:*}
-			local ckfile=/dev/ckfile
-			local ckdir=/dev/ckdir
-			case ${cka} in
-				*[!0-9]*)
-					# Use a file on the device
-					# cka is not numeric: cka=filesystem, ckb=path
-					mkdir ${ckdir}
-					mount -r -t ${cka} ${ckdev} ${ckdir}
-					dd if=${ckdir}/${ckb} of=${ckfile} >/dev/null 2>&1
-					umount ${ckdir}
-					rmdir ${ckdir};;
-				*)
-					# Read raw data from the block device
-					# cka is numeric: cka=offset, ckb=length
-					dd if=${ckdev} of=${ckfile} bs=1 skip=${cka} count=${ckb} >/dev/null 2>&1;;
-			esac
-			cryptsetup -d ${ckfile} $4 $open "$a" "$b" >/dev/null
-			dd if=/dev/urandom of=${ckfile} bs=1 count=$(stat -c %s ${ckfile}) conv=notrunc >/dev/null 2>&1
-			rm ${ckfile};;
-		/*)
-			cryptsetup -d "$3" $4 $open "$a" "$b" >/dev/null;;
-		*)
-			echo "$3" | cryptsetup $4 $open "$a" "$b" >/dev/null;;
-	esac
-	return $?
+    # $1 = requested name
+    # $2 = source device
+    # $3 = password
+    # $4 = options
+    print_depr "The legacy crypttab format" "crypttab(5)"
+    local open=create a=$1 b=$2 failed=0
+    # Ordering of options is different if you are using LUKS vs. not.
+    # Use ugly swizzling to deal with it.
+    # isLuks only gives an exit code but no output to stdout or stderr.
+    if cryptsetup isLuks "$2" 2>/dev/null; then
+        open=luksOpen
+        a=$2
+        b=$1
+    fi
+    case $3 in
+        SWAP)
+            local _overwriteokay=0
+            if [[ -b $2 && -r $2 ]]; then
+                # This is DANGEROUS! If there is any known file system,
+                # partition table, RAID, or LVM volume on the device,
+                # we don't overwrite it.
+                #
+                # 'blkid' returns 2 if no valid signature has been found.
+                # Only in this case should we allow overwriting the device.
+                #
+                # This sanity check _should_ be sufficient, but it might not.
+                # This may cause data loss if it is not used carefully.
+                blkid -p "$2" &>/dev/null
+                (( $? == 2 )) && _overwriteokay=1
+            fi
+            if (( _overwriteokay == 0 )); then
+                false
+            elif cryptsetup -d /dev/urandom $4 $open "$a" "$b" >/dev/null; then
+                printf "creating swapspace..\n"
+                mkswap -f -L $1 /dev/mapper/$1 >/dev/null
+            fi;;
+        ASK)
+            printf "\nOpening '$1' volume:\n"
+            cryptsetup $4 $open "$a" "$b" < /dev/console;;
+        /dev*)
+            local ckdev=${3%%:*}
+            local cka=${3#*:}
+            local ckb=${cka#*:}
+            local cka=${cka%:*}
+            local ckfile=/dev/ckfile
+            local ckdir=/dev/ckdir
+            case ${cka} in
+                *[!0-9]*)
+                    # Use a file on the device
+                    # cka is not numeric: cka=filesystem, ckb=path
+                    mkdir ${ckdir}
+                    mount -r -t ${cka} ${ckdev} ${ckdir}
+                    dd if=${ckdir}/${ckb} of=${ckfile} >/dev/null 2>&1
+                    umount ${ckdir}
+                    rmdir ${ckdir};;
+                *)
+                    # Read raw data from the block device
+                    # cka is numeric: cka=offset, ckb=length
+                    dd if=${ckdev} of=${ckfile} bs=1 skip=${cka} count=${ckb} >/dev/null 2>&1;;
+            esac
+            cryptsetup -d ${ckfile} $4 $open "$a" "$b" >/dev/null
+            dd if=/dev/urandom of=${ckfile} bs=1 count=$(stat -c %s ${ckfile}) conv=notrunc >/dev/null 2>&1
+            rm ${ckfile};;
+        /*)
+            cryptsetup -d "$3" $4 $open "$a" "$b" >/dev/null;;
+        *)
+            echo "$3" | cryptsetup $4 $open "$a" "$b" >/dev/null;;
+    esac
+    return $?
 }
 
 do_unlock_systemd() {
-	local name=$1 device=$2 password=$3 options=$4 failed=0
+    local name=$1 device=$2 password=$3 options=$4 failed=0
 
-	if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
-		echo "Unable to find systemd-cryptsetup binary"
-		return 1
-	fi
+    if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
+        echo "Unable to find systemd-cryptsetup binary"
+        return 1
+    fi
 
-	# lazily convert tags to udev symlinks
-	case $device in
-		UUID=*)
-			device=/dev/disk/by-uuid/$(unquote "${device#UUID=}")
-			;;
-		PARTUUID=*)
-			device=/dev/disk/by-partuuid/$(unquote "${device#PARTUUID=}")
-			;;
-	esac
+    # lazily convert tags to udev symlinks
+    case $device in
+        UUID=*)
+            device=/dev/disk/by-uuid/$(unquote "${device#UUID=}")
+            ;;
+        PARTUUID=*)
+            device=/dev/disk/by-partuuid/$(unquote "${device#PARTUUID=}")
+            ;;
+    esac
 
-	if ! /usr/lib/systemd/systemd-cryptsetup attach "$name" "$device" "$password" $options; then
-		failed=1
-	else
-		options=${options//,/ }
-		if in_array swap ${options[@]}; then
-			# create swap on the device only if no fs signature exists
-			blkid -p "$2" &>/dev/null
-			if (( $? != 2 )) || ! mkswap -f /dev/mapper/$name >/dev/null; then
-				failed=1
-			fi
-		elif in_array tmp ${options[@]}; then
-			# create fs on the device only if no fs signature exists
-			blkid -p "$2" &>/dev/null
-			if (( $? != 2 )) || ! mke2fs /dev/mapper/$name >/dev/null; then
-				failed=1
-			fi
-		fi
-	fi
-	return $failed
+    if ! /usr/lib/systemd/systemd-cryptsetup attach "$name" "$device" "$password" $options; then
+        failed=1
+    else
+        options=${options//,/ }
+        if in_array swap ${options[@]}; then
+            # create swap on the device only if no fs signature exists
+            blkid -p "$2" &>/dev/null
+            if (( $? != 2 )) || ! mkswap -f /dev/mapper/$name >/dev/null; then
+                failed=1
+            fi
+        elif in_array tmp ${options[@]}; then
+            # create fs on the device only if no fs signature exists
+            blkid -p "$2" &>/dev/null
+            if (( $? != 2 )) || ! mke2fs /dev/mapper/$name >/dev/null; then
+                failed=1
+            fi
+        fi
+    fi
+    return $failed
 }
 
 do_unlock() {
-	local name=$1 device=$2 password=$3 options=$4
+    local name=$1 device=$2 password=$3 options=$4
 
-	printf "${C_MAIN}Unlocking $1${C_CLEAR}\n"
+    printf "${C_MAIN}Unlocking $1${C_CLEAR}\n"
 
-	if [[ ${options:0:2} =~ -. ]]; then
-		do_unlock_legacy "$name" "$device" "$password" "$options"
-		return $?
-	fi
+    if [[ ${options:0:2} =~ -. ]]; then
+        do_unlock_legacy "$name" "$device" "$password" "$options"
+        return $?
+    fi
 
-	case $password in
-		ASK|SWAP)
-			do_unlock_legacy "$name" "$device" "$password" "$options"
-			;;
-		/dev/*)
-			if [[ ${password##*:} == $password ]]; then
-				do_unlock_systemd "$name" "$device" "$password" "$options"
-			else
-				do_unlock_legacy "$name" "$device" "$password" "$options"
-			fi
-			;;
-		/*|none|-|'')
-			do_unlock_systemd "$name" "$device" "$password" "$options"
-			;;
-		*)
-			do_unlock_legacy "$name" "$device" "$password" "$options"
-			;;
-	esac
-	failed=$?
-	if (( $failed )); then
-		printf "${C_FAIL}Unlocking of $1 failed.${C_CLEAR}\n"
-	fi
-	return $?
+    case $password in
+        ASK|SWAP)
+            do_unlock_legacy "$name" "$device" "$password" "$options"
+            ;;
+        /dev/*)
+            if [[ ${password##*:} == $password ]]; then
+                do_unlock_systemd "$name" "$device" "$password" "$options"
+            else
+                do_unlock_legacy "$name" "$device" "$password" "$options"
+            fi
+            ;;
+        /*|none|-|'')
+            do_unlock_systemd "$name" "$device" "$password" "$options"
+            ;;
+        *)
+            do_unlock_legacy "$name" "$device" "$password" "$options"
+            ;;
+    esac
+    failed=$?
+    if (( $failed )); then
+        printf "${C_FAIL}Unlocking of $1 failed.${C_CLEAR}\n"
+    fi
+    return $?
 }
 
 do_lock() {
-	#status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
-	stat_busy "Detaching encrypted device ${1}"
-	if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
-		/usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
-	else
-		cryptsetup remove "$1" &>/dev/null
-	fi
-	(( $? == 0 )) && stat_done || stat_fail
+    #status "Detaching encrypted device ${1}" /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
+    stat_busy "Detaching encrypted device ${1}"
+    if [ -x /usr/lib/systemd/systemd-cryptsetup ]; then
+        /usr/lib/systemd/systemd-cryptsetup detach "$1" >/dev/null
+    else
+        cryptsetup remove "$1" &>/dev/null
+    fi
+    (( $? == 0 )) && stat_done || stat_fail
 }
 
 read_crypttab() {
-	# $1 = function to call with the split out line from the crypttab
-	local line nspo failed=0
-	while read line <&3; do
-		[[ $line && $line != '#'* ]] || continue
-		eval nspo=("${line%#*}")
-		if $1 "${nspo[0]}" "${nspo[1]}" "${nspo[2]}" "${nspo[*]:3}"; then
-			crypto_unlocked=1
-		else
-			failed=1
-		fi
-	done 3< /etc/crypttab
-	return $failed
+    # $1 = function to call with the split out line from the crypttab
+    local line nspo failed=0
+    while read line <&3; do
+        [[ $line && $line != '#'* ]] || continue
+        eval nspo=("${line%#*}")
+        if $1 "${nspo[0]}" "${nspo[1]}" "${nspo[2]}" "${nspo[*]:3}"; then
+            crypto_unlocked=1
+        else
+            failed=1
+        fi
+    done 3< /etc/crypttab
+    return $failed
 }
 
 set_timezone() {
-	local tz=$1 zonefile=/usr/share/zoneinfo/$1
+    local tz=$1 zonefile=/usr/share/zoneinfo/$1
 
-	[[ $tz ]] || return 1
+    [[ $tz ]] || return 1
 
-	if [[ ! -e $zonefile ]]; then
-		printf "error: \`%s' is not a valid time zone\n" "$tz"
-		return 1
-	fi
+    if [[ ! -e $zonefile ]]; then
+        printf "error: \`%s' is not a valid time zone\n" "$tz"
+        return 1
+    fi
 
-	if [[ -L /etc/localtime && /etc/localtime -ef $zonefile ]]; then
-		return 0
-	else
-		ln -sf "/usr/share/zoneinfo/$tz" /etc/localtime
-	fi
+    if [[ -L /etc/localtime && /etc/localtime -ef $zonefile ]]; then
+        return 0
+    else
+        ln -sf "/usr/share/zoneinfo/$tz" /etc/localtime
+    fi
 }
 
 # Filesystem functions
@@ -633,97 +633,97 @@ NETFS="nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.g
 
 # Check local filesystems
 fsck_all() {
-	if [[ -f /forcefsck ]] || in_array forcefsck $(< /proc/cmdline); then
-		FORCEFSCK="-f"
-	elif [[ -f /fastboot ]] || in_array fastboot $(< /proc/cmdline); then
-		return 0
-	elif [[ -e /run/initramfs/root-fsck ]]; then
-		IGNORE_MOUNTED="-M"
-	fi
+    if [[ -f /forcefsck ]] || in_array forcefsck $(< /proc/cmdline); then
+        FORCEFSCK="-f"
+    elif [[ -f /fastboot ]] || in_array fastboot $(< /proc/cmdline); then
+        return 0
+    elif [[ -e /run/initramfs/root-fsck ]]; then
+        IGNORE_MOUNTED="-M"
+    fi
 
-	fsck -A -T -C${FSCK_FD} -a -t no${NETFS//,/,no},noopts=_netdev ${IGNORE_MOUNTED} -- ${FORCEFSCK}
+    fsck -A -T -C${FSCK_FD} -a -t no${NETFS//,/,no},noopts=_netdev ${IGNORE_MOUNTED} -- ${FORCEFSCK}
 }
 
 # Single-user login and/or automatic reboot after fsck (if needed)
 fsck_reboot() {
-	# $1 = exit code returned by fsck
-	# Ignore conditions 'FS errors corrected' and 'Cancelled by the user'
-	(( ($1 | 33) == 33 )) && return 0
-	if (( $1 & 2 )); then
-		echo
-		echo "********************** REBOOT REQUIRED *********************"
-		echo "*                                                          *"
-		echo "* The system will be rebooted automatically in 15 seconds. *"
-		echo "*                                                          *"
-		echo "************************************************************"
-		echo
-		sleep 15
-	else
-		echo
-		echo "*****************  FILESYSTEM CHECK FAILED  ****************"
-		echo "*                                                          *"
-		echo "*  Please repair manually and reboot. Note that the root   *"
-		echo "*  file system is currently mounted read-only. To remount  *"
-		echo "*  it read-write, type: mount -o remount,rw /              *"
-		echo "*  When you exit the maintenance shell, the system will    *"
-		echo "*  reboot automatically.                                   *"
-		echo "*                                                          *"
-		echo "************************************************************"
-		echo
-		sulogin -p
-	fi
-	echo "Automatic reboot in progress..."
-	umount -a
-	mount -o remount,ro /
-	reboot -f
-	exit 0
+    # $1 = exit code returned by fsck
+    # Ignore conditions 'FS errors corrected' and 'Cancelled by the user'
+    (( ($1 | 33) == 33 )) && return 0
+    if (( $1 & 2 )); then
+        echo
+        echo "********************** REBOOT REQUIRED *********************"
+        echo "*                                                          *"
+        echo "* The system will be rebooted automatically in 15 seconds. *"
+        echo "*                                                          *"
+        echo "************************************************************"
+        echo
+        sleep 15
+    else
+        echo
+        echo "*****************  FILESYSTEM CHECK FAILED  ****************"
+        echo "*                                                          *"
+        echo "*  Please repair manually and reboot. Note that the root   *"
+        echo "*  file system is currently mounted read-only. To remount  *"
+        echo "*  it read-write, type: mount -o remount,rw /              *"
+        echo "*  When you exit the maintenance shell, the system will    *"
+        echo "*  reboot automatically.                                   *"
+        echo "*                                                          *"
+        echo "************************************************************"
+        echo
+        sulogin -p
+    fi
+    echo "Automatic reboot in progress..."
+    umount -a
+    mount -o remount,ro /
+    reboot -f
+    exit 0
 }
 
 mount_all() {
-	mount -a -t "no${NETFS//,/,no}" -O no_netdev
+    mount -a -t "no${NETFS//,/,no}" -O no_netdev
 }
 
 umount_all() {
-	# $1: restrict to fstype
+    # $1: restrict to fstype
 
-	findmnt -mrunRo TARGET,FSTYPE,OPTIONS / | {
-		while read -r target fstype options; do
-			# match only targeted fstypes
-			if [[ $1 && $1 != "$fstype" ]]; then
-				continue
-			fi
+    findmnt -mrunRo TARGET,FSTYPE,OPTIONS / | {
+        while read -r target fstype options; do
+            # match only targeted fstypes
+            if [[ $1 && $1 != "$fstype" ]]; then
+                continue
+            fi
 
-			# do not unmount API filesystems
-			if [[ $target = /@(proc|sys|run|dev|dev/pts) ]]; then
-				continue
-			fi
+            # do not unmount API filesystems
+            if [[ $target = /@(proc|sys|run|dev|dev/pts) ]]; then
+                continue
+            fi
 
-			# avoid networked devices
-			IFS=, read -ra opts <<< "$options"
-			if in_array _netdev "${opts[@]}"; then
-				continue
-			fi
+            # avoid networked devices
+            IFS=, read -ra opts <<< "$options"
+            if in_array _netdev "${opts[@]}"; then
+                continue
+            fi
 
-			mounts=("$target" "${mounts[@]}")
-		done
+            mounts=("$target" "${mounts[@]}")
+        done
 
-		if (( ${#mounts[*]} )); then
-			umount -r "${mounts[@]}"
-		fi
-	}
+        if (( ${#mounts[*]} )); then
+            umount -r "${mounts[@]}"
+        fi
+    }
 
 }
 
 remove_leftover() {
-	#status 'Removing leftover files' systemd-tmpfiles --create --remove --clean
-	status 'Removing leftover files' /usr/lib/initscripts/arch-tmpfiles --create --remove
+    #status 'Removing leftover files' systemd-tmpfiles --create --remove --clean
+    status 'Removing leftover files' /usr/lib/initscripts/arch-tmpfiles --create --remove
 }
 
 bootlogd_stop() {
-	[[ -f /run/bootlogd.pid ]] || return 0
-	touch /var/log/boot
-	kill $(< /run/bootlogd.pid)
-	rm -f /run/bootlogd.pid
+    [[ -f /run/bootlogd.pid ]] || return 0
+    touch /var/log/boot
+    kill $(< /run/bootlogd.pid)
+    rm -f /run/bootlogd.pid
 }
 
 ###############################
@@ -765,50 +765,50 @@ bootlogd_stop() {
 # Too bad we cannot do the same thing with hook_funcs
 
 if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
-	declare -A hook_funcs
+    declare -A hook_funcs
 
-	add_hook() {
-		[[ $1 && $2 ]] || return 1
-		hook_funcs[$1]+=" $2"
-	}
+    add_hook() {
+        [[ $1 && $2 ]] || return 1
+        hook_funcs[$1]+=" $2"
+    }
 
-	run_hook() {
-		[[ $1 ]] || return 1
-		local func
-		for func in ${hook_funcs["$1"]}; do
-			"${func}"
-		done
-	}
+    run_hook() {
+        [[ $1 ]] || return 1
+        local func
+        for func in ${hook_funcs["$1"]}; do
+            "${func}"
+        done
+    }
 
-	declare -fr add_hook run_hook
-	declare -r RC_FUNCTIONS_HOOK_FUNCS_DEFINED=1
+    declare -fr add_hook run_hook
+    declare -r RC_FUNCTIONS_HOOK_FUNCS_DEFINED=1
 fi
 
 # set colours
 if [[ $USECOLOUR != [nN][oO] ]]; then
-	if tput setaf 0 &>/dev/null; then
-		C_CLEAR=$(tput sgr0)                      # clear text
-		C_MAIN=${C_CLEAR}$(tput bold)        # main text
-		C_OTHER=${C_MAIN}$(tput setaf 4)     # prefix & brackets
-		C_SEPARATOR=${C_MAIN}$(tput setaf 0) # separator
-		C_BUSY=${C_CLEAR}$(tput setaf 6)     # busy
-		C_FAIL=${C_MAIN}$(tput setaf 1)      # failed
-		C_DONE=${C_MAIN}                          # completed
-		C_BKGD=${C_MAIN}$(tput setaf 5)      # backgrounded
-		C_H1=${C_MAIN}                            # highlight text 1
-		C_H2=${C_MAIN}$(tput setaf 6)        # highlight text 2
-	else
-		C_CLEAR="\e[m"          # clear text
-		C_MAIN="\e[;1m"         # main text
-		C_OTHER="\e[1;34m"      # prefix & brackets
-		C_SEPARATOR="\e[1;30m"  # separator
-		C_BUSY="\e[;36m"        # busy
-		C_FAIL="\e[1;31m"       # failed
-		C_DONE=${C_MAIN}        # completed
-		C_BKGD="\e[1;35m"       # backgrounded
-		C_H1=${C_MAIN}          # highlight text 1
-		C_H2="\e[1;36m"         # highlight text 2
-	fi
+    if tput setaf 0 &>/dev/null; then
+        C_CLEAR=$(tput sgr0)                 # clear text
+        C_MAIN=${C_CLEAR}$(tput bold)        # main text
+        C_OTHER=${C_MAIN}$(tput setaf 4)     # prefix & brackets
+        C_SEPARATOR=${C_MAIN}$(tput setaf 0) # separator
+        C_BUSY=${C_CLEAR}$(tput setaf 6)     # busy
+        C_FAIL=${C_MAIN}$(tput setaf 1)      # failed
+        C_DONE=${C_MAIN}                     # completed
+        C_BKGD=${C_MAIN}$(tput setaf 5)      # backgrounded
+        C_H1=${C_MAIN}                       # highlight text 1
+        C_H2=${C_MAIN}$(tput setaf 6)        # highlight text 2
+    else
+        C_CLEAR="\e[m"          # clear text
+        C_MAIN="\e[;1m"         # main text
+        C_OTHER="\e[1;34m"      # prefix & brackets
+        C_SEPARATOR="\e[1;30m"  # separator
+        C_BUSY="\e[;36m"        # busy
+        C_FAIL="\e[1;31m"       # failed
+        C_DONE=${C_MAIN}        # completed
+        C_BKGD="\e[1;35m"       # backgrounded
+        C_H1=${C_MAIN}          # highlight text 1
+        C_H2="\e[1;36m"         # highlight text 2
+    fi
 fi
 
 # prefixes:
@@ -818,8 +818,6 @@ PREFIX_HL=" >"
 
 # Source additional functions at the end to allow overrides
 for f in /etc/rc.d/functions.d/*; do
-	[[ -e $f ]] && . "$f"
+    [[ -e $f ]] && . "$f"
 done
 
-# End of file
-# vim: set ts=2 sw=2 noet:

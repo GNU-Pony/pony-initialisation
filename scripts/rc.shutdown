@@ -24,16 +24,16 @@ stop_all_daemons
 
 #status 'Saving random seed' /usr/lib/systemd/systemd-random-seed save
 stat_busy "Saving Random Seed"
-        RANDOM_SEED=/var/lib/misc/random-seed
-        install -TDm 0600 /dev/null $RANDOM_SEED
-        POOL_FILE=/proc/sys/kernel/random/poolsize
-        if [[ -r $POOL_FILE ]]; then
-                read POOL_SIZE < $POOL_FILE
-                (( POOL_SIZE /= 8 ))
-        else
-                POOL_SIZE=512
-        fi
-        dd if=/dev/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &>/dev/null
+    RANDOM_SEED=/var/lib/misc/random-seed
+    install -TDm 0600 /dev/null $RANDOM_SEED
+    POOL_FILE=/proc/sys/kernel/random/poolsize
+    if [[ -r $POOL_FILE ]]; then
+        read POOL_SIZE < $POOL_FILE
+        (( POOL_SIZE /= 8 ))
+    else
+        POOL_SIZE=512
+    fi
+    dd if=/dev/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &>/dev/null
 stat_done
 
 [[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
@@ -43,7 +43,7 @@ halt -w
 
 # stop monitoring of LVM2 groups before unmounting filesystems
 [[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) ]] &&
-	status "Deactivating monitoring of LVM2 groups" vgchange --monitor n
+    status "Deactivating monitoring of LVM2 groups" vgchange --monitor n
 
 # any future uevents can and should be ignored
 status "Shutting down udev" udevadm control --exit
@@ -70,73 +70,72 @@ run_hook shutdown_postumount
 
 # Kill non-root encrypted partition mappings
 if [[ -f /etc/crypttab ]] && type -p cryptsetup >/dev/null; then
-	# Maybe someone has LVM on an encrypted block device
-	# executing an extra vgchange is errorless
-	[[ $USELVM = [Yy][Ee][Ss] ]] && vgchange --sysinit -a n &>/dev/null
-	read_crypttab do_lock
+    # Maybe someone has LVM on an encrypted block device
+    # executing an extra vgchange is errorless
+    [[ $USELVM = [Yy][Ee][Ss] ]] && vgchange --sysinit -a n &>/dev/null
+    read_crypttab do_lock
 fi
 
 [[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) ]] &&
-	status "Deactivating LVM2 groups" vgchange --sysinit -a n &>/dev/null
+    status "Deactivating LVM2 groups" vgchange --sysinit -a n &>/dev/null
 
 run_hook shutdown_poweroff
 
 if [[ -x /run/initramfs/shutdown ]]; then
 
-	# decide what we want to do
-	if [[ $RUNLEVEL = 0 ]]; then
-		action="poweroff"
-	else
-		{ read kexec_loaded </sys/kernel/kexec_loaded; } 2>/dev/null
-		if (( kexec_loaded )); then
-			action="kexec"
-		else
-			action="reboot"
-		fi
-	fi
+    # decide what we want to do
+    if [[ $RUNLEVEL = 0 ]]; then
+        action="poweroff"
+    else
+        { read kexec_loaded </sys/kernel/kexec_loaded; } 2>/dev/null
+        if (( kexec_loaded )); then
+            action="kexec"
+        else
+            action="reboot"
+        fi
+    fi
 
-	# make /run/initramfs a mount
-	mount --bind /run/initramfs /run/initramfs
+    # make /run/initramfs a mount
+    mount --bind /run/initramfs /run/initramfs
 
-	# in case someone has shared our mountpoints, unshare them
-	mount --make-private /run/initramfs
-	mount --make-private /
+    # in case someone has shared our mountpoints, unshare them
+    mount --make-private /run/initramfs
+    mount --make-private /
 
-	# bind all API mounts
-	mkdir -p /run/initramfs/{sys,proc,dev,run,oldroot}
-	mount --bind /sys /run/initramfs/sys
-	mount --bind /proc /run/initramfs/proc
-	mount --bind /dev /run/initramfs/dev
-	mount --bind /run /run/initramfs/run
+    # bind all API mounts
+    mkdir -p /run/initramfs/{sys,proc,dev,run,oldroot}
+    mount --bind /sys /run/initramfs/sys
+    mount --bind /proc /run/initramfs/proc
+    mount --bind /dev /run/initramfs/dev
+    mount --bind /run /run/initramfs/run
 
-	# enter shutdownramfs
-	cd /run/initramfs
-	pivot_root . oldroot
+    # enter shutdownramfs
+    cd /run/initramfs
+    pivot_root . oldroot
 
-	# reexec init
-	/oldroot/sbin/init u
+    # reexec init
+    /oldroot/sbin/init u
 
-	# run /shutdown in the new root
-	exec chroot . /shutdown $action </dev/console >/dev/console 2>&1
+    # run /shutdown in the new root
+    exec chroot . /shutdown $action </dev/console >/dev/console 2>&1
 
 else
 
-	status "Remounting root filesystem read-only" \
-		mount -o remount,ro /
+    status "Remounting root filesystem read-only" \
+        mount -o remount,ro /
 
-	# Power off or reboot
-	printsep
-	if [[ $RUNLEVEL = 0 ]]; then
-		printhl "${C_H2}POWER OFF"
-		poweroff -d -f -h -i
-	else
-		printhl "${C_H2}REBOOTING"
-		# if kexec is installed and a kernel is loaded, use it
-		[[ -x $(type -P kexec) ]] && kexec -e &>/dev/null
-		reboot -d -f -i
-	fi
+    # Power off or reboot
+    printsep
+    if [[ $RUNLEVEL = 0 ]]; then
+        printhl "${C_H2}POWER OFF"
+        poweroff -d -f -h -i
+    else
+        printhl "${C_H2}REBOOTING"
+        # if kexec is installed and a kernel is loaded, use it
+        [[ -x $(type -P kexec) ]] && kexec -e &>/dev/null
+        reboot -d -f -i
+    fi
 
 fi
 
-# End of file
-# vim: set ts=2 sw=2 noet:
+

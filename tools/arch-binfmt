@@ -10,13 +10,13 @@ shopt -s nullglob
 declare -a binfmt_d
 # files given has argv supersede config files
 if (( $# > 0 )); then
-	for arg; do [[ -r "$arg" ]] && binfmt_d+=("$arg"); done
+    for arg; do [[ -r "$arg" ]] && binfmt_d+=("$arg"); done
 else
-	binfmt_d=(
-		/usr/lib/binfmt.d/*.conf
-		/etc/binfmt.d/*.conf
-		/run/binfmt.d/*.conf
-	)
+    binfmt_d=(
+        /usr/lib/binfmt.d/*.conf
+        /etc/binfmt.d/*.conf
+        /run/binfmt.d/*.conf
+    )
 fi
 
 # check there is file to load
@@ -24,23 +24,22 @@ fi
 
 # mount binfmt_misc if api filesystem is missing
 mountpoint -q /proc/sys/fs/binfmt_misc ||
-	mount /proc/sys/fs/binfmt_misc &>/dev/null ||
-		mount -t binfmt_misc binfmt /proc/sys/fs/binfmt_misc
+    mount /proc/sys/fs/binfmt_misc &>/dev/null ||
+        mount -t binfmt_misc binfmt /proc/sys/fs/binfmt_misc
 
 # files declared later in the binfmt_d array will override earlier
 # Example: `/etc/binfmt.d/foo.conf' supersedes `/usr/lib/binfmt.d/foo.conf'.
 declare -A fragments
 for path in "${binfmt_d[@]}"; do
-	[[ -f $path ]] && fragments[${path##*/}]=$path
+    [[ -f $path ]] && fragments[${path##*/}]=$path
 done
 
 for path in "${fragments[@]}"; do
-	while read -r line; do
-		[[ ${line:0:1} == '#' ]] && continue
-		printf "%s" "$line" > /proc/sys/fs/binfmt_misc/register
-	done < "$path"
+    while read -r line; do
+        [[ ${line:0:1} == '#' ]] && continue
+        printf "%s" "$line" > /proc/sys/fs/binfmt_misc/register
+    done < "$path"
 done
 
 :
 
-# vim: set ts=2 sw=2 noet:

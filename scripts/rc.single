@@ -10,19 +10,19 @@ run_hook single_start
 
 if [[ $PREVLEVEL != N ]]; then
 
-	stop_all_daemons
+    stop_all_daemons
 
-	run_hook single_prekillall
+    run_hook single_prekillall
 
-	kill_all
+    kill_all
 
-	run_hook single_postkillall
+    run_hook single_postkillall
 
-	# Start/trigger udev, load MODULES, and settle udev
-	udevd_modprobe single
-	
-	# Removing leftover files
-	remove_leftover
+    # Start/trigger udev, load MODULES, and settle udev
+    udevd_modprobe single
+    
+    # Removing leftover files
+    remove_leftover
 fi
 
 run_hook single_end
@@ -30,12 +30,10 @@ run_hook single_end
 bootlogd_stop
 
 if [[ $RUNLEVEL = 1 ]]; then
-	printsep
-	printhl "Entering single-user mode..."
-	# make sure /dev/initctl is in place
-	kill -HUP 1
-	exec init -t1 S
+    printsep
+    printhl "Entering single-user mode..."
+    # make sure /dev/initctl is in place
+    kill -HUP 1
+    exec init -t1 S
 fi
 
-# End of file
-# vim: set ts=2 sw=2 noet:
