@@ -46,8 +46,8 @@ How to interpret/update the hardware clock. (used by hwclock)
 Options:
 
 	- empty: fall back to the value in /etc/adjtime, which defaults to UTC.
-	- "UTC": allows operating systems to abstract local time and ease DST.
-	- "localtime": apply time zone (and DST) in hardwareclock.
+	- "UTC": allows operating systems to abstract local time and ease daylight saving time.
+	- "localtime": apply time zone (and daylight saving time) in hardwareclock.
 	  Choose this if you dual-boot with an OS which cannot handle UTC BIOS times correctly, like Windows
 	  (note that recent Windows versions can use UTC, which is preferable).
 	- any other value will result in the hardware clock being left untouched (useful for virtualization)
