@@ -1,0 +1,298 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename rc.conf.info
+@settitle rc.conf
+@afourpaper
+@documentencoding UTF-8
+@documentlanguage en
+@finalout
+@c %**end of header
+
+
+@copying
+Copyright @copyright{} 2013 Mattias Andrée
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@ifnottex
+@node Top
+@top /etc/rc.conf -- Mane system configuration file
+@insertcopying
+@end ifnottex
+
+@titlepage
+@title /etc/rc.conf
+@subtitle Mane system configuration file
+@author by Mattias Andrée (maandree)
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+
+
+@menu
+* Overview::                        Brief overview of @file{/etc/rc.conf}.
+* Localisation::                    Localisation settings.
+* Networking::                      Networking settings.
+* GNU Free Documentation License::  Copying and sharing this manual.
+@end menu
+
+
+
+@node Overview
+@chapter Overview
+
+@file{/etc/rc.conf} is a dump@footnote{Should only set variables.} GNU Bash
+script for the mane system configuraions including localisation, networking
+settings, daemons and modules. You can add any custom setting you may wish
+to use in your boot scripts.
+
+
+
+@node Localisation
+@chapter Localisation
+
+@menu
+* LOCALE::                          Default language and locale.
+* HARDWARECLOCK::                   Hardware clock timezone.
+* TIMEZONE::                        Locale timezone.
+* KEYMAP::                          Console keyboard layout and keybindings.
+* CONSOLEFONT::                     Console font.
+* CONSOLEMAP::                      Internal value to output character console map.
+* USECOLOUR::                       Colour in start-up messages.
+@end menu
+
+
+@node LOCALE
+@section @var{LOCALE}
+
+The variable @var{LOCALE} is used to specify which locale to use, which
+includes the default language for applications. Generated locales that can
+be used can be listed with the command @command{locale -a}.
+
+If you, for example, want to use British English with UTF-8, use the line:
+@code{LOCALE="en_GB.UTF-8"} (Sorry, we do not have support for Equestrian
+English yet, perhaps you want to translate some program.)
+
+
+@node HARDWARECLOCK
+@section @var{HARDWARECLOCK}
+
+The variable @var{HARDWARECLOCK} specifies how to interpret and update the
+hardware clock, and is used by @command{hwclock}; by default it falls back
+to the value in @file{/etc/adjtime} with further fallback to UTC.
+
+The default value is used if the value is empty or not set, for example
+with the line @code{HARDWARECLOCK=} or @code{HARDWARECLOCK=""}, but if
+a value is used and is not recognised it is interpreted as not to toucb
+the hardware clock, which is useful for virtualisation.
+
+The two other recognised values are:
+
+@table @code
+@item UTF
+@code{HARDWARECLOCK="UTC"} means that the hardware clocks uses the
+coordinated universal time which does not require to change to the
+hardware clock when entering summer time or standard time. This is
+normally the preferred option.
+@item localtime
+@code{HARDWARECLOCK="localtime"} means that the hardware clocks uses the
+local timezone which includes the daylight saving time offset during
+daylight saving time. Some old operating systems uses this so you may
+need this if you are also using an old operating system beside this system.
+@end table
+
+
+@node TIMEZONE
+@section @var{TIMEZONE}
+
+@var{TIMEZONE} specifies the local timezone, you can find them in
+@file{/usr/share/zoneinfo/} (they may be a bit special), and are installed
+by the @code{tzdata} and includes leap second databases that are updated
+with the releases of @code{tzdata}.
+
+If no value is set or if an empty value is set @file{/etc/localtime} is
+used which can be useful if you want a third-party tool to maintain the
+local timezone or if you want the users to be able to modify it value,
+keeping in mind that they need full access to the file.
+
+If you are attenting the Nobel Banquet you should use
+@code{TIMEZONE="Europe/Stockholm"}; no there are not timezone data
+available for Equestria.
+
+
+@node KEYMAP
+@section @var{KEYMAP}
+
+@var{KEYMAP} refers to any map file in @file{/usr/share/kbd/keymaps}
+that you want to use for your keyboard layout and keybinds, such as
+changing terminal. This used by the kernel in the TTY and not in X.
+Until you create your custom map for your needs you can use
+@code{KEYMAP="sv-latin1"} for the standard Swedish and Finnish keyboard.
+
+
+@node CONSOLEFONT
+@section @var{CONSOLEFONT}
+
+@var{CONSOLEFONT} defines the console font to load with the setfont
+program on boot. This setting is also a string and possible fonts can
+be found in @file{/usr/share/kbd/consolefonts}.
+If both @var{CONSOLEFONT} and @var{KEYMAP} leave empty, @var{FONT} in
+@file{/etc/vconsole.conf} will be used.
+
+
+@node CONSOLEMAP
+@section @var{CONSOLEMAP}
+
+An internal value to output character map for the TTY can be specified
+by with the string variable @var{CONSOLEMAP}, possible maps can be found
+in @file{/usr/share/kbd/consoletrans}.
+
+Set this to a map suitable for the appropriate locale (8859-1 for Latin1,
+for example) if you are using an UTF-8 locale and use programs that
+generate 8-bit output (and please do patch them).
+
+If both @var{CONSOLEFONT} and @var{KEYMAP} leave empty, @var{FONT_MAP}
+in @file{/etc/vconsole.conf} will be used.
+
+
+@node USECOLOUR
+@section @var{USECOLOUR}
+
+This not really localisation but is located here for legacy reason.
+
+By default, colour is used in the boot-up messages, if you do not want
+colours use the line @code{USECOLOUR="no"}. Note that the scripts must
+be aware of the variable for it to work.
+
+
+
+@node Networking
+@chapter Networking
+
+@menu
+* HOSTNAME::                        Name our foal.
+* NETWORK_PERSIST::                 Network shutdown.
+* Wired network::                   Settings for the wired networks.
+@end menu
+
+
+@node HOSTNAME
+@section @var{HOSTNAME}
+
+Hostname of machine, if you for example which to name your computer so
+that it is identified as `Ponyville' on the network (on all homes),
+use the line @code{HOSTNAME="Ponyville"}. You shoul also configure this
+up in your @file{/etc/hosts} file.
+
+If you leave @var{HOSTNAME} empty it falls back to the contents of
+@file{/etc/hostname}.
+
+
+@node NETWORK_PERSIST
+@section @var{NETWORK_PERSIST}
+
+Setting @code{NETWORK_PERSIST="yes"} will skip network shutdown,
+which is required if your root device is on NFS.
+
+
+@node Wired network
+@section Wired network
+
+Use the commands @command{ls /sys/class/net} or @command{ip addr} to
+list all available network interfaces. Keep in mind that @file{lo} is
+the loopback interface and you probably do not want to configure that
+one but rather those that starts with @file{eth} (Ethernet).
+
+There are five array variables you will use to configure the wired network:
+
+@table @var
+@item interface
+The name of the network interface device, it is required for manual
+configuration. If using DHCP, it can be left unset.
+@item address
+The IP address inside the network, it is required for manual configuration,
+but can be left empty to let DHCP automate it.
+@item netmask
+The subnet mask, the default value is 255.255.255.0, and it is ignored when
+using DHCP.
+@item broadcast
+The boardcast mask, it is ignored when using DHCP and is optional for manual
+configuration.
+@item gateway
+The default route, it is required for manual configureation and is ignored
+when using DHCP.
+@end table
+
+This configuration should be sufficient for must users, it lets DHCP
+configure everything, however if you are experiencing problems you
+could test changing @code{interface=()} to @code{interface=(eth0)}:
+@example
+interface=()
+address=()
+netmask=()
+broadcast=()
+gateway=()
+@end example
+
+If you have a static IP within the network@footnote{If you want a static IP
+you can often set it up by loggin in on @url{http://192.168.0.1} (the standard
+address for the network router)} you can det up everthing manually:
+@example
+interface=(eth0)
+address=(192.168.0.10)
+netmask=(255.255.255.0)
+broadcast=(192.168.0.255)
+gateway=(192.168.0.1)
+@end example
+
+If you have a server or router you normally have two network interfaces, this
+is called multihomed and means that you have to networks you are connected to,
+for this it is best to configure everything manually, but if you want to use
+DHCP you should just add two values @var{interface}:
+@example
+interface=(eth0 eth1)
+address=()
+netmask=()
+broadcast=()
+gateway=()
+@end example
+
+You could also set up one network interface manually and one with DHCP:
+@example
+interface=(eth0 eth1)
+address=(192.168.0.10)
+netmask=(255.255.255.0)
+broadcast=(192.168.0.255)
+gateway=(192.168.0.1)
+@end example
+Or equivalently:
+@example
+interface=(eth0 eth1)
+address=(192.168.0.10 '')
+netmask=(255.255.255.0 '')
+broadcast=(192.168.0.255 '')
+gateway=(192.168.0.1 '')
+@end example
+
+
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+@include fdl.texinfo
+
+@bye
+

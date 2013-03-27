@@ -1,0 +1,47 @@
+pony-initialisation – System initialisation scripts
+
+
+ Under pony-initialisation (fork 2):
+Copyright © 2013       Mattias Andrée (maandree@member.fsf.org)
+
+
+ Under initscripts and initscripts-fork (fork 0,1):
+Copyright © 2002-2006  Judd Vinet
+Copyright © 2005-2007  Tobias Powalowski
+Copyright © 2006-2009  Aaron Griffin
+Copyright © 2006-2011  Thomas Bächler
+Copyright © 2006       Andreas Radke
+Copyright © 2007-2009  James Rayner
+Copyright © 2007-2010  Roman Kyrylych
+Copyright © 2007-2011  Dan McGee
+Copyright © 2007       Simo Leone
+Copyright © 2008-2012  Jonathan Frazier
+Copyright © 2008       Anton Fiuman, Daniel Kaminski, Loic Nageleisen, Natanael Copa, Pierre Schmitz
+Copyright © 2009-2011  Gerardo Exequiel Pozzi, Kurt J. Bosch
+Copyright © 2009-2012  Allan McRae
+Copyright © 2009       Gerhard Brauer, Hugo Doria, Jacob Winther, Jim Pryor, Jonathan Liu,
+                       Marco Lima, Petar Bogdanovic, Solstice d'Hiver
+Copyright © 2010-2012  Dave Reisner, Florian Pritz, Tom Gundersen
+Copyright © 2010       Heiko Baums, Victor Lowther
+Copyright © 2011-2012  Sebastien Luttringer
+Copyright © 2011       Andrea Scarpino, Andrwe Lord Weber, Clément Démoulins, Cody Maloney,
+                       derhoch@googlemail.com, Devin J. Pohly, Dieter Plaetinck, Eric Bélanger,
+                       Ian-Xue Li Jacob Okamoto, Jelle van der Waa, joffko@gmail.com, Alexey D
+Copyright © 2012       Christoph Vigano, Jan Alexander Steffens, Jason St. John,
+                       Lukas Fleischer, Matthew Monaco
+
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+

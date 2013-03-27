@@ -15,7 +15,8 @@ DIRS := \
 	/usr/share/bash-completion/completions \
 	/usr/share/zsh/site-functions \
 	/usr/share/man/man5 \
-	/usr/share/man/man8
+	/usr/share/man/man8 \
+	/usr/share/licenses/pony-initialisation
 
 CONFIGS := \
 	conf/inittab \
@@ -53,7 +54,7 @@ UNITS := \
 all: doc
 
 installdirs:
-	install -dm755 $(foreach DIR, $(DIRS), "$(DESTDIR)$(DIR)")
+	install -dm755 $(foreach DIR, $(DIRS), "$(DESTDIR)"$(DIR))
 
 install: installdirs doc
 	install -m644 -t "$(DESTDIR)"/etc $(CONFIGS)
@@ -71,10 +72,11 @@ install: installdirs doc
 	install -m644 conf/tmpfiles.conf "$(DESTDIR)"/usr/lib/tmpfiles.d/initscripts.conf
 	install -m644 -T completion/bash-completion "$(DESTDIR)"/usr/share/bash-completion/completions/rc.d
 	install -m644 -T completion/zsh-completion "$(DESTDIR)"/usr/share/zsh/site-functions/_rc.d
-	ln -s /dev/null "$(DESTDIR)"/usr/lib/systemd/system/netfs.service
-	ln -s ../rc-local.service "$(DESTDIR)"/usr/lib/systemd/system/multi-user.target.wants/
-	ln -s ../pony-daemons.target "$(DESTDIR)"/usr/lib/systemd/system/multi-user.target.wants/
-	ln -s ../rc-local-shutdown.service "$(DESTDIR)"/usr/lib/systemd/system/shutdown.target.wants/
+	install -m755 "$(DESTDIR)"/usr/share/licenses/pony-initialisation COPYING LICENSE
+	ln -sf /dev/null "$(DESTDIR)"/usr/lib/systemd/system/netfs.service
+	ln -sf ../rc-local.service "$(DESTDIR)"/usr/lib/systemd/system/multi-user.target.wants/
+	ln -sf ../pony-daemons.target "$(DESTDIR)"/usr/lib/systemd/system/multi-user.target.wants/
+	ln -sf ../rc-local-shutdown.service "$(DESTDIR)"/usr/lib/systemd/system/shutdown.target.wants/
 
 %: %.txt
 	a2x -d manpage -f manpage "$<"
