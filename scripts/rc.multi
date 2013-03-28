@@ -18,7 +18,16 @@ run_hook multi_start
 
 # Start daemons
 for daemon in "${DAEMONS[@]}"; do
-    case ${daemon:0:1} in
+    if [ ! "${daemon/:/}" = "$daemon" ]; then
+	local deamon_r deamon_n deamon_w
+	deamon_r="${daemon#*:}"
+	[ "${deamon_r:0:1}" = "-" ] ; deamon_n=$?
+	[ ! "${deamon_r/$RUNLEVEL/}" = "$deamon_r" ] ; deamon_w=$?
+	if [ $deamon_n = $deamon_w ]; then
+	    continue
+	fi
+    fi
+    case "${daemon:0:1}" in
         '!') continue;;     # Skip this daemon.
         '@') start_daemon_bkgd "${daemon#@}";;
         *)   start_daemon "$daemon";;
