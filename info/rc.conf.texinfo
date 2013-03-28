@@ -47,6 +47,8 @@ Texts. A copy of the license is included in the section entitled
 * Overview::                        Brief overview of @file{/etc/rc.conf}.
 * Localisation::                    Localisation settings.
 * Networking::                      Networking settings.
+* Hardware::                        Configurations for hardware support.
+* Daemons::                         Starting daemons.
 * GNU Free Documentation License::  Copying and sharing this manual.
 @end menu
 
@@ -287,6 +289,68 @@ netmask=(255.255.255.0 '')
 broadcast=(192.168.0.255 '')
 gateway=(192.168.0.1 '')
 @end example
+
+
+
+@node Hardware
+@chapter Hardware
+
+@menu
+* USE*::                            Scan for stuff.
+* MODULES::                         Load kernel modules.
+@end menu
+
+
+@node USE*
+@chapter $var{USE*}
+
+There are two variables for scanning for hardware setups for which to scan,
+those are @var{USEDMRAID} and @var{USELVM}. By default those are set to
+@code{"no"}, setting them to @code{"yes"} enables them.
+
+@code{USEDMRAID="yes"} scans for FakeRAID (also called FirmRAID) volumes
+at start-up. @command{dmraid} is required to use those volumes.
+
+@code{USELVM="yes"} scans for LVM volues groups at start-up.
+
+
+@node MODULES
+@chapter @var{MODULES}
+
+If @var{MODULES} is not set, @file{/etc/modules-load.d/} is used; it is used
+to load kernel modules at boot-up. Modules are not necessarily just hardware
+modules, but what is by far most common.
+
+@code{MODULES=()} is means that no modules are loaded, inside the brackets
+you can list, separated by whitespaces without commas, the modules you want
+to load. To blacklist a modules, use a @code{!} prefix.
+
+
+
+@node Daemons
+@chapter Daemons
+
+Daemons are programs that run in the background, often as root. Those can
+be controlled the @command{rc.d} command. To start them at boot-up you
+list them in them in the array variable @var{DAEMONS}.
+
+A simple setup is @code{DAEMONS=(syslog-ng @@network crond)} which loads
+@command{syslog-ng} and @command{crond} in sequence, with @command{network}
+being loaded after @command{syslog-ng}, but non-blocking, meaning that
+@command{crond} is loaded at the same time as no further loading needs
+to wait for @command{network}.
+
+The prefix @code{@@} means that it is loaded in the background and other
+modules can be loaded at the same time. The prefix @code{!} disables a
+daemon.
+
+By default the daemons are loaded in all runlevels, but if you want it
+to only load on, for example runlevel 5, you can use the suffix @code{:5},
+or @code{:23} for runlevels 2 and 3. If you wish to exclude then on
+runlevel 2 and 4 (networkless runlevels), you use the suffix @code{:-24}.
+Mixing those suffixes is not possbile as it makes no sense.
+
+
 
 
 
