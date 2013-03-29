@@ -1,0 +1,30 @@
+(rd_d
+    (default  (arg DAEMON)  (suggest daemons)  (files -0)  (desc 'Control a daemon'))
+    
+    (multiple unargumented
+        ((options -s --started)  (complete --started)  (desc 'Filter to started daemons'))
+        ((options -S --stopped)  (complete --stopped)  (desc 'Filter to stopped daemons'))
+        ((options -a --auto)     (complete --auto)     (desc 'Filter to automatically started daemons'))
+        ((options -A --noauto)   (complete --noauto)   (desc 'Filter to manually started daemons'))
+        ((options help)          (complete help)       (desc 'Display a show help message'))
+        ((options list)          (complete list)       (desc 'List daemons and their states'))
+    )
+    
+    (multiple variadic
+        ((options start)    (complete start)    (arg DAEMON)  (suggest stopped)  (files -0)  (desc 'Start daemon'))
+        ((options stop)     (complete stop)     (arg DAEMON)  (suggest started)  (files -0)  (desc 'Stop daemon'))
+        ((options restart)  (complete restart)  (arg DAEMON)  (suggest started)  (files -0)  (desc 'Restart daemon'))
+        ((options reload)   (complete reload)   (arg DAEMON)  (suggest started)  (files -0)  (desc 'Reload configurations'))
+        ((options status)   (complete status)   (arg DAEMON)  (suggest started)  (files -0)  (desc 'Print status'))
+    )
+    
+    
+    (suggestion stopped  (no-exec ls "'/usr/libexec/rc.d/'")
+                         (exec comm -23 "<(ls '/usr/libexec/rc.d/' | sort)" "<(ls '/run/daemons/' | sort)")
+    )
+    (suggestion started  (ls "'/run/daemons/'")
+    )
+    (suggestion daemons  (ls "'/usr/libexec/rc.d/'")
+    )
+)
+
