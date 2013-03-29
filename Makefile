@@ -15,9 +15,6 @@ DAEMONS := \
 	daemon/network \
 	daemon/netfs
 
-MAN_PAGES := \
-	man/pony-daemons.8
-
 UNITS := \
 	systemd/pony-daemons.target \
 	systemd/rc-local.service \
@@ -62,8 +59,6 @@ install: doc
 	install -m755 "$(DESTDIR)"/usr/share/licenses/pony-initialisation COPYING LICENSE
 
 install_systemdcompat:
-	install -dm755 "$(DESTDIR)"/usr/share/man/man8
-	install -m644 -t "$(DESTDIR)"/usr/share/man/man8 $(filter %.8, $(MAN_PAGES))
 	install -dm755 "$(DESTDIR)"/usr/lib/systemd/system-generators
 	install -m755 -t "$(DESTDIR)"/usr/lib/systemd/system-generators systemd/pony-daemons
 	install -dm755 "$(DESTDIR)"/usr/lib/systemd/system
@@ -87,16 +82,11 @@ install_daemons:
 	install -m755 -t "$(DESTDIR)"/usr/libexec/rc.d \
 	    $$(grep -rn '^# daemon for: $(DAEMON)$$' daemon | cut -d : -f 1,2 | grep :2\$$ | cut -d : -f 1)
 
-%: %.txt
-	a2x -d manpage -f manpage "$<"
-
 %.info.gz: info/%.texinfo
 	makeinfo "$<"
 	gzip -9 "$*.info"
 
-doc: man info
-
-man: $(MAN_PAGES)
+doc: info
 
 info: $(INFO)
 

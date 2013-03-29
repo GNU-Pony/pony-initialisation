@@ -1,6 +1,5 @@
 REQUIRED MAKE DEPENDENCIES::
 
-asciidoc
 grep
 
 
