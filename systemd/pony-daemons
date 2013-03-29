@@ -15,7 +15,7 @@ deps=()
 
 # Check if $1 is a valid daemon name
 have_daemon() {
-    [[ -f /etc/rc.d/$1 && -x /etc/rc.d/$1 ]]
+    [[ -f /usr/libexec/rc.d/$1 && -x /usr/libexec/rc.d/$1 ]]
 }
 
 # Make service file
@@ -36,15 +36,15 @@ Description=LEGACY unit for "%s" rc script
 %s
 [Service]
 ExecStartPre=/usr/bin/echo "WARNING: A legacy rc script is being used. Consider removing this from your DAEMONS array and enabling a native systemd service instead."
-ExecStart=/etc/rc.d/%s start
-ExecStop=/etc/rc.d/%s stop
+ExecStart=/usr/libexec/rc.d/%s start
+ExecStop=/usr/libexec/rc.d/%s stop
 RemainAfterExit=yes
 Type=forking
 ' "$daemon" "$deps" "$daemon" "$daemon" > "$dest/$1"
 
 }
 
-for daemon in /etc/rc.d/*; do
+for daemon in /usr/libexec/rc.d/*; do
     create_unit "${daemon##*/}".service
 done
 

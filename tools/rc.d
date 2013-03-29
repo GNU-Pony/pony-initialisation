@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /etc/rc.conf
-. /etc/rc.d/functions
+. /usr/libexec/rc.d/functions
 
 # print usage and exit
 usage() {
@@ -15,7 +15,7 @@ options:
   -a, --auto        Filter auto started daemons
   -A, --noauto      Filter manually started daemons
 
-<daemons> is a space separated list of script in /etc/rc.d
+<daemons> is a space separated list of script in /usr/libexec/rc.d
 <action> can be a start, stop, restart, reload, status, ...
 NOTE: scripts are free to implement or not the above actions.
 
@@ -84,7 +84,7 @@ for daemon; do
 done
 
 # going into script directory
-cd /etc/rc.d
+cd /usr/libexec/rc.d
 
 case $action in
     help)
@@ -123,7 +123,7 @@ case $action in
             "TERM=$TERM")
         cd /
         for daemon in "${daemons[@]}"; do
-            env -i "${ENV[@]}" "/etc/rc.d/$daemon" "$action"
+            env -i "${ENV[@]}" "/usr/libexec/rc.d/$daemon" "$action"
             (( ret += !! $? ))  # clamp exit value to 0/1
         done
     ;;

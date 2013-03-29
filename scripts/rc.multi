@@ -4,7 +4,7 @@
 #
 
 . /etc/rc.conf
-. /etc/rc.d/functions
+. /usr/libexec/rc.d/functions
 
 run_hook multi_start
 

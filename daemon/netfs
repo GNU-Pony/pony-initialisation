@@ -3,7 +3,7 @@
 
 # sourcing our current rc.conf requires this to be a bash script
 . /etc/rc.conf
-. /etc/rc.d/functions
+. /usr/libexec/rc.d/functions
 
 case "$1" in
     start)

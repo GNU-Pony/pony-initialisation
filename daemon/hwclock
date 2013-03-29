@@ -2,7 +2,7 @@
 # daemon for: util-linux
 
 . /etc/rc.conf
-. /etc/rc.d/functions
+. /usr/libexec/rc.d/functions
 
 case $HARDWARECLOCK in
     UTC) HWCLOCK_PARAMS="--utc";;

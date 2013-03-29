@@ -230,7 +230,7 @@ ck_daemon() {
 
 # Check if $1 is a valid daemon name
 have_daemon() {
-    [[ -f /etc/rc.d/$1 && -x /etc/rc.d/$1 ]]
+    [[ -f /usr/libexec/rc.d/$1 && -x /usr/libexec/rc.d/$1 ]]
 }
 
 # Check if $1 is started at boot
@@ -247,7 +247,7 @@ ck_autostart() {
 }
 
 start_daemon() {
-    have_daemon "$1" && /etc/rc.d/"$1" start
+    have_daemon "$1" && /usr/libexec/rc.d/"$1" start
 }
 
 start_daemon_bkgd() {
@@ -256,7 +256,7 @@ start_daemon_bkgd() {
 }
 
 stop_daemon() {
-    have_daemon "$1" && /etc/rc.d/"$1" stop
+    have_daemon "$1" && /usr/libexec/rc.d/"$1" stop
 }
 
 # Status functions
@@ -830,7 +830,7 @@ PREFIX_REG="::"
 PREFIX_HL=" >"
 
 # Source additional functions at the end to allow overrides
-for f in /etc/rc.d/functions.d/*; do
+for f in /usr/libexec/rc.d/functions.d/*; do
     [[ -e $f ]] && . "$f"
 done
 

@@ -12,11 +12,11 @@ _rc_d()
 	elif [[ "$arg" == help ]]; then
 		COMPREPLY=()
 	elif [[ "$arg" == start ]]; then
-		COMPREPLY=($(comm -23 <(cd /etc/rc.d && compgen -f -X 'functions*' "$cur"|sort) <(cd /run/daemons/ && compgen -f "$cur"|sort)))
+		COMPREPLY=($(comm -23 <(cd /usr/libexec/rc.d && compgen -f -X 'functions*' "$cur"|sort) <(cd /run/daemons/ && compgen -f "$cur"|sort)))
 	elif [[ "$arg" =~ stop|restart|reload ]]; then
 		COMPREPLY=($(cd /run/daemons/ && compgen -f "$cur"|sort))
 	else
-		COMPREPLY=($(compgen -W "${options} $(cd /etc/rc.d && compgen -f -X 'functions*')" -- "$cur"))
+		COMPREPLY=($(compgen -W "${options} $(cd /usr/libexec/rc.d && compgen -f -X 'functions*')" -- "$cur"))
 	fi
 }
 complete -F _rc_d rc.d

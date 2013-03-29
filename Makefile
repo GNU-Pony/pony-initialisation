@@ -1,8 +1,8 @@
 VER  := $(shell git describe)
 
 DIRS := \
-	/etc/rc.d \
-	/etc/rc.d/functions.d \
+	/usr/libexec/rc.d \
+	/usr/libexec/rc.d/functions.d \
 	/etc/logrotate.d \
 	/etc/profile.d \
 	/usr/lib/pony-initialisation \
@@ -61,8 +61,8 @@ install: installdirs doc
 	install -m644 -t "$(DESTDIR)"/etc $(CONFIGS)
 	install -m755 -t "$(DESTDIR)"/etc $(SCRIPTS)
 	install -m644 -t "$(DESTDIR)"/etc/logrotate.d misc/bootlog
-	install -m644 -t "$(DESTDIR)"/etc/rc.d scripts/functions
-	install -m755 -t "$(DESTDIR)"/etc/rc.d $(DAEMONS)
+	install -m644 -t "$(DESTDIR)"/usr/libexec/rc.d scripts/functions
+	install -m755 -t "$(DESTDIR)"/usr/libexec/rc.d $(DAEMONS)
 	install -m755 -t "$(DESTDIR)"/usr/sbin tools/rc.d
 	install -m755 -t "$(DESTDIR)"/etc/profile.d misc/read_locale.sh
 	install -m644 -t "$(DESTDIR)"/usr/share/man/man8 $(filter %.8, $(MAN_PAGES))
