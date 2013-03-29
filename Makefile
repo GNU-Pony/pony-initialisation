@@ -36,9 +36,11 @@ DAEMONS := \
 	daemon/netfs
 
 MAN_PAGES := \
-	man/rc.conf.5 \
-	man/rc.d.8 \
 	man/pony-daemons.8
+
+INFO := \
+	rc.conf.info.gz \
+	rc.d.info.gz
 
 TOOLS := \
 	tools/pony-binfmt \
@@ -64,8 +66,8 @@ install: installdirs doc
 	install -m755 -t "$(DESTDIR)"/etc/rc.d $(DAEMONS)
 	install -m755 -t "$(DESTDIR)"/usr/sbin tools/rc.d
 	install -m755 -t "$(DESTDIR)"/etc/profile.d misc/read_locale.sh
-	install -m644 -t "$(DESTDIR)"/usr/share/man/man5 $(filter %.5, $(MAN_PAGES))
 	install -m644 -t "$(DESTDIR)"/usr/share/man/man8 $(filter %.8, $(MAN_PAGES))
+	install -m644 -t "$(DESTDIR)"/usr/share/info $(INFO)
 	install -m755 -t "$(DESTDIR)"/usr/lib/initscripts $(TOOLS)
 	install -m755 -t "$(DESTDIR)"/usr/lib/systemd/system-generators systemd/pony-daemons
 	install -m644 -t "$(DESTDIR)"/usr/lib/systemd/system $(UNITS)
@@ -81,10 +83,18 @@ install: installdirs doc
 %: %.txt
 	a2x -d manpage -f manpage "$<"
 
-doc: $(MAN_PAGES)
+%.info.gz: info/%.texinfo
+	makeinfo "$<"
+	gzip -9 "$*.info"
+
+doc: man info
+
+man: $(MAN_PAGES)
+
+info: $(INFO)
 
 clean:
-	rm -f $(MAN_PAGES)
+	rm -f $(MAN_PAGES) $(INFO)
 
 .PHONY: all installdirs install doc clean
 
