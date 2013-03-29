@@ -17,7 +17,7 @@ options:
 
 <daemons> is a space separated list of script in /etc/rc.d
 <action> can be a start, stop, restart, reload, status, ...
-WARNING: scripts are free to implement or not the above actions.
+NOTE: scripts are free to implement or not the above actions.
 
 e.g: $name list
      $name list sshd gpm
