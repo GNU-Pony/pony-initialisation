@@ -4,9 +4,9 @@ This is a fork of initscripts-fork which is a fork of Arch Linux's initscripts.
 
 Improvement over initscripts-fork:
 
-*  Nicer default configurions
-#  Better in-file documentation
-#  Texinfo (info) manuals
-#  Easing multihoming from /etc/rc.conf
-#  Easing runlevel dependeny for modules and daemons in rc.conf
+•  Nicer default configurions
+•  Better in-file documentation
+•  Texinfo (info) manuals
+•  Easing multihoming from /etc/rc.conf
+•  Easing runlevel dependeny for modules and daemons in rc.conf
 
