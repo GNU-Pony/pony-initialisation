@@ -302,7 +302,7 @@ gateway=(192.168.0.1 '')
 
 
 @node USE*
-@chapter $var{USE*}
+@section @var{USE*}
 
 There are two variables for scanning for hardware setups for which to scan,
 those are @var{USEDMRAID} and @var{USELVM}. By default those are set to
@@ -315,7 +315,7 @@ at start-up. @command{dmraid} is required to use those volumes.
 
 
 @node MODULES
-@chapter @var{MODULES}
+@section @var{MODULES}
 
 If @var{MODULES} is not set, @file{/etc/modules-load.d/} is used; it is used
 to load kernel modules at boot-up. Modules are not necessarily just hardware
