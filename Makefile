@@ -14,7 +14,6 @@ DIRS := \
 	/usr/sbin \
 	/usr/share/bash-completion/completions \
 	/usr/share/zsh/site-functions \
-	/usr/share/man/man5 \
 	/usr/share/man/man8 \
 	/usr/share/licenses/pony-initialisation
 
