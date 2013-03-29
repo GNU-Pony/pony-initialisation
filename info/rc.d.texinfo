@@ -1,0 +1,146 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename rc.d.info
+@settitle rc.d
+@afourpaper
+@documentencoding UTF-8
+@documentlanguage en
+@finalout
+@c %**end of header
+
+
+@copying
+Copyright @copyright{} 2013 Mattias Andrée
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@ifnottex
+@node Top
+@top rc.d -- Daemon process control station
+@insertcopying
+@end ifnottex
+
+@titlepage
+@title rc.d
+@subtitle Daemon process control station
+@author by Mattias Andrée (maandree)
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+
+
+@menu
+* Overview::                        Brief overview of @command{rc.d}.
+* Controlling a daemon::            Controlling one or more daemons.
+* Reserved actions::                Using the reserved actions.
+* Filters::                         Using filters to select daemons.
+* GNU Free Documentation License::  Copying and sharing this manual.
+@end menu
+
+
+
+@node Overview
+@chapter Overview
+
+@command{rc.d} is a program that lets you control daemon processes @footnote{Also
+called services.}. You can start, stop and restart daemons as well as signal them
+to reload their configurations and show their status.
+
+
+
+@node Controlling a daemon
+@chapter Controlling a daemon
+
+Daemons are controlled by individual scripts located in @file{/etc/rc.d/}, that
+are controlled collectively by @command{rc.d}. The scripts are free to implement
+any command, called actions, except @code{list} and @code{help} which are reserved.
+
+There a three standard commands:
+
+@table @code
+@item start
+Start a daemon if it is not already running.
+@item stop
+Stop a daemon if it running.
+@item restart
+Restart a running daemon.
+@item reload
+Signal a daemon to reload its configurations.
+@item status
+Show the status of a daemon.
+@end table
+
+@code{reload} and @code{status} are less common.
+
+If you, for example, wish to restart the daemon @code{cupsd}, run the command
+@command{rc.d restart cupsd}, or if you want to start both @code{fancontrol}
+and @code{cpupower}: @command{rc.d start fancontrol cpupower}.
+
+
+
+@node Reserved actions
+@chapter Reserved actions
+
+Their are to reserved actions: @code{list} and @code{help}, @command{rc.d help}
+is simple a command to get a quick help on how to use @command{rc.d}. To list
+available daemons you use the action @code{list} by running @command{rc.d list}.
+@code{list} will additionally show whether the daemons are started or stopped as
+well as whether they were automatically stated or manually started.
+
+When using @code{list} you can limit the listed daemons to a specify set of
+daemons by appending them as individual arguments. Note that it will fail if
+a daemon does not have an executable rc.d script.
+
+
+
+@node Filters
+@chapter Filters
+
+When using actions, other than @code{help}, you can use four filters to select
+daemons: @code{--started}, @code{--stopped}, @code{--auto} and @code{--noauto}.
+In addition to these filters you can list daemons, when doing so you tell
+@command{rc.d} that you only want those daemons but only those of them that the
+used filters would select.
+
+@table @code
+@item -s
+@itemx --started
+Select or filter to only started daemons.
+@item -S
+@itemx --stopped
+Select or filter to only stopped daemons.
+@item -a
+@itemx --auto
+Select or filter to only automatically started daemons.
+@item -A
+@itemx --noauto
+Select or filter to only manually started daemons.
+@end table
+
+So, for example, if you want to stop all manually started daemons that are
+running you use the command @command{rc.d stop --started --noauto}.
+If you want to restart @command{crond} only if it is stopped you use the
+command @command{rc.d restart --stopped crond}.
+
+
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+@include fdl.texinfo
+
+@bye
+

@@ -57,7 +57,7 @@ Texts. A copy of the license is included in the section entitled
 @node Overview
 @chapter Overview
 
-@file{/etc/rc.conf} is a dump@footnote{Should only set variables.} GNU Bash
+@file{/etc/rc.conf} is a dumb@footnote{Should only set variables.} GNU Bash
 script for the mane system configuraions including localisation, networking
 settings, daemons and modules. You can add any custom setting you may wish
 to use in your boot scripts.
