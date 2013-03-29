@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 hostapd.rc /etc/rc.d/hostapd
+}

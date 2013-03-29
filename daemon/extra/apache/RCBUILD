@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 httpd.rc /etc/rc.d/httpd
+}

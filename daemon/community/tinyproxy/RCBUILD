@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 tinyproxy.rc /etc/rc.d/tinyproxy
+}

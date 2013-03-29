@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 stunnel.rc /etc/rc.d/stunnel
+}

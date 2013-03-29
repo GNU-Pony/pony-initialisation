@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 capi4hylafax.rc /etc/rc.d/capi4hylafax
+}

@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 libvirtd.rc /etc/rc.d/libvirtd
+  install -Dm 755 libvirtd-guests.rc /etc/rc.d/libvirtd-guests
+}

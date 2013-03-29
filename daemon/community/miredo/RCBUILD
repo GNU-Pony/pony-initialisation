@@ -1,0 +1,5 @@
+rcinstall {
+  install -Dm 755 miredo.rc /etc/rc.d/miredo
+  install -Dm 755 miredo-server.rc /etc/rc.d/miredo-server
+  install -Dm 755 isatapd.rc /etc/rc.d/isatapd
+}

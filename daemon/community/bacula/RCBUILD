@@ -1,0 +1,5 @@
+rcinstall {
+  install -Dm 755 bacula-dir.rc /etc/rc.d/bacula-dir
+  install -Dm 755 bacula-fd.rc /etc/rc.d/bacula-fd
+  install -Dm 755 bacula-sd.rc /etc/rc.d/bacula-sd
+}

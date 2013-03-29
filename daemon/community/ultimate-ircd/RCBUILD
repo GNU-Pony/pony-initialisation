@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ultimate-ircd.rc /etc/rc.d/ultimate-ircd
+}

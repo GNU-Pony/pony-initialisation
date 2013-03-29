@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ejabberd.rc /etc/rc.d/ejabberd
+}

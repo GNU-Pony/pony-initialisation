@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pyrss.rc /etc/rc.d/pyrss
+}

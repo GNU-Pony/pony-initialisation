@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 vnstat.rc /etc/rc.d/vnstat
+}

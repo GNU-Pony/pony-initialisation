@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 kexec.rc /etc/rc.d/kexec
+}

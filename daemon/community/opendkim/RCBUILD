@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 opendkim.rc /etc/rc.d/opendkim
+}

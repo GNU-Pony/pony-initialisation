@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 polipo.rc /etc/rc.d/polipo
+}

@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pyicqt.rc /etc/rc.d/pyicqt
+}

@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 deluged.rc /etc/rc.d/deluged
+  install -Dm 755 deluge-web.rc /etc/rc.d/deluge-web
+}

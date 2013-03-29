@@ -1,0 +1,7 @@
+rcinstall {
+  install -Dm 755 courier-imap.rc /etc/rc.d/courier-imap
+  install -Dm 755 imapd.rc /etc/rc.d/imapd
+  install -Dm 755 imapd-ssl.rc /etc/rc.d/imapd-ssl
+  install -Dm 755 pop3d.rc /etc/rc.d/pop3d
+  install -Dm 755 pop3d-ssl.rc /etc/rc.d/pop3d-ssl
+}

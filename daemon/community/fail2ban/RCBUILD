@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 fail2ban.rc /etc/rc.d/fail2ban
+}

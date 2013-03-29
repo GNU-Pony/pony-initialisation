@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ngircd.rc /etc/rc.d/ngircd
+}

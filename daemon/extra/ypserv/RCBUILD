@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 ypserv.rc /etc/rc.d/ypserv
+  install -Dm 755 yppasswd.rc /etc/rc.d/yppasswd
+}

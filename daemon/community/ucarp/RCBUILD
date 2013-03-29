@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 ucarp.rc /etc/rc.d/ucarp
+  install -Dm 644 ucarp.conf /etc/conf.d/ucarp
+}

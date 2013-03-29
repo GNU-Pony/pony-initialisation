@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 unbound.rc /etc/rc.d/unbound
+}

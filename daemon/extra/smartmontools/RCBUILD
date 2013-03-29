@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 smartd.rc /etc/rc.d/smartd
+}

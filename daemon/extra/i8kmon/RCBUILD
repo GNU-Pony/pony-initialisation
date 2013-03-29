@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 i8kmon.rc /etc/rc.d/i8kmon
+}

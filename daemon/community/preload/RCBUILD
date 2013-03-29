@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 preload.rc /etc/rc.d/preload
+}

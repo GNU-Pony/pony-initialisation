@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 webfsd.rc /etc/rc.d/webfsd
+}

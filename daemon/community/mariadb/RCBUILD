@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 mysqld.rc /etc/rc.d/mysqld
+}

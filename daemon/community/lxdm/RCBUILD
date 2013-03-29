@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 lxdm.rc /etc/rc.d/lxdm
+}

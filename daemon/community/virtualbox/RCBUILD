@@ -1,0 +1,6 @@
+rcinstall {
+  install -Dm 755 vboxweb.rc /etc/rc.d/vboxweb
+  install -Dm 755 vboxservice.rc /etc/rc.d/vboxservice
+  install -Dm 644 vboxweb.conf /etc/conf.d/vboxweb
+  install -Dm 644 vboxservice.conf /etc/conf.d/vboxservice
+}

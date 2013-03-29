@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 hylafax.rc /etc/rc.d/hylafax
+}

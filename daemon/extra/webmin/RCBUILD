@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 webmin.rc /etc/rc.d/webmin
+}

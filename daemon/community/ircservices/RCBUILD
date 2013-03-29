@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ircservices.rc /etc/rc.d/ircservices
+}

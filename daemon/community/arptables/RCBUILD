@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 arptables.rc /etc/rc.d/arptables
+}

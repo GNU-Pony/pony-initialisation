@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 openvpn.rc /etc/rc.d/openvpn
+  install -Dm 755 openvpn-tapdev.rc /etc/rc.d/openvpn-tapdev
+}

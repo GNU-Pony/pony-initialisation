@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pdns-recursor.rc /etc/rc.d/pdns-recursor
+}

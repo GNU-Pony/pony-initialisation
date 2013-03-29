@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 p3scan.rc /etc/rc.d/p3scan
+}

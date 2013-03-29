@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 gnunetd.rc /etc/rc.d/gnunetd
+}

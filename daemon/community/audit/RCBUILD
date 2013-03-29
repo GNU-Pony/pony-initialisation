@@ -1,0 +1,3 @@
+rcinstall {
+  install -m755 auditd.rc etc/rc.d/auditd
+}

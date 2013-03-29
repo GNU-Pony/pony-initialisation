@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 osirismd.rc /etc/rc.d/osirismd
+  install -Dm 755 osirisd.rc /etc/rc.d/osirisd
+}

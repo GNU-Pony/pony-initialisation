@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 laptop-mode.rc /etc/rc.d/laptop-mode
+}

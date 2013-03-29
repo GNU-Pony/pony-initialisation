@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 multipathd.rc /etc/rc.d/multipathd
+}

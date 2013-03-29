@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 git-daemon.rc /etc/rc.d/git-daemon
+}

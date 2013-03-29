@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 nsvsd.rc /etc/rc.d/nsvsd
+}

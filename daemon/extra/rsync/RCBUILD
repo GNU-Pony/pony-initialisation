@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 rsyncd.rc /etc/rc.d/rsyncd
+}

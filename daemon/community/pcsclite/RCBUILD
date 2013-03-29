@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pcscd.rc /etc/rc.d/pcscd
+}

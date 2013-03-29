@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pound.rc /etc/rc.d/pound
+}

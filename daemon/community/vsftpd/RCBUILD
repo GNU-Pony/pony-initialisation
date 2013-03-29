@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 vsftpd.rc /etc/rc.d/vsftpd
+}

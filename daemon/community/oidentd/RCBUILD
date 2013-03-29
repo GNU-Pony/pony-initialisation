@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 oidentd.rc /etc/rc.d/oidentd
+}

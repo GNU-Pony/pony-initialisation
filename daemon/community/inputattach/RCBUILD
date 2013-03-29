@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 inputattach.rc /etc/rc.d/inputattach
+}

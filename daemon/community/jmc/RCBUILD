@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 jmc.rc /etc/rc.d/jmc
+}

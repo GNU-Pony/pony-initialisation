@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pymsnt.rc /etc/rc.d/pymsnt
+}

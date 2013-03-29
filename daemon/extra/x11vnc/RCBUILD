@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 x11vnc.rc /etc/rc.d/x11vnc
+}

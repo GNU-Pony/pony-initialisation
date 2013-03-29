@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 iptables.rc /etc/rc.d/iptables
+  install -Dm 755 ip6tables.rc /etc/rc.d/ip6tables
+}

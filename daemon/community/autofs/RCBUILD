@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 autofs.rc /etc/rc.d/autofs
+}

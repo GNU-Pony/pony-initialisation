@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 racoon.rc /etc/rc.d/racoon
+  install -Dm 755 ipsec.rc /etc/rc.d/ipsec
+}

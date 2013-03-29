@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 incrond.rc /etc/rc.d/incrond
+}

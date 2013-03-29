@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 mfschunkserver.rc /etc/rc.d/mfschunkserver
+}

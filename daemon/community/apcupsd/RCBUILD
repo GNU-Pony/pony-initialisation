@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 apcupsd.rc /etc/rc.d/apcupsd
+}

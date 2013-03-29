@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 sshd-close-sessions.rc /etc/rc.d/functions.d/sshd-close-sessions
+  install -Dm 755 sshd.rc /etc/rc.d/sshd
+}

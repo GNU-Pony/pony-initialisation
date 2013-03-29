@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 boinc.rc /etc/rc.d/boinc
+}

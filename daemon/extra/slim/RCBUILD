@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 slim.rc /etc/rc.d/slim
+}

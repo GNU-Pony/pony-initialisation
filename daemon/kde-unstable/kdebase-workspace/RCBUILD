@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 kdm /etc/rc.d/kdm
+}

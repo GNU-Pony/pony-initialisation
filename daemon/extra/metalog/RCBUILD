@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 metalog.rc /etc/rc.d/metalog
+}

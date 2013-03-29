@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 xinetd.rc /etc/rc.d/xinetd
+}

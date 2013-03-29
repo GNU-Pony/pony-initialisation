@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 php-fpm.rc /etc/rc.d/php-fpm
+}

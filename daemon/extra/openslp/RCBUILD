@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 slpd.rc /etc/rc.d/slpd
+}

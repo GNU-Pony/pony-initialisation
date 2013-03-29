@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 postfix.rc /etc/rc.d/postfix
+}

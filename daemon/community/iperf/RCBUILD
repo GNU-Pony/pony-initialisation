@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 iperf.rc /etc/rc.d/iperf
+}

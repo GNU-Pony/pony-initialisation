@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 mono.rc /etc/rc.d/mono
+}

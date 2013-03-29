@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 xl2tpd.rc /etc/rc.d/xl2tpd
+}

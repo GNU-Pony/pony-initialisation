@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pptpd.rc /etc/rc.d/pptpd
+}

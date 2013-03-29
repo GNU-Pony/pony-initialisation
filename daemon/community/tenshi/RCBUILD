@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 tenshi.rc /etc/rc.d/tenshi
+}

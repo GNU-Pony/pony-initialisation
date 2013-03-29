@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 synergys.rc /etc/rc.d/synergys
+}

@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 backuppc.rc /etc/rc.d/backuppc
+  install -Dm 644 backuppc.conf /etc/conf.d/backuppc
+}

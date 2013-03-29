@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 xmms2d.rc /etc/rc.d/xmms2d
+}

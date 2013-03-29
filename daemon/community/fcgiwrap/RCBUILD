@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 fcgiwrap.rc /etc/rc.d/fcgiwrap
+}

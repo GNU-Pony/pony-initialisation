@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 memcached.rc /etc/rc.d/memcached
+}

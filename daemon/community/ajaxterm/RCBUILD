@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ajaxterm.rc /etc/rc.d/ajaxterm
+}

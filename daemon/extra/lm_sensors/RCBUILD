@@ -1,0 +1,6 @@
+rcinstall {
+  install -Dm 755 sensors.rc /etc/rc.d/sensors
+  install -Dm 755 fancontrol.rc /etc/rc.d/fancontrol
+  install -Dm 755 healthd.rc /etc/rc.d/healthd
+  install -Dm 755 sensord.rc /etc/rc.d/sensord
+}

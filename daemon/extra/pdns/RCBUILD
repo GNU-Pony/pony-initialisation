@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pdns.rc /etc/rc.d/pdns
+}

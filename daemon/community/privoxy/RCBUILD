@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 privoxy.rc /etc/rc.d/privoxy
+}

@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 yahoo-t.rc /etc/rc.d/yahoo-t
+}

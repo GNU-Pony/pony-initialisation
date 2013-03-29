@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 cupsd.rc /etc/rc.d/cupsd
+}

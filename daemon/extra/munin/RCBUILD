@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 munin-node.rc /etc/rc.d/munin-node
+}

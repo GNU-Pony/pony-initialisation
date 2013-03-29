@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 syslog-ng.rc /etc/rc.d/syslog-ng
+}

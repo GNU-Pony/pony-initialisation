@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 snort.rc /etc/rc.d/snort
+}

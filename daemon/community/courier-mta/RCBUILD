@@ -1,0 +1,12 @@
+rcinstall {
+  install -Dm 755 courier-mta.rc /etc/rc.d/courier-mta
+  install -Dm 755 courier.rc /etc/rc.d/courier
+  install -Dm 755 imapd.rc /etc/rc.d/imapd
+  install -Dm 755 imapd-ssl.rc /etc/rc.d/imapd-ssl
+  install -Dm 755 pop3d.rc /etc/rc.d/pop3d
+  install -Dm 755 pop3d-ssl.rc /etc/rc.d/pop3d-ssl
+  install -Dm 755 esmtpd.rc /etc/rc.d/esmtpd
+  install -Dm 755 esmtpd-ssl.rc /etc/rc.d/esmtpd-ssl
+  install -Dm 755 esmtpd-msa.rc /etc/rc.d/esmtpd-msa
+  install -Dm 755 webmaild.rc /etc/rc.d/webmaild
+}

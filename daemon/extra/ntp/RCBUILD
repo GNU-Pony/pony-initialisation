@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 ntpd.rc /etc/rc.d/ntpd
+  install -Dm 755 ntpdate.rc /etc/rc.d/ntpdate
+}

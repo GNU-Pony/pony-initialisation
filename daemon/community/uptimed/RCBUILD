@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 uptimed.rc /etc/rc.d/uptimed
+}

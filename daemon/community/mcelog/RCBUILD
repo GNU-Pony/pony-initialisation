@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 mcelog.rc /etc/rc.d/mcelog
+}

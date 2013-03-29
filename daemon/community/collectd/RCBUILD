@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 collectd.rc /etc/rc.d/collectd
+}

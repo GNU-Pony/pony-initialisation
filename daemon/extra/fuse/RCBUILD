@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 fuse.rc /etc/rc.d/fuse
+}

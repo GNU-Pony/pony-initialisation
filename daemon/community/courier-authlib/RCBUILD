@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 authdaemond.rc /etc/rc.d/authdaemond
+}

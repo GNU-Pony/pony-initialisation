@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 pyaimt.rc /etc/rc.d/pyaimt
+}

@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 dhcp4.rc /etc/rc.d/dhcp4
+  install -Dm 755 dhcp6.rc /etc/rc.d/dhcp6
+}

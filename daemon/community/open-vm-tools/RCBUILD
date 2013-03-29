@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 open-vm-tools.rc /etc/rc.d/open-vm-tools
+}

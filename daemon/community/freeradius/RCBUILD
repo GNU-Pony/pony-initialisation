@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 radiusd.rc /etc/rc.d/radiusd
+}

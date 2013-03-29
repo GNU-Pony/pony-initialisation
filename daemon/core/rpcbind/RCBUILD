@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 rpcbind.rc /etc/rc.d/rpcbind
+}

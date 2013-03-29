@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 fetchmail.rc /etc/rc.d/fetchmail
+}

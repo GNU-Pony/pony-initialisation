@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 exim.rc /etc/rc.d/exim
+}

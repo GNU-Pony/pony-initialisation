@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 watchdog.rc /etc/rc.d/watchdog
+  install -Dm 755 wd_keepalive.rc /etc/rc.d/wd_keepalive
+}

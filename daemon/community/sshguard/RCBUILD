@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 sshguard.rc /etc/rc.d/sshguard
+}

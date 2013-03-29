@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 keepalived.rc /etc/rc.d/keepalived
+}

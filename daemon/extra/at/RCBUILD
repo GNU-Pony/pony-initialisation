@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 atd.rc /etc/rc.d/atd
+}

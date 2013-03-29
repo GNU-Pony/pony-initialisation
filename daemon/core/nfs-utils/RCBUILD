@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 nfs-common.rc /etc/rc.d/nfs-common
+  install -Dm 755 nfs-server.rc /etc/rc.d/nfs-server
+}

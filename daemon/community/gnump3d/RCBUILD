@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 gnump3d.rc /etc/rc.d/gnump3d
+}

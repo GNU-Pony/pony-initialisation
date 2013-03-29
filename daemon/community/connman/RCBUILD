@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 connmand.rc /etc/rc.d/connmand
+}

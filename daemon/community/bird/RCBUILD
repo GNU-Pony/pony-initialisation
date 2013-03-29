@@ -1,0 +1,5 @@
+rcinstall {
+  install -Dm 755 bird.rc /etc/rc.d/bird
+  install -Dm 755 bird6.rc /etc/rc.d/bird6
+  install -Dm 644 bird.conf /etc/conf.d/bird
+}

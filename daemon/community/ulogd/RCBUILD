@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ulogd.rc /etc/rc.d/ulogd
+}

@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 adsl.rc /etc/rc.d/adsl
+}

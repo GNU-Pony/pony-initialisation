@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 samba.rc /etc/rc.d/samba
+}

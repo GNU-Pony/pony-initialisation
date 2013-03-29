@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 osspd.rc /etc/rc.d/osspd
+}

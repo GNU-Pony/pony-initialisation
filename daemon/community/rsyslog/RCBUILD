@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 rsyslogd.rc /etc/rc.d/rsyslogd
+}

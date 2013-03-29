@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 innd.rc /etc/rc.d/innd
+  install -Dm 755 nnrpd.rc /etc/rc.d/nnrpd
+}

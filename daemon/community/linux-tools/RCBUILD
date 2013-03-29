@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 usbipd.rc /etc/rc.d/usbipd
+  install -Dm 755 cpupower.rc /etc/rc.d/cpupower
+}

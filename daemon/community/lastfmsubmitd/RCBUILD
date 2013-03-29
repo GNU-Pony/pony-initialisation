@@ -1,0 +1,4 @@
+rcinstall {
+  install -Dm 755 lastfmsubmitd.rc /etc/rc.d/lastfmsubmitd
+  install -Dm 755 lastmp.rc /etc/rc.d/lastmp
+}

@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 ser2net.rc /etc/rc.d/ser2net
+}

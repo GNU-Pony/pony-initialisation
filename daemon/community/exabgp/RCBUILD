@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 exabgp.rc /etc/rc.d/exabgp
+}

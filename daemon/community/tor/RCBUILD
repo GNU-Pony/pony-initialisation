@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 tor.rc /etc/rc.d/tor
+}

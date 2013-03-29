@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 tomcat.rc /etc/rc.d/tomcat
+}

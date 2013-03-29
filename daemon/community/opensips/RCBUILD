@@ -1,0 +1,3 @@
+rcinstall {
+  install -Dm 755 opensips.rc /etc/rc.d/opensips
+}
