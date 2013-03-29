@@ -93,7 +93,7 @@ man: $(MAN_PAGES)
 info: $(INFO)
 
 clean:
-	rm -f $(MAN_PAGES) $(INFO) *.{aux.cp,fn,info,ky,log,pdf,ps,dvi,pg,toc,tp,vr}
+	rm -f $(MAN_PAGES) $(INFO) *.{aux,cp,fn,info,ky,log,pdf,ps,dvi,pg,toc,tp,vr}
 
 .PHONY: all installdirs install doc clean
 
