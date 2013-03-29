@@ -58,7 +58,7 @@ install: doc
 	install -dm755 "$(DESTDIR)"/usr/share/licenses/pony-initialisation
 	install -m755 "$(DESTDIR)"/usr/share/licenses/pony-initialisation COPYING LICENSE
 
-install_systemdcompat:
+install_systemdcompatlayer:
 	install -dm755 "$(DESTDIR)"/usr/lib/systemd/system-generators
 	install -m755 -t "$(DESTDIR)"/usr/lib/systemd/system-generators systemd/pony-daemons
 	install -dm755 "$(DESTDIR)"/usr/lib/systemd/system
