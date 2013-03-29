@@ -24,7 +24,7 @@ pony-daemons is executed by systemd at very early boot. It has two purposes:
    backgrounding).
 
 Note: this is meant as a compatibility layer only for the purposes of easing users' transition
-from initscripts to systemd. You are strongly encouraged to not rely on this, but rather use
+from pony-initialisation to systemd. You are strongly encouraged to not rely on this, but rather use
 native systemd services.
 
 The generated services that are enabled in the DAEMONS array is pulled in via pony-daemons.target.

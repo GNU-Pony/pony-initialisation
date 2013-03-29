@@ -5,7 +5,7 @@ DIRS := \
 	/etc/rc.d/functions.d \
 	/etc/logrotate.d \
 	/etc/profile.d \
-	/usr/lib/initscripts \
+	/usr/lib/pony-initialisation \
 	/usr/lib/tmpfiles.d \
 	/usr/lib/systemd/system-generators \
 	/usr/lib/systemd/system/multi-user.target.wants \
@@ -68,10 +68,10 @@ install: installdirs doc
 	install -m755 -t "$(DESTDIR)"/etc/profile.d misc/read_locale.sh
 	install -m644 -t "$(DESTDIR)"/usr/share/man/man8 $(filter %.8, $(MAN_PAGES))
 	install -m644 -t "$(DESTDIR)"/usr/share/info $(INFO)
-	install -m755 -t "$(DESTDIR)"/usr/lib/initscripts $(TOOLS)
+	install -m755 -t "$(DESTDIR)"/usr/lib/pony-initialisation $(TOOLS)
 	install -m755 -t "$(DESTDIR)"/usr/lib/systemd/system-generators systemd/pony-daemons
 	install -m644 -t "$(DESTDIR)"/usr/lib/systemd/system $(UNITS)
-	install -m644 conf/tmpfiles.conf "$(DESTDIR)"/usr/lib/tmpfiles.d/initscripts.conf
+	install -m644 conf/tmpfiles.conf "$(DESTDIR)"/usr/lib/tmpfiles.d/pony-initialisation.conf
 	install -m644 -T completion/bash-completion "$(DESTDIR)"/usr/share/bash-completion/completions/rc.d
 	install -m644 -T completion/zsh-completion "$(DESTDIR)"/usr/share/zsh/site-functions/_rc.d
 	install -m755 "$(DESTDIR)"/usr/share/licenses/pony-initialisation COPYING LICENSE

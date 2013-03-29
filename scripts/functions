@@ -1,5 +1,5 @@
 #!/bin/bash
-# initscripts functions
+# pony-initialisation functions
 #
 
 # sanitize PATH (will be overridden later when /etc/profile is sourced but is useful for udev)
@@ -420,7 +420,7 @@ udevd_modprobe() {
     if (( ${#MODULES[*]} )); then
                 modprobe -ab "${MODULES[@]/!*/}"
     else
-        /usr/lib/initscripts/pony-modules
+        /usr/lib/pony-initialisation/pony-modules
     fi
     (( $? == 0 )) && stat_done || stat_fail
 
@@ -479,7 +479,7 @@ do_unlock_legacy() {
                 #
                 # This sanity check _should_ be sufficient, but it might not.
                 # This may cause data loss if it is not used carefully.
-                blkid -p "$2" &>/dev/null
+                 blkid -p "$2" &>/dev/null
                 (( $? == 2 )) && _overwriteokay=1
             fi
             if (( _overwriteokay == 0 )); then
@@ -729,7 +729,7 @@ umount_all() {
 
 remove_leftover() {
     #status 'Removing leftover files' systemd-tmpfiles --create --remove --clean
-    status 'Removing leftover files' /usr/lib/initscripts/pony-tmpfiles --create --remove
+    status 'Removing leftover files' /usr/lib/pony-initialisation/pony-tmpfiles --create --remove
 }
 
 bootlogd_stop() {
@@ -739,9 +739,9 @@ bootlogd_stop() {
     rm -f /run/bootlogd.pid
 }
 
-###############################
-# Custom hooks in initscripts #
-###############################
+#######################################
+# Custom hooks in pony-initialisation #
+#######################################
 # Hooks can be used to include custom code in various places in the rc.* scripts
 #
 # Define a hook function in a functions.d file using:

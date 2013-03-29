@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/initscripts/pony-binfmt
+# /usr/lib/pony-initialisation/pony-binfmt
 #
 # Configure additional binary formats at boot
 #

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/initscripts/pony-tmpfiles
+# /usr/lib/pony-initialisation/pony-tmpfiles
 #
 # Control creation, deletion, and cleaning of volatile and temporary files
 #
