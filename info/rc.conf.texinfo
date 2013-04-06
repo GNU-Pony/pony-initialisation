@@ -350,6 +350,9 @@ or @code{:23} for runlevels 2 and 3. If you wish to exclude then on
 runlevel 2 and 4 (networkless runlevels), you use the suffix @code{:-24}.
 Mixing those suffixes is not possbile as it makes no sense.
 
+The suffix @code{@@} means the daemon's stderr should be redirected to
+@file{/dev/null}, which can be used if a daemon is spitting out error
+messages after boot time without it being important.
 
 
 
