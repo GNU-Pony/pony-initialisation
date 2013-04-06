@@ -8,5 +8,5 @@ Improvement over initscripts-fork:
 •  Better in-file documentation
 •  Texinfo (info) manuals
 •  Easing multihoming from /etc/rc.conf
-•  Easing runlevel dependeny for modules and daemons in rc.conf
+•  Easing runlevel dependency for daemons in rc.conf
 
