@@ -28,6 +28,10 @@ for daemon in "${DAEMONS[@]}"; do
 	local daemon_r daemon_n daemon_w
 	daemon_r="${daemon#*:}"
 	daemon="${daemon%%:*}"
+	if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
+	    quite=1
+	    daemon="${daemon:0:${#daemon}-1}"
+	fi
 	if [ ! "$RUNLEVEL" = "" ]; then
 	    [ "${daemon_r:0:1}" = "-" ] ; daemon_n=$?
 	    [ ! "${daemon_r/$RUNLEVEL/}" = "$daemon_r" ] ; daemon_w=$?
