@@ -52,6 +52,9 @@ done
     /bin/mkdir -p "$dest/pony-daemons.target.wants"
 
 for daemon in "${DAEMONS[@]}"; do
+    if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
+	daemon="${daemon:0:${#daemon}-1}"
+    fi
     if [ ! "${daemon/:/}" = "$daemon" ]; then
 	local daemon_r daemon_n daemon_w
 	daemon_r="${daemon#*:}"

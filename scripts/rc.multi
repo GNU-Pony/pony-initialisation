@@ -18,6 +18,12 @@ run_hook multi_start
 
 # Start daemons
 for daemon in "${DAEMONS[@]}"; do
+    local quite
+    quite=0
+    if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
+	quite=1
+	daemon="${daemon:0:${#daemon}-1}"
+    fi
     if [ ! "${daemon/:/}" = "$daemon" ]; then
 	local daemon_r daemon_n daemon_w
 	daemon_r="${daemon#*:}"
@@ -30,11 +36,19 @@ for daemon in "${DAEMONS[@]}"; do
 	    fi
 	fi
     fi
-    case "${daemon:0:1}" in
-        '!') continue;;     # Skip this daemon.
-        '@') start_daemon_bkgd "${daemon#@}";;
-        *)   start_daemon "$daemon";;
-    esac
+    if [ $quite = 1 ]; then
+	case "${daemon:0:1}" in
+            '!') continue;;     # Skip this daemon.
+            '@') start_daemon_bkgd "${daemon#@}" 2>/dev/null;;
+            *)   start_daemon "$daemon" 2>/dev/null;;
+	esac
+    else
+	case "${daemon:0:1}" in
+            '!') continue;;     # Skip this daemon.
+            '@') start_daemon_bkgd "${daemon#@}";;
+            *)   start_daemon "$daemon";;
+	esac
+    fi
 done
 
 [[ -x /etc/rc.local ]] && /etc/rc.local
