@@ -19,12 +19,15 @@ run_hook multi_start
 # Start daemons
 for daemon in "${DAEMONS[@]}"; do
     if [ ! "${daemon/:/}" = "$daemon" ]; then
-	local deamon_r deamon_n deamon_w
-	deamon_r="${daemon#*:}"
-	[ "${deamon_r:0:1}" = "-" ] ; deamon_n=$?
-	[ ! "${deamon_r/$RUNLEVEL/}" = "$deamon_r" ] ; deamon_w=$?
-	if [ $deamon_n = $deamon_w ]; then
-	    continue
+	local daemon_r daemon_n daemon_w
+	daemon_r="${daemon#*:}"
+	daemon="${daemon%%:*}"
+	if [ ! "$RUNLEVEL" = "" ]; then
+	    [ "${daemon_r:0:1}" = "-" ] ; daemon_n=$?
+	    [ ! "${daemon_r/$RUNLEVEL/}" = "$daemon_r" ] ; daemon_w=$?
+	    if [ $daemon_n = $daemon_w ]; then
+		continue
+	    fi
 	fi
     fi
     case "${daemon:0:1}" in

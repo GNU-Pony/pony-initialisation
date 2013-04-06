@@ -52,6 +52,18 @@ done
     /bin/mkdir -p "$dest/pony-daemons.target.wants"
 
 for daemon in "${DAEMONS[@]}"; do
+    if [ ! "${daemon/:/}" = "$daemon" ]; then
+	local daemon_r daemon_n daemon_w
+	daemon_r="${daemon#*:}"
+	daemon="${daemon%%:*}"
+	if [ ! "$RUNLEVEL" = "" ]; then
+	    [ "${daemon_r:0:1}" = "-" ] ; daemon_n=$?
+	    [ ! "${daemon_r/$RUNLEVEL/}" = "$daemon_r" ] ; daemon_w=$?
+	    if [ $daemon_n = $daemon_w ]; then
+		continue
+	    fi
+	fi
+    fi
     service="$daemon.service"
     case ${daemon:0:1} in
       '!') continue ;;
