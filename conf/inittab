@@ -13,8 +13,8 @@
 #   1(S)  Single-user				(system maintainance)
 #   2     Networkless single-user
 #   3     Multi-user				(regular boot with console, which can start graphics)
-#   4     Networkless nulti-user
-#   5     Multi-suer with display manager	(regular boot with graphics)
+#   4     Networkless multi-user
+#   5     Multi-user with display manager	(regular boot with graphics)
 #   6     Reboot
 # 
 
