@@ -266,7 +266,7 @@ is called multihomed and means that you have to networks you are connected to,
 for this it is best to configure everything manually, but if you want to use
 DHCP you should just add two values @var{interface}:
 @example
-interface=(eth0 eth1)
+interface=(enp2s0f0 enp2s0f1)
 address=()
 netmask=()
 broadcast=()
