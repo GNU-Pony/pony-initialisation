@@ -17,7 +17,7 @@ findutils
 
 OPTIONAL RUNTIME DPEENDENCIES:
 
-net-tools:	legacy networking support
+net-tools:	Legacy networking support
 bridge-utils:	Network bridging support
 dhcpcd:		DHCP network configuration
 wireless_tools:	Wireless networking
