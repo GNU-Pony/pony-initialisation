@@ -9,6 +9,15 @@
 @finalout
 @c %**end of header
 
+@c --- start of do not touch ---
+@set PREFIX /usr
+@set LIBEXEC /libexec
+@set SYSCONF /etc
+@set DATA /share
+@set DEV /dev
+@set SYS /sys
+@c --- end of do not touch ---
+
 
 @copying
 Copyright @copyright{} 2013 Mattias Andrée
@@ -25,12 +34,12 @@ Texts. A copy of the license is included in the section entitled
 
 @ifnottex
 @node Top
-@top /etc/rc.conf -- Mane system configuration file
+@top @value{SYSCONF}/rc.conf -- Mane system configuration file
 @insertcopying
 @end ifnottex
 
 @titlepage
-@title /etc/rc.conf
+@title @value{SYSCONF}/rc.conf
 @subtitle Mane system configuration file
 @author by Mattias Andrée (maandree)
 
@@ -44,7 +53,7 @@ Texts. A copy of the license is included in the section entitled
 
 
 @menu
-* Overview::                        Brief overview of @file{/etc/rc.conf}.
+* Overview::                        Brief overview of @file{@value{SYSCONF}/rc.conf}.
 * Localisation::                    Localisation settings.
 * Networking::                      Networking settings.
 * Hardware::                        Configurations for hardware support.
@@ -57,7 +66,7 @@ Texts. A copy of the license is included in the section entitled
 @node Overview
 @chapter Overview
 
-@file{/etc/rc.conf} is a dumb@footnote{Should only set variables.} GNU Bash
+@file{@value{SYSCONF}/rc.conf} is a dumb@footnote{Should only set variables.} GNU Bash
 script for the mane system configuraions including localisation, networking
 settings, daemons and modules. You can add any custom setting you may wish
 to use in your boot scripts.
@@ -95,7 +104,7 @@ English yet, perhaps you want to translate some program.)
 
 The variable @var{HARDWARECLOCK} specifies how to interpret and update the
 hardware clock, and is used by @command{hwclock}; by default it falls back
-to the value in @file{/etc/adjtime} with further fallback to UTC.
+to the value in @file{@value{SYSCONF}/adjtime} with further fallback to UTC.
 
 The default value is used if the value is empty or not set, for example
 with the line @code{HARDWARECLOCK=} or @code{HARDWARECLOCK=""}, but if
@@ -122,11 +131,11 @@ need this if you are also using an old operating system beside this system.
 @section @var{TIMEZONE}
 
 @var{TIMEZONE} specifies the local timezone, you can find them in
-@file{/usr/share/zoneinfo/} (they may be a bit special), and are installed
-by the @code{tzdata} and includes leap second databases that are updated
-with the releases of @code{tzdata}.
+@file{@value{PREFIX}@value{DATA}/zoneinfo/} (they may be a bit special),
+and are installed by the @code{tzdata} and includes leap second databases
+that are updated with the releases of @code{tzdata}.
 
-If no value is set or if an empty value is set @file{/etc/localtime} is
+If no value is set or if an empty value is set @file{@value{SYSCONF}/localtime} is
 used which can be useful if you want a third-party tool to maintain the
 local timezone or if you want the users to be able to modify it value,
 keeping in mind that they need full access to the file.
@@ -139,7 +148,7 @@ available for Equestria.
 @node KEYMAP
 @section @var{KEYMAP}
 
-@var{KEYMAP} refers to any map file in @file{/usr/share/kbd/keymaps}
+@var{KEYMAP} refers to any map file in @file{@value{PREFIX}@value{DATA}/kbd/keymaps}
 that you want to use for your keyboard layout and keybinds, such as
 changing terminal. This used by the kernel in the TTY and not in X.
 Until you create your custom map for your needs you can use
@@ -151,9 +160,9 @@ Until you create your custom map for your needs you can use
 
 @var{CONSOLEFONT} defines the console font to load with the setfont
 program on boot. This setting is also a string and possible fonts can
-be found in @file{/usr/share/kbd/consolefonts}.
+be found in @file{@value{PREFIX}@value{DATA}/kbd/consolefonts}.
 If both @var{CONSOLEFONT} and @var{KEYMAP} leave empty, @var{FONT} in
-@file{/etc/vconsole.conf} will be used.
+@file{@value{SYSCONF}/vconsole.conf} will be used.
 
 
 @node CONSOLEMAP
@@ -161,14 +170,14 @@ If both @var{CONSOLEFONT} and @var{KEYMAP} leave empty, @var{FONT} in
 
 An internal value to output character map for the TTY can be specified
 by with the string variable @var{CONSOLEMAP}, possible maps can be found
-in @file{/usr/share/kbd/consoletrans}.
+in @file{@value{PREFIX}@value{DATA}/kbd/consoletrans}.
 
 Set this to a map suitable for the appropriate locale (8859-1 for Latin1,
 for example) if you are using an UTF-8 locale and use programs that
 generate 8-bit output (and please do patch them).
 
 If both @var{CONSOLEFONT} and @var{KEYMAP} leave empty, @var{FONT_MAP}
-in @file{/etc/vconsole.conf} will be used.
+in @file{@value{SYSCONF}/vconsole.conf} will be used.
 
 
 @node USECOLOUR
@@ -198,10 +207,10 @@ be aware of the variable for it to work.
 Hostname of machine, if you for example which to name your computer so
 that it is identified as `Ponyville' on the network (on all homes),
 use the line @code{HOSTNAME="Ponyville"}. You shoul also configure this
-up in your @file{/etc/hosts} file.
+up in your @file{@value{SYSCONF}/hosts} file.
 
 If you leave @var{HOSTNAME} empty it falls back to the contents of
-@file{/etc/hostname}.
+@file{@value{SYSCONF}/hostname}.
 
 
 @node NETWORK_PERSIST
@@ -214,7 +223,7 @@ which is required if your root device is on NFS.
 @node Wired network
 @section Wired network
 
-Use the commands @command{ls /sys/class/net} or @command{ip addr} to
+Use the commands @command{ls @value{SYS}/class/net} or @command{ip addr} to
 list all available network interfaces. Keep in mind that @file{lo} is
 the loopback interface and you probably do not want to configure that
 one but rather those that starts with @file{eth} (Ethernet).
@@ -317,7 +326,7 @@ at start-up. @command{dmraid} is required to use those volumes.
 @node MODULES
 @section @var{MODULES}
 
-If @var{MODULES} is not set, @file{/etc/modules-load.d/} is used; it is used
+If @var{MODULES} is not set, @file{@value{SYSCONF}/modules-load.d/} is used; it is used
 to load kernel modules at boot-up. Modules are not necessarily just hardware
 modules, but what is by far most common.
 
@@ -351,7 +360,7 @@ runlevel 2 and 4 (networkless runlevels), you use the suffix @code{:-24}.
 Mixing those suffixes is not possbile as it makes no sense.
 
 The suffix @code{@@} means the daemon's stderr should be redirected to
-@file{/dev/null}, which can be used if a daemon is spitting out error
+@file{@value{DEV}/null}, which can be used if a daemon is spitting out error
 messages after boot time without it being important.
 
 

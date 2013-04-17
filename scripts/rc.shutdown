@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# /etc/rc.shutdown
+# </etc>/rc.shutdown
 #
 
-. /etc/rc.conf
-. /usr/libexec/rc.d/functions
+. </etc>/rc.conf
+. </usr>/libexec/rc.d/functions
 
 # don't let all the systemd tools be too verbose
 export SYSTEMD_LOG_LEVEL="notice"
@@ -18,22 +18,22 @@ echo " "
 
 run_hook shutdown_start
 
-[[ -x /etc/rc.local.shutdown ]] && /etc/rc.local.shutdown
+[[ -x </etc>/rc.local.shutdown ]] && </etc>/rc.local.shutdown
 
 stop_all_daemons
 
-#status 'Saving random seed' /usr/lib/systemd/systemd-random-seed save
+#status 'Saving random seed' </usr></lib>/systemd/systemd-random-seed save
 stat_busy "Saving Random Seed"
-    RANDOM_SEED=/var/lib/misc/random-seed
-    install -TDm 0600 /dev/null $RANDOM_SEED
-    POOL_FILE=/proc/sys/kernel/random/poolsize
+    RANDOM_SEED=</var/lib>/misc/random-seed
+    install -TDm 0600 </dev>/null $RANDOM_SEED
+    POOL_FILE=</proc>/sys/kernel/random/poolsize
     if [[ -r $POOL_FILE ]]; then
         read POOL_SIZE < $POOL_FILE
         (( POOL_SIZE /= 8 ))
     else
         POOL_SIZE=512
     fi
-    dd if=/dev/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &>/dev/null
+    dd if=</dev>/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &></dev>/null
 stat_done
 
 [[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
@@ -69,25 +69,25 @@ status "Unmounting non-API filesystems" umount_all
 run_hook shutdown_postumount
 
 # Kill non-root encrypted partition mappings
-if [[ -f /etc/crypttab ]] && type -p cryptsetup >/dev/null; then
+if [[ -f </etc>/crypttab ]] && type -p cryptsetup ></dev>/null; then
     # Maybe somepony has LVM on an encrypted block device
     # executing an extra vgchange is errorless
-    [[ $USELVM = [Yy][Ee][Ss] ]] && vgchange --sysinit -a n &>/dev/null
+    [[ $USELVM = [Yy][Ee][Ss] ]] && vgchange --sysinit -a n &></dev>/null
     read_crypttab do_lock
 fi
 
 [[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) ]] &&
-    status "Deactivating LVM2 groups" vgchange --sysinit -a n &>/dev/null
+    status "Deactivating LVM2 groups" vgchange --sysinit -a n &></dev>/null
 
 run_hook shutdown_poweroff
 
-if [[ -x /run/initramfs/shutdown ]]; then
+if [[ -x </run>/initramfs/shutdown ]]; then
 
     # decide what we want to do
     if [[ $RUNLEVEL = 0 ]]; then
         action="poweroff"
     else
-        { read kexec_loaded </sys/kernel/kexec_loaded; } 2>/dev/null
+        { read kexec_loaded < </sys>/kernel/kexec_loaded; } 2></dev>/null
         if (( kexec_loaded )); then
             action="kexec"
         else
@@ -96,28 +96,28 @@ if [[ -x /run/initramfs/shutdown ]]; then
     fi
 
     # make /run/initramfs a mount
-    mount --bind /run/initramfs /run/initramfs
+    mount --bind </run>/initramfs </run>/initramfs
 
     # in case somepony has shared our mountpoints, unshare them
-    mount --make-private /run/initramfs
+    mount --make-private </run>/initramfs
     mount --make-private /
 
     # bind all API mounts
-    mkdir -p /run/initramfs/{sys,proc,dev,run,oldroot}
-    mount --bind /sys /run/initramfs/sys
-    mount --bind /proc /run/initramfs/proc
-    mount --bind /dev /run/initramfs/dev
-    mount --bind /run /run/initramfs/run
+    mkdir -p </run>/initramfs{</sys>,</proc>,</dev>,</run>,/oldroot}
+    mount --bind </sys> </run>/initramfs</sys>
+    mount --bind </proc> </run>/initramfs</proc>
+    mount --bind </dev> </run>/initramfs</dev>
+    mount --bind </run> </run>/initramfs</run>
 
     # enter shutdownramfs
-    cd /run/initramfs
+    cd </run>/initramfs
     pivot_root . oldroot
 
     # reexec init
-    /oldroot/sbin/init u
+    /oldroot</sbin>/init u
 
     # run /shutdown in the new root
-    exec chroot . /shutdown $action </dev/console >/dev/console 2>&1
+    exec chroot . /shutdown $action < </dev>/console > </dev>/console 2>&1
 
 else
 
@@ -132,7 +132,7 @@ else
     else
         printhl "${C_H2}REBOOTING"
         # if kexec is installed and a kernel is loaded, use it
-        [[ -x $(type -P kexec) ]] && kexec -e &>/dev/null
+        [[ -x "$(type -P kexec)" ]] && kexec -e &></dev>/null
         reboot -d -f -i
     fi
 

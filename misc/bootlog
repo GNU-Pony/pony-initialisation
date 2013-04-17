@@ -1,4 +1,4 @@
-/var/log/boot {
+</var/log>/boot {
     compress
     rotate 1
     size=+1024k

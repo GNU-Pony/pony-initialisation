@@ -9,6 +9,11 @@
 @finalout
 @c %**end of header
 
+@c --- start of do not touch ---
+@set PREFIX /usr
+@set LIBEXEC /libexec
+@c --- end of do not touch ---
+
 
 @copying
 Copyright @copyright{} 2013 Mattias Andrée
@@ -65,7 +70,7 @@ to reload their configurations and show their status.
 @node Controlling a daemon
 @chapter Controlling a daemon
 
-Daemons are controlled by individual scripts located in @file{/usr/libexec/rc.d/}, that
+Daemons are controlled by individual scripts located in @file{@value{PREFIX}@value{LIBEXEC}/rc.d/}, that
 are controlled collectively by @command{rc.d}. The scripts are free to implement
 any command, called actions, except @code{list} and @code{help} which are reserved.
 

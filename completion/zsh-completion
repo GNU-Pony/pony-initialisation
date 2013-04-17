@@ -18,13 +18,13 @@ _rc.d () {
                     _arguments "*: :"
                     ;;
                 start)
-                    _arguments "*: :($(comm -23 <(echo /usr/libexec/rc.d/*(N-*:t)|tr ' ' '\n') <(echo /run/daemons/*(N:t)|tr ' ' '\n')))"
+                    _arguments "*: :($(comm -23 <(echo </usr></libexec>/rc.d/*(N-*:t)|tr ' ' '\n') <(echo </run>/daemons/*(N:t)|tr ' ' '\n')))"
                     ;;
                 stop|restart|reload)
-                    _arguments "*: :(/run/daemons/*(N:t))"
+                    _arguments "*: :(</run>/daemons/*(N:t))"
                     ;;
                 *)
-                    _arguments "*: :(/usr/libexec/rc.d/*(N-*:t))"
+                    _arguments "*: :(</usr></libexec>/rc.d/*(N-*:t))"
                     ;;
             esac
         ;;

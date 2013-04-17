@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# /etc/rc.sysinit
+# </etc>/rc.sysinit
 #
 
 unset HOSTNAME
 
-. /etc/rc.conf
-. /usr/libexec/rc.d/functions
+. </etc>/rc.conf
+. </usr></libexec>/rc.d/functions
 
-if [[ -z $HOSTNAME && -s /etc/hostname ]]; then
-    HOSTNAME=$(< /etc/hostname)
+if [[ -z "$HOSTNAME" && -s </etc>/hostname ]]; then
+    HOSTNAME="$(< </etc>/hostname)"
 fi
 
 # don't let all the systemd tools be too verbose
@@ -19,49 +19,49 @@ export SYSTEMD_LOG_LEVEL="notice"
 print_welcome
 
 # mount the API filesystems
-# /proc, /sys, /run, /dev, /run/lock, /dev/pts, /dev/shm
-mountpoint -q /proc    || mount -t proc proc /proc -o nosuid,noexec,nodev
-mountpoint -q /sys     || mount -t sysfs sys /sys -o nosuid,noexec,nodev
-mountpoint -q /run     || mount -t tmpfs run /run -o mode=0755,nosuid,nodev
-mountpoint -q /dev     || mount -t devtmpfs dev /dev -o mode=0755,nosuid
-mkdir -p /dev/{pts,shm}
-mountpoint -q /dev/pts || mount /dev/pts &>/dev/null || mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
-mountpoint -q /dev/shm || mount /dev/shm &>/dev/null || mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
+# </proc>, </sys>, </run>, </dev>, </run/lock>, </dev/pts>, </dev/shm>
+mountpoint -q </proc>    || mount -t proc proc </proc> -o nosuid,noexec,nodev
+mountpoint -q </sys>     || mount -t sysfs sys </sys> -o nosuid,noexec,nodev
+mountpoint -q </run>     || mount -t tmpfs run </run> -o mode=0755,nosuid,nodev
+mountpoint -q </dev>     || mount -t devtmpfs dev </dev> -o mode=0755,nosuid
+mkdir -p </dev/pts> </dev/shm>
+mountpoint -q </dev/pts> || mount </dev/pts> &></dev>/null || mount -t devpts devpts </dev/pts> -o mode=0620,gid=5,nosuid,noexec
+mountpoint -q </dev/shm> || mount </dev/shm> &></dev>/null || mount -t tmpfs shm </dev/shm> -o mode=1777,nosuid,nodev
 
-if [[ ! -e /run/initramfs/root-fsck ]]; then
+if [[ ! -e </run>/initramfs/root-fsck ]]; then
     # remount root ro to allow for fsck later on, we remount now to
     # make sure nothing can open files rw on root which would block a remount
-    findmnt / --options ro &>/dev/null ||
+    findmnt / --options ro &></dev>/null ||
         status "Mounting root read-only" mount -o remount,ro /
 fi
 
 # log all console messages
-bootlogd -p /run/bootlogd.pid
+bootlogd -p </run>/bootlogd.pid
 
 run_hook sysinit_start
 
 if [[ $HOSTNAME ]]; then
     stat_busy "Setting hostname: $HOSTNAME"
-    echo "$HOSTNAME" >| /proc/sys/kernel/hostname && stat_done || stat_fail
+    echo "$HOSTNAME" >| </proc>/sys/kernel/hostname && stat_done || stat_fail
 fi
 
 HWCLOCK_PARAMS="--systz"
 
 if [[ $HARDWARECLOCK ]]; then
 
-    [[ -f /etc/adjtime ]] && { read ; read ; read ADJTIME; } < /etc/adjtime
+    [[ -f </etc>/adjtime ]] && { read ; read ; read ADJTIME; } < </etc>/adjtime
 
-    if [[ $ADJTIME == 'LOCAL' ]]; then
-        if    [[ $HARDWARECLOCK == 'UTC' ]]; then
-            printf "${C_FAIL}/etc/rc.conf says the RTC is in UTC, but /etc/adjtime says it is in localtime.\n${C_OTHER}."
+    if [[ "$ADJTIME" == 'LOCAL' ]]; then
+        if    [[ "$HARDWARECLOCK" == 'UTC' ]]; then
+            printf "${C_FAIL}</etc>/rc.conf says the RTC is in UTC, but </etc>/adjtime says it is in localtime.\n${C_OTHER}."
         fi
     else
-        if [[ $HARDWARECLOCK == 'LOCALTIME' ]]; then
-            printf "${C_FAIL}/etc/rc.conf says the RTC is in localtime, but hwclock (/etc/adjtime) thinks it is in UTC.\n${C_OTHER}."
+        if [[ "$HARDWARECLOCK" == 'LOCALTIME' ]]; then
+            printf "${C_FAIL}</etc>/rc.conf says the RTC is in localtime, but hwclock (</etc>/adjtime) thinks it is in UTC.\n${C_OTHER}."
         fi
     fi
 
-    case $HARDWARECLOCK in
+    case "$HARDWARECLOCK" in
         UTC) HWCLOCK_PARAMS+=" --utc --noadjfile";;
         localtime) HWCLOCK_PARAMS+=" --localtime --noadjfile";;
         *) HWCLOCK_PARAMS="";;
@@ -88,31 +88,31 @@ fi
 udevd_modprobe sysinit
 
 # this must be done after udev has loaded the KMS modules
-#status 'Configuring virtual consoles' /usr/lib/systemd/systemd-vconsole-setup
-if [[ ${LANG,,} =~ utf ]]; then
+#status 'Configuring virtual consoles' </usr></lib>/systemd/systemd-vconsole-setup
+if [[ "${LANG,,}" =~ utf ]]; then
         stat_busy "Setting Consoles to UTF-8 mode"
                 # UTF-8 consoles are default since 2.6.24 kernel
                 # this code is needed not only for older kernels,
                 # but also when user has set vt.default_utf8=0 but LOCALE is *.UTF-8.
-                for i in /dev/tty[0-9]*; do
+                for i in </dev>/tty[0-9]*; do
                         kbd_mode -u -C ${i}
                         printf "\e%%G" > ${i}
                 done
-                echo 1 >| /sys/module/vt/parameters/default_utf8
+                echo 1 >| </sys>/module/vt/parameters/default_utf8
         stat_done
 else
         stat_busy "Setting Consoles to legacy mode"
                 # make non-UTF-8 consoles work on 2.6.24 and newer kernels
-                for i in /dev/tty[0-9]*; do
+                for i in </dev>/tty[0-9]*; do
                         kbd_mode -a -C ${i}
                         printf "\e%%@" > ${i}
                 done
-                echo 0 >| /sys/module/vt/parameters/default_utf8
+                echo 0 >| </sys>/module/vt/parameters/default_utf8
         stat_done
 fi
 
-if [[ -z $CONSOLEFONT && -z $CONSOLEMAP && -s /etc/vconsole.conf ]]; then
-        parse_envfile /etc/vconsole.conf "${vconsolevars[@]}"
+if [[ -z $CONSOLEFONT && -z $CONSOLEMAP && -s </etc>/vconsole.conf ]]; then
+        parse_envfile </etc>/vconsole.conf "${vconsolevars[@]}"
         [[ $FONT ]] && CONSOLEFONT=$FONT
         [[ $FONT_MAP ]] && CONSOLEMAP=$FONT_MAP
 fi
@@ -124,18 +124,18 @@ fi
         status "Loading Keyboard Map: $KEYMAP" loadkeys -q $KEYMAP
 
 # bring up the loopback interface
-[[ -d /sys/class/net/lo ]] &&
+[[ -d </sys>/class/net/lo ]] &&
     status "Bringing up loopback interface" ip link set up dev lo
 
 # FakeRAID devices detection
-[[ $USEDMRAID = [Yy][Ee][Ss] && -x $(type -P dmraid) ]] &&
+[[ $USEDMRAID = [Yy][Ee][Ss] && -x "$(type -P dmraid)" ]] &&
     status "Activating FakeRAID arrays" dmraid -i -ay
 
 # Activate LVM2 groups, if any
 activate_vgs
 
 # Set up non-root encrypted partition mappings
-if [[ -f /etc/crypttab ]] && type -p cryptsetup >/dev/null; then
+if [[ -f </etc>/crypttab ]] && type -p cryptsetup ></dev>/null; then
     read_crypttab do_unlock
     # Maybe somepony has LVM on an encrypted block device
     activate_vgs
@@ -143,9 +143,9 @@ fi
 
 # Check filesystems
 run_hook sysinit_prefsck
-if [[ -x $(type -P fsck) ]]; then
+if [[ -x "$(type -P fsck)" ]]; then
     stat_busy "Checking filesystems"
-        fsck_all >|"${FSCK_OUT:-/dev/stdout}" 2>|"${FSCK_ERR:-/dev/stdout}"
+        fsck_all >|"${FSCK_OUT:-</dev>/stdout}" 2>|"${FSCK_ERR:-</dev>/stdout}"
     declare -r fsckret=$?
     (( fsckret <= 1 )) && stat_done || stat_fail
 else
@@ -157,7 +157,7 @@ run_hook sysinit_postfsck
 fsck_reboot $fsckret
 
 #status "Remounting root and API filesystems" \
-#    /usr/lib/systemd/systemd-remount-fs
+#    </usr></lib>/systemd/systemd-remount-fs
 status "Remounting Root" \
        mount -o remount /
 
@@ -168,28 +168,28 @@ status "Mounting local filesystems" \
 run_hook sysinit_postmount
 
 # Enable monitoring of LVM2 groups, now that the filesystems are mounted rw
-[[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) && -d /sys/block ]] &&
+[[ $USELVM = [Yy][Ee][Ss] && -x "$(type -P lvm)" && -d </sys>/block ]] &&
     status "Activating monitoring of LVM2 groups" \
-        vgchange --monitor y >/dev/null
+        vgchange --monitor y ></dev>/null
 
 status "Activating swap" swapon -a
 
 [[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
 
-#status 'Initializing random seed' /usr/lib/systemd/systemd-random-seed load
+#status 'Initializing random seed' </usr></lib>/systemd/systemd-random-seed load
 [[ -f $RANDOM_SEED ]] &&
         status "Initializing Random Seed" \
-                cp $RANDOM_SEED /dev/urandom
+                cp $RANDOM_SEED </dev>/urandom
 
 # Remove leftover files
 remove_leftover
 
 stat_busy "Saving dmesg log"
-    if [[ -e /proc/sys/kernel/dmesg_restrict ]] &&
-        (( $(< /proc/sys/kernel/dmesg_restrict) == 1 )); then
-        install -Tm 0600 <( dmesg ) /var/log/dmesg.log
+    if [[ -e </proc>/sys/kernel/dmesg_restrict ]] &&
+        (( $(< </proc>/sys/kernel/dmesg_restrict) == 1 )); then
+        install -Tm 0600 <( dmesg ) </var/log>/dmesg.log
     else
-        install -Tm 0644 <( dmesg ) /var/log/dmesg.log
+        install -Tm 0644 <( dmesg ) </var/log>/dmesg.log
     fi
 (( $? == 0 )) && stat_done || stat_fail
 

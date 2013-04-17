@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/pony-initialisation/pony-modules
+# </usr></lib>/pony-initialisation/pony-modules
 #
 # Configure kernel modules to load at boot following
 # http://0pointer.de/public/systemd-man/modules-load.d.html
@@ -14,9 +14,9 @@ if (( $# > 0 )); then
     for arg; do [[ -r "$arg" ]] && modules_d+=("$arg"); done
 else
     modules_d=(
-        /usr/lib/modules-load.d/*.conf
-        /etc/modules-load.d/*.conf
-        /run/modules-load.d/*.conf
+        </usr></lib>/modules-load.d/*.conf
+        </etc>/modules-load.d/*.conf
+        </run>/modules-load.d/*.conf
     )
 fi
 
@@ -24,7 +24,7 @@ fi
 (( ${#modules_d[@]} > 0 )) || exit 1
 
 # files declared later in the modules_d array will override earlier
-# Example: `/etc/modules-load.d/foo.conf' supersedes `/usr/lib/modules-load.d/foo.conf'.
+# Example: `</etc>/modules-load.d/foo.conf' supersedes `</usr></lib>/modules-load.d/foo.conf'.
 declare -A fragments
 for path in "${modules_d[@]}"; do
     [[ -f $path ]] && fragments[${path##*/}]=$path

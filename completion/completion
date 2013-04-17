@@ -19,12 +19,12 @@
     )
     
     
-    (suggestion stopped  (no-exec ls "'/usr/libexec/rc.d/'")
-                         (exec comm -23 "<(ls '/usr/libexec/rc.d/' | sort)" "<(ls '/run/daemons/' | sort)")
+    (suggestion stopped  (no-exec ls "'</usr></libexec>/rc.d/'")
+                         (exec comm -23 "<(ls '</usr></libexec>/rc.d/' | sort)" "<(ls '</run>/daemons/' | sort)")
     )
-    (suggestion started  (ls "'/run/daemons/'")
+    (suggestion started  (ls "'</run>/daemons/'")
     )
-    (suggestion daemons  (ls "'/usr/libexec/rc.d/'")
+    (suggestion daemons  (ls "'</usr></libexec>/rc.d/'")
     )
 )
 

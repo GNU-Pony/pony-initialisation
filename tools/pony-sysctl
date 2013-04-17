@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# /usr/lib/pony-initialisation/pony-sysctl
+# </usr></lib>/pony-initialisation/pony-sysctl
 #
 # Load sysctl configuration files following
 # http://0pointer.de/public/systemd-man/sysctl.d.html
@@ -9,15 +9,15 @@
 shopt -s nullglob
 
 declare -a sysctl_d=(
-    /usr/lib/sysctl.d/*.conf
-    /etc/sysctl.d/*.conf
-    /run/sysctl.d/*.conf
-    /etc/sysctl.conf
+    </usr></lib>/sysctl.d/*.conf
+    </etc>/sysctl.d/*.conf
+    </run>/sysctl.d/*.conf
+    </etc>/sysctl.conf
 )
 declare -A fragments
 
 # files declared later in the sysctl_d array will override earlier
-# Example: `/etc/sysctl.d/foo.conf' supersedes `/usr/lib/sysctl.d/foo.conf'.
+# Example: `</etc>/sysctl.d/foo.conf' supersedes `</usr></lib>/sysctl.d/foo.conf'.
 for path in "${@:-${sysctl_d[@]}}"; do
     [[ -f $path ]] && fragments[${path##*/}]=$path
 done
