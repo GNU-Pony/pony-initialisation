@@ -140,12 +140,12 @@ info: $(INFO)
 
 info/%.texinfo.install: info/%.texinfo
 	cp "$<" "$@"
-	sed -i 's:set DATA /share:set DATA $(DATA):g' "$@"
-	sed -i 's:set SYS /sys:set SYS $(SYS):g' "$@"
-	sed -i 's:set DEV /dev:set DEV $(DEV):g' "$@"
-	sed -i 's:set PREFIX /usr:set PREFIX $(PREFIX):g' "$@"
-	sed -i 's:set SYSCONF /etc:set SYSCONF $(SYSCONF):g' "$@"
-	sed -i 's:set LIBEXEC /libexec:set LIBEXEC $(LIBEXEC):g' "$@"
+	sed -i 's:^@set DATA /share:@set DATA $(DATA):g' "$@"
+	sed -i 's:^@set SYS /sys:@set SYS $(SYS):g' "$@"
+	sed -i 's:^@set DEV /dev:@set DEV $(DEV):g' "$@"
+	sed -i 's:^@set PREFIX /usr:@set PREFIX $(PREFIX):g' "$@"
+	sed -i 's:^@set SYSCONF /etc:@set SYSCONF $(SYSCONF):g' "$@"
+	sed -i 's:^@set LIBEXEC /libexec:@set LIBEXEC $(LIBEXEC):g' "$@"
 
 %.install: %
 	cp "$<" "$@"
