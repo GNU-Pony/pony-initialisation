@@ -62,9 +62,9 @@ all: doc completion/bash-completion.install completion/zsh-completion.install
 
 install: install_dirs install_license install_core install_completion install_doc
 
-CONFIGS_INSTALL = $(foreach $(CONFIGS), FILE, $(FILE).install)
-SCRIPTS_INSTALL = $(foreach $(SCRIPTS), FILE, $(FILE).install)
-TOOLS_INSTALL = $(foreach $(TOOLS), FILE, $(FILE).install)
+CONFIGS_INSTALL = $(foreach FILE, $(CONFIGS), $(FILE).install)
+SCRIPTS_INSTALL = $(foreach FILE, $(SCRIPTS), $(FILE).install)
+TOOLS_INSTALL = $(foreach FILE, $(TOOLS), $(FILE).install)
 CORE_INSTALL = misc/bootlog.install scripts/functions.install tools/rc.d.install misc/read_locale.sh.install conf/tmpfiles.conf.install
 install_core: $(CONFIGS_INSTALL) $(SCRIPTS_INSTALL) $(TOOLS_INSTALL) $(CORE_INSTALL)
 	for file in $(CONFIGS); do  install -m644 -T $$file.install "$(DESTDIR)$(SYSCONF)"/$$file;  done
