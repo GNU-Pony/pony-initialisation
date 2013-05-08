@@ -149,8 +149,8 @@ info/%.texinfo.install: info/%.texinfo
 
 %.install: %
 	cp "$<" "$@"
-	sed -i 's:\x23!/bin:\x23!$(BIN):'
-	sed -i 's:\x23!/usr/bin:\x23!$(PREFIX)$(BIN):'
+	sed -i 's:\x23!/bin:\x23!$(BIN):' "$@"
+	sed -i 's:\x23!/usr/bin:\x23!$(PREFIX)$(BIN):' "$@"
 	sed -i 's:</dev/shm>:$(SHM):g' "$@"
 	sed -i 's:</dev/pts>:$(PTS):g' "$@"
 	sed -i 's:</dev>:$(DEV):g' "$@"
