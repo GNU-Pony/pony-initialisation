@@ -67,9 +67,9 @@ SCRIPTS_INSTALL = $(foreach FILE, $(SCRIPTS), $(FILE).install)
 TOOLS_INSTALL = $(foreach FILE, $(TOOLS), $(FILE).install)
 CORE_INSTALL = misc/bootlog.install scripts/functions.install tools/rc.d.install misc/read_locale.sh.install conf/tmpfiles.conf.install
 install_core: $(CONFIGS_INSTALL) $(SCRIPTS_INSTALL) $(TOOLS_INSTALL) $(CORE_INSTALL)
-	for file in $(CONFIGS); do  install -m644 -T $$file.install "$(DESTDIR)$(SYSCONF)"/$$file;  done
-	for file in $(SCRIPTS); do  install -m755 -T $$file.install "$(DESTDIR)$(SYSCONF)"/$$file;  done
-	for file in $(TOOLS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIB)"/pony-initialisation/$$file;  done
+	for file in $(CONFIGS); do  install -m644 -T $$file.install "$(DESTDIR)$(SYSCONF)"/$$(basename $$file);  done
+	for file in $(SCRIPTS); do  install -m755 -T $$file.install "$(DESTDIR)$(SYSCONF)"/$$(basename $$file);  done
+	for file in $(TOOLS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIB)"/pony-initialisation/$$(basename $$file);  done
 	install -m644 -T misc/bootlog.install "$(DESTDIR)$(SYSCONF)"/logrotate.d/bootlog
 	install -m644 -T scripts/functions.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/functions
 	install -m755 -T tools/rc.d.install "$(DESTDIR)$(PREFIX)$(SYSBIN)"/rc.d
@@ -105,7 +105,7 @@ install_systemdcompatlayer: systemd/pony-daemons.install $(foreach $(UNITS), FIL
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system-generators
 	install -m755 -T systemd/pony-daemons.install "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system-generators/pony-daemons
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system
-	for file in $(UNITS); do  install -m644 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system/$$file;  done
+	for file in $(UNITS); do  install -m644 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system/$$(basename $$file);  done
 	ln -sf /dev/null "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system/netfs.service
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system/multi-user.target.wants
 	ln -sf ../rc-local.service "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system/multi-user.target.wants/
@@ -119,13 +119,13 @@ install_systemdcompatlayer: systemd/pony-daemons.install $(foreach $(UNITS), FIL
 
 install_all_daemons: $(foreach $(DAEMONS), FILE, $(FILE).install)
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d
-	for file in $(DAEMONS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$file;  done
+	for file in $(DAEMONS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$(basename $$file);  done
 
 
 DAEMON_INSTALLS = $(shell grep -rn '^\x23 daemon for: $(DAEMON)$$' daemon | cut -d ':' -f '1,2' | grep ':2$$' | cut -d ':' -f 1)
 install_daemons: $(foreach $(DAEMON_INSTALLS), FILE, $(FILE).install)
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d
-	for file in $(DAEMON_INSTALLS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$file;  done
+	for file in $(DAEMON_INSTALLS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$(basename $$file);  done
 
 
 
