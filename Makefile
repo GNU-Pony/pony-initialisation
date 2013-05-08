@@ -101,7 +101,7 @@ install_dirs:
 	install -dm755 "$(DESTDIR)$(PREFIX)$(DATA)"/licenses/pony-initialisation
 
 
-install_systemdcompatlayer: systemd/pony-daemons.install $(foreach $(UNITS), FILE, $(FILE).install)
+install_systemdcompatlayer: systemd/pony-daemons.install $(foreach FILE, $(UNITS), $(FILE).install)
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system-generators
 	install -m755 -T systemd/pony-daemons.install "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system-generators/pony-daemons
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIB)"/systemd/system
@@ -117,13 +117,13 @@ install_systemdcompatlayer: systemd/pony-daemons.install $(foreach $(UNITS), FIL
 	ln -sf pony-initialisation "$(DESTDIR)$(PREFIX)$(DATA)"/licenses/pony-initialisation-systemdcompat
 
 
-install_all_daemons: $(foreach $(DAEMONS), FILE, $(FILE).install)
+install_all_daemons: $(foreach FILE, $(DAEMONS), $(FILE).install)
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d
 	for file in $(DAEMONS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$(basename $$file);  done
 
 
 DAEMON_INSTALLS = $(shell grep -rn '^\x23 daemon for: $(DAEMON)$$' daemon | cut -d ':' -f '1,2' | grep ':2$$' | cut -d ':' -f 1)
-install_daemons: $(foreach $(DAEMON_INSTALLS), FILE, $(FILE).install)
+install_daemons: $(foreach FILE, $(DAEMON_INSTALLS), $(FILE).install)
 	install -dm755 "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d
 	for file in $(DAEMON_INSTALLS); do  install -m755 -T $$file.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/$$(basename $$file);  done
 
