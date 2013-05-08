@@ -73,7 +73,7 @@ install_core: $(CONFIGS_INSTALL) $(SCRIPTS_INSTALL) $(TOOLS_INSTALL) $(CORE_INST
 	install -m644 -T misc/bootlog.install "$(DESTDIR)$(SYSCONF)"/logrotate.d/bootlog
 	install -m644 -T scripts/functions.install "$(DESTDIR)$(PREFIX)$(LIBEXEC)"/rc.d/functions
 	install -m755 -T tools/rc.d.install "$(DESTDIR)$(PREFIX)$(SYSBIN)"/rc.d
-	install -m755 -T misc/read_locale.sh.install"$(DESTDIR)$(SYSCONF)"/profile.d/read_locale.sh
+	install -m755 -T misc/read_locale.sh.install "$(DESTDIR)$(SYSCONF)"/profile.d/read_locale.sh
 	install -m644 -T conf/tmpfiles.conf.install "$(DESTDIR)$(PREFIX)$(LIB)"/tmpfiles.d/pony-initialisation.conf
 
 install_doc: $(INFO)
