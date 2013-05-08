@@ -26,7 +26,7 @@
 # 
 # To set the default runlevel to *, set the following line to:  id:*:initdefault:
 
-id:3:initdefault
+id:3:initdefault:
 
 # Default runlevel: 3, multi-user with console and networks but not graphics
 
