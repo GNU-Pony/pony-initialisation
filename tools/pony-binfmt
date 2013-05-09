@@ -13,8 +13,8 @@ if (( $# > 0 )); then
     for arg; do [[ -r "$arg" ]] && binfmt_d+=("$arg"); done
 else
     binfmt_d=(
-        /usr></lib>/binfmt.d/*.conf
-        /etc>/binfmt.d/*.conf
+        </usr></lib>/binfmt.d/*.conf
+        </etc>/binfmt.d/*.conf
         </run>/binfmt.d/*.conf
     )
 fi

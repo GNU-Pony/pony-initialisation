@@ -15,7 +15,7 @@ checkparams() {
     local path=$1 mode=$2 uid=$3 gid=$4
 
     # parmcount must be >= parmreq
-    if (( $# < parmreq )); then
+    if (( $# < $parmreq )); then
         return 1
     fi
 
