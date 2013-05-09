@@ -343,11 +343,11 @@ Daemons are programs that run in the background, often as root. Those can
 be controlled the @command{rc.d} command. To start them at boot-up you
 list them in them in the array variable @var{DAEMONS}.
 
-A simple setup is @code{DAEMONS=(syslog-ng @@network crond)} which loads
+A simple setup is @code{DAEMONS=(syslog-ng @@network:-24 crond)} which loads
 @command{syslog-ng} and @command{crond} in sequence, with @command{network}
-being loaded after @command{syslog-ng}, but non-blocking, meaning that
-@command{crond} is loaded at the same time as no further loading needs
-to wait for @command{network}.
+being loaded after @command{syslog-ng} if the runlevel specifies network
+support, but non-blocking, meaning that @command{crond} is loaded at the same
+time as no further loading needs to wait for @command{network}.
 
 The prefix @code{@@} means that it is loaded in the background and other
 modules can be loaded at the same time. The prefix @code{!} disables a
