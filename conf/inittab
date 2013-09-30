@@ -64,7 +64,7 @@ rc::sysinit:</etc>/rc.sysinit
 #   powerokwait:   Execute process as soon as </sbin>/init is informed that the power has been restored
 #   powerfailnow:  Execute process when the battery of the UPS is almost empty and the power is failing
 
-pf::powerwait:</etc>/rc.power wait
+pw::powerwait:</etc>/rc.power wait
 pf::powerfail:</etc>/rc.power fail
 po::powerokwait:</etc>/rc.power okwait
 pn::powerfailnow:</etc>/rc.power failnow
