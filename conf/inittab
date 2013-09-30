@@ -79,8 +79,8 @@ pn::powerfailnow:</etc>/rc.power failnow
 # As you see, the runlevels field is ignored. Keep id unique.
 # Possible values for the action field is:
 # 
-#   bootwait:  Execute during sysetm boot
-#   boot:      Execute during sysetm boot, </sbin>/init should wait for it to terminate
+#   bootwait:  Execute during system boot
+#   boot:      Execute during system boot, </sbin>/init should wait for it to terminate
 
 # There are no standard actions here.
 
