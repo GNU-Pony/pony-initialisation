@@ -32,6 +32,7 @@ SCRIPTS := \
 	scripts/rc.local \
 	scripts/rc.local.shutdown \
 	scripts/rc.multi \
+	scripts/rc.power \
 	scripts/rc.shutdown \
 	scripts/rc.single \
 	scripts/rc.sysinit

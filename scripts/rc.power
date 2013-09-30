@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# </etc>/rc.power: Commands executed on issues with the power.
+#
+
+#if [ "$1" = wait ]; then
+#
+#    # Execute process when the power goes down, </sbin>/init waits for the process's completion
+#
+#elif [ "$1" = fail ]; then
+if [ "$1" = fail ]; then
+
+    # wait, except that </sbin>/init does not wait for the process's completion
+    wall <<< 'Power failure! Using the UPS battery, save your documents!'
+    beep -f 750 -r 5 -D 200 -l 500 -n
+
+elif [ "$1" = okwait ]; then
+
+    # Execute process as soon as </sbin>/init is informed that the power has been restored
+    wall <<< 'The power has been restored, you are safe. For now...'
+    beep -f 750 -r 1 -D 200 -l 200 -n
+
+elif [ "$1" = failnow ]; then
+
+    # Execute process when the battery of the UPS is almost empty and the power is failing
+    wall <<< 'Battery depletion is eminent, save your documents!'
+    beep -f 750 -r 5 -D 200 -l 200 -n
+
+fi
+
