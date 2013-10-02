@@ -30,6 +30,7 @@ CONFIGS := \
 
 SCRIPTS := \
 	scripts/rc.local \
+	scripts/rc.local.early \
 	scripts/rc.local.shutdown \
 	scripts/rc.multi \
 	scripts/rc.power \

@@ -6,6 +6,8 @@
 . </etc>/rc.conf
 . </usr></libexec>/rc.d/functions
 
+[[ -x </etc>/rc.local.early ]] && </etc>/rc.local.early
+
 run_hook multi_start
 
 # Load sysctl config files
