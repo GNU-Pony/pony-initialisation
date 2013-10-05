@@ -3,12 +3,12 @@
 # </etc>/rc.power: Commands executed on issues with the power.
 #
 
-#if [ "$1" = wait ]; then
-#
-#    # Execute process when the power goes down, </sbin>/init waits for the process's completion
-#
-#elif [ "$1" = fail ]; then
-if [ "$1" = fail ]; then
+if [ "$1" = wait ]; then
+
+    # Execute process when the power goes down, </sbin>/init waits for the process's completion
+    true
+
+elif [ "$1" = fail ]; then
 
     # wait, except that </sbin>/init does not wait for the process's completion
     wall <<< 'Power failure! Using the UPS battery, save your documents!'
