@@ -1,0 +1,25 @@
+# -*- conf -*-
+# Syntax: [![[-]runlevels...] <daemon> [<options>] [& <required_daemon>]... [<- <starter_daemon>]
+#         %group <daemon>...
+# 
+# Options:
+#   Silence daemon: !
+#   Run only on runlevel a, b and c: abc
+#   Do not run on runlevel a, b and c: -abc
+# 
+# An initial ! can be used if the daemon should not autostart,
+# the ! also have runlevel conditionals.
+
+hwclock
+syslog-ng
+!24 network
+crond
+# openntpd -24 & network
+# netfs -24 & network
+# dbus
+# gpm
+# cupsd
+# sshd -24 <- network
+# git-daemon <- network
+# httpd -24 <- network
+
