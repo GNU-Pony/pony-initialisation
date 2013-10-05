@@ -1,0 +1,97 @@
+# -*- python -*-
+
+
+class Daemon():
+    '''
+    Daemon structure
+    '''
+    
+    def __init__(self, autostart, name, silence, runlevel, joins, launchers):
+        '''
+        Constructor
+        
+        @param  autostart:str?             Conditions for autostarting
+        @param  name:str                   The name of the daemons
+        @param  silence:bool               Whether the daemon's stdout and stderr should be silenced
+        @param  runlevel:str?              Conditions for being defined
+        @param  joins:list<str>            Required daemons
+        @param  launchers:list<list<str>>  Sets of daemons which launches the daemon
+        '''
+        self.autostart = autostart
+        self.name = name
+        self.silence = silence
+        self.runlevel = runlevel
+        self.joins = joins
+        self.launchers = launchers
+    
+    
+    def defined_for(self, runlevel):
+        '''
+        Check whether the entry is defined
+        
+        @param   runlevel:str  The runlevel
+        @return  :boolean      Whether the entry is defined
+        '''
+        r = self.runlevel
+        return (r is None) or ((runlevel in r) ^ ('-' not in r))
+    
+    
+    def autostart_for(self, runlevel):
+        '''
+        Check whether the entry autostarts
+        
+        @param   runlevel:str  The runlevel
+        @return  :boolean      Whether the entry autostarts
+        '''
+        r = self.autostart
+        return (r is None) or ((runlevel in r) ^ ('-' not in r))
+
+
+def make_daemon(args):
+    '''
+    Create a daemon structure from a daemontab entry
+    
+    @param   args:list<str>  Arguments in daemontab entry
+    @return  :Daemon         The daemon described by the entry
+    '''
+    autostart_condition = None
+    daemon_name = None
+    silence = False
+    runlevel_condition = None
+    joins = []
+    launchers = []
+    
+    if args[0][0] == "!":
+        autostart_condition = args[0].replace("!", "-").replace("--", "")
+        args[:] = args[1:]
+    if len(args) == 0:
+        continue
+    
+    daemon_name = args[0]
+    args[:] = args[1:]
+    
+    ampersand = False
+    arrow = False
+    launcher = []
+    for arg in args:
+        if arg == "!":
+            silence = True
+        elif arg in ("&", "<-"):
+            if len(launcher) > 0:
+                launchers.append(launcher)
+                launcher = []
+            ampersand = arg == "&"
+            arrow = arg == "<-"
+        elif ampersand:
+            joins.append(arg)
+            ampersand = False
+        elif arrow:
+            launcher.append(arg)
+        else:
+            runlevel_condition = arg
+    if len(launcher) > 0:
+        launchers.append(launcher)
+    
+    daemon = Daemon(autostart_condition, daemon_name, silence, runlevel_condition, joins, launchers)
+    return daemon
+
