@@ -24,6 +24,7 @@ deprecated() {
 
 network_up() {
     _i_count=0
+    _fail_count=0
     for _ in ${interface[@]}; do
         (( _i_count++ ))
     done
@@ -41,8 +42,11 @@ network_up() {
         else
             dhcpcd $DHCPCD_ARGS ${interface[$_i]} || _failed=$_i
         fi
+	if [ $_failed = $_i ]; then
+	    (( _fail_count++ ))
+	fi
     done
-    if [ ! -z "${_failed}" ]; then
+    if [ "${_fail_count}" = $_i_count ]; then
 	return 1
     fi
 }
