@@ -24,6 +24,7 @@ deprecated() {
 
 network_up() {
     _i_count=0
+    _failed=x
     _fail_count=0
     for _ in ${interface[@]}; do
         (( _i_count++ ))
@@ -46,7 +47,7 @@ network_up() {
 	    (( _fail_count++ ))
 	fi
     done
-    if [ "${_fail_count}" = $_i_count ]; then
+    if [ $_fail_count = $_i_count ]; then
 	return 1
     fi
 }
