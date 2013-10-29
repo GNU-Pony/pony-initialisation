@@ -1,5 +1,7 @@
 # -*- python -*-
 
+from subprocess import Popen
+
 
 class Daemon():
     '''
@@ -47,11 +49,11 @@ class Daemon():
         return (r is None) or ((runlevel in r) ^ ("-" not in r))
     
     
-    def start(self): # TODO
+    def start(self):
         '''
         Start the daemon
         '''
-        print(self.name)
+        Popen(['/libexec/rc.d/' + self.name, 'start']).wait()
     
     
     def __str__(self):
