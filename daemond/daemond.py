@@ -6,6 +6,8 @@ import sys
 from spawning import *
 from table import *
 
+## TODO autolaunching is not implemented
+
 
 # Fields for CPU thread count, $PATH, previous runlevel and current runlevel
 CPU_COUNT, PATH = None, None
@@ -50,6 +52,48 @@ groups = {}
 :dict<str, list<str>>  Mapping from group name (including the % prefix) to group members
 '''
 
+members = {}
+'''
+:dict<str, list<str>>  Transposition of `groups`
+'''
+
+
 # Fill `daemons` and `groups`
 populate_tables(daemons, groups, [], legacy_daemons, RUNLEVEL, "/etc/daemontab")
+
+# Transpose `groups`
+for group in groups:
+    for member in groups[group]:
+        if member not in members:
+            members[member] = []
+        members[member].append(group)
+
+
+initial_daemons = []
+'''
+:list<Daemon>  Daemons that do not require any other daemons, and should be started
+'''
+
+
+# Create mappings between daemons for join statements
+for daemon in daemons:
+    daemon = daemons[daemon]
+    daemon.cuing = []
+    if not daemon.defined_for(RUNLEVEL):
+        continue
+    if len(daemon.joins) > 0:
+        daemon.waiting = set(daemon.joins)
+    else:
+        initial_daemons.append(daemon)
+
+for daemon in daemons:
+    daemon = daemons[daemon]
+    if not (daemon.defined_for(RUNLEVEL) and daemon.autostart_for(RUNLEVEL)):
+        continue
+    for join in daemon.joins:
+        if not join.startswith('%'):
+            daemons[join].cuing.append(daemon)
+        else:
+            for member in groups[join]:
+                daemons[member].cuing.append(daemon)
 
