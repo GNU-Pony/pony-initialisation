@@ -24,20 +24,32 @@ deprecated() {
 
 network_up() {
     _i_count=0
+    _failed=x
+    _fail_count=0
     for _ in ${interface[@]}; do
         (( _i_count++ ))
     done
     for (( _i=0; (( _i < _i_count )); (( _i++ )) )); do
         if [[ ${address[$_i]} ]]; then
-            ip link set dev ${interface[$_i]} up || return 1
-            ip addr add ${address[$_i]}/${netmask[$_i]:-24} \
-		broadcast ${broadcast[$_i]:-+} dev ${interface[$_i]} \
-               	|| return 1
-            [[ ${gateway[$_i]} ]] && { ip route add default via ${gateway[$_i]} || return 1; }
+            ip link set dev ${interface[$_i]} up || _failed=$_i
+	    if [ ! $_failed = $_i ]; then
+		ip addr add ${address[$_i]}/${netmask[$_i]:-24} \
+		    broadcast ${broadcast[$_i]:-+} dev ${interface[$_i]} \
+               	    || _failed=$_i
+	    fi
+	    if [ ! $_failed = $_i ]; then
+		[[ ${gateway[$_i]} ]] && { ip route add default via ${gateway[$_i]} || _failed=$_i ; }
+	    fi
         else
-            dhcpcd $DHCPCD_ARGS ${interface[$_i]} || return 1
+            dhcpcd $DHCPCD_ARGS ${interface[$_i]} || _failed=$_i
         fi
+	if [ $_failed = $_i ]; then
+	    (( _fail_count++ ))
+	fi
     done
+    if [ $_fail_count = $_i_count ]; then
+	return 1
+    fi
 }
 
 network_down() {
