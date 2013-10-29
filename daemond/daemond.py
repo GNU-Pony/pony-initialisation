@@ -53,4 +53,3 @@ groups = {}
 # Fill `daemons` and `groups`
 populate_tables(daemons, groups, [], legacy_daemons, RUNLEVEL, "/etc/daemontab")
 
-

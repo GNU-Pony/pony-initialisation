@@ -45,6 +45,20 @@ class Daemon():
         '''
         r = self.autostart
         return (r is None) or ((runlevel in r) ^ ("-" not in r))
+    
+    
+    def __str__(self):
+        '''
+        Create text representation of daemon entry
+        
+        @return  :str  Text representation of daemon entry
+        '''
+        return '(%s%s%s%s%s%s)' % (self.name,
+                                  ' %s' % self.autostart if self.autostart is not None else '',
+                                  ' +silence' if self.silence else '',
+                                  ' runlevel:%s' % self.runlevel if self.runlevel is not None else '',
+                                  ' & %s' % ' & '.join(self.joins) if len(self.joins) > 0 else '',
+                                  ' <- %s' % ' <- '.join([' '.join(L) for L in self.launchers]) if len(self.launchers) > 0 else '')
 
 
 def make_daemon(args):
