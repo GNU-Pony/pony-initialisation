@@ -2,7 +2,7 @@
 
 import os
 import sys
-import time ## TODO this is here while we do not use domain sockets
+import signal
 from threading import Thread, Lock, Condition
 
 from spawning import *
@@ -25,6 +25,22 @@ for arg in sys.argv[1:]:
     elif arg.startswith("--prevlevel="):  PREVLEVEL = arg[len("--prevlevel="):]
     elif arg.startswith("--path="):       PATH      = arg[len("--path="):]
     elif arg.startswith("--cpus="):       CPU_COUNT = int(arg[len("--cpus="):])
+
+
+# Do everything in a fork
+parent_pid = os.getpid()
+child_pid = os.fork()
+
+if child_pid == 0:
+    os.close(0)
+    os.open("/dev/null", os.O_RDWR)
+    os.setsid()
+else:
+    def noop(_a, _b):
+        pass
+    signal.signal(signal.SIGUSR2, noop)
+    signal.pause()
+    sys.exit(0)
 
 
 # Get CPU thread count, $PATH, previous runlevel and current runlevel
@@ -103,6 +119,19 @@ for daemon in daemons:
 # Start daemons
 queue_lock = Lock()
 queue_condition = Condition(queue_lock)
+fork_lock = Lock()
+fork_condition = Condition(fork_lock)
+
+daemon_start = Daemon.start
+def fork_start(self):
+    global fork_lock, fork_condition, daemon_start
+    if self.name == '+fork':
+        fork_lock.acquire()
+        fork_condition.notify()
+        fork_lock.release()
+    else:
+        daemon_start(self)
+Daemon.start = fork_start
 
 def thread():
     global queue_lock, queue_condition, initial_daemons
@@ -136,12 +165,19 @@ def thread():
                 queue_lock.release()
         except:
             pass
-    
+
+fork_lock.acquire()
+
 for _ in range(CPU_COUNT):
-    Thread(target = thread).start()
+    t = Thread(target = thread)
+    t.start()
+
+fork_condition.wait()
+os.kill(parent_pid, signal.SIGUSR2)
+fork_lock.release()
 
 
 # TODO start using domain socket
 while True:
-    time.sleep(10)
+    signal.pause()
 
