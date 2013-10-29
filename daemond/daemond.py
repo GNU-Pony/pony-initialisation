@@ -125,9 +125,10 @@ def thread():
                 for cuing in daemon.cuing:
                     if daemon.name in cuing.waiting:
                         cuing.waiting.remove(daemon.name)
-                    for group in members[daemon.name]:
-                        if group in cuing.waiting:
-                            cuing.waiting.remove(group)
+                    if daemon.name in members:
+                        for group in members[daemon.name]:
+                            if group in cuing.waiting:
+                                cuing.waiting.remove(group)
                     if len(cuing.waiting) == 0:
                         initial_daemons.append(cuing)
                         queue_condition.notify_all()
@@ -135,7 +136,6 @@ def thread():
                 queue_lock.release()
         except:
             pass
-    
     
 for _ in range(CPU_COUNT):
     Thread(target = thread).start()
