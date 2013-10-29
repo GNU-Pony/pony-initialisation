@@ -33,7 +33,7 @@ class Daemon():
         @return  :boolean      Whether the entry is defined
         '''
         r = self.runlevel
-        return (r is None) or ((runlevel in r) ^ ('-' not in r))
+        return (r is None) or ((runlevel in r) ^ ("-" not in r))
     
     
     def autostart_for(self, runlevel):
@@ -44,7 +44,7 @@ class Daemon():
         @return  :boolean      Whether the entry autostarts
         '''
         r = self.autostart
-        return (r is None) or ((runlevel in r) ^ ('-' not in r))
+        return (r is None) or ((runlevel in r) ^ ("-" not in r))
 
 
 def make_daemon(args):

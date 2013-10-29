@@ -16,11 +16,11 @@ PREVLEVEL, RUNLEVEL = None, None
 legacy_daemons = None
 for arg in sys.args[1:]:
     if legacy_daemons is not None:        legacy_daemons.append(arg)
-    elif arg == '--':                     legacy_daemons = []
-    elif arg.startswith('--runlevel='):   RUNLEVEL  = arg[len('--runlevel='):]
-    elif arg.startswith('--prevlevel='):  PREVLEVEL = arg[len('--prevlevel='):]
-    elif arg.startswith('--path='):       PATH      = arg[len('--path='):]
-    elif arg.startswith('--cpus='):       CPU_COUNT = int(arg[len('--cpus='):])
+    elif arg == "--":                     legacy_daemons = []
+    elif arg.startswith("--runlevel="):   RUNLEVEL  = arg[len("--runlevel="):]
+    elif arg.startswith("--prevlevel="):  PREVLEVEL = arg[len("--prevlevel="):]
+    elif arg.startswith("--path="):       PATH      = arg[len("--path="):]
+    elif arg.startswith("--cpus="):       CPU_COUNT = int(arg[len("--cpus="):])
 
 
 # Get CPU thread count, $PATH, previous runlevel and current runlevel

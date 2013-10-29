@@ -19,15 +19,15 @@ def parse_args(line):
         elif esc:
             buf += c
             esc = False
-        elif c == "\\":
+        elif c == '\\':
             esc = True
         elif c in ('"', "'"):
             quote = c
-        elif c == " ":
+        elif c == ' ':
             if buf != "":
                 args.append(buf)
                 buf = ""
-        elif c == "#":
+        elif c == '#':
             if buf != "":
                 args.append(buf)
             break
@@ -69,7 +69,7 @@ def convert_legacy(legacy_daemon, join, runlevel):
             legacy_daemon += " & " + join
         line = legacy_daemon
         if not background:
-            join = legacy_daemon.split(' ')[0]
+            join = legacy_daemon.split(" ")[0]
     
     return (line, join)
 

@@ -43,7 +43,7 @@ def populate_tables(daemons, groups, group_entries, runlevel, daemontab):
             daemons[daemon.name] = daemon
             
             # Keep track of whether +fork exists and autostarts
-            if (daemon.name == '+fork') and (daemon.autostart_for(runlevel)):
+            if (daemon.name == "+fork") and (daemon.autostart_for(runlevel)):
                 have_fork_daemon = True
     
     # Add +fork daemon if not listed
@@ -57,7 +57,7 @@ def populate_tables(daemons, groups, group_entries, runlevel, daemontab):
                     fork_joins.append(daemon.name)
         
         # List +fork
-        daemons['+fork'] = Deamon(None, '+fork', False, None, fork_joins, [])
+        daemons["+fork"] = Deamon(None, "+fork", False, None, fork_joins, [])
     
     # Populate `groups`
     populate_groups(groups, group_entries, runlevel)
@@ -75,7 +75,7 @@ def populate_groups(groups, group_entries, runlevel):
         group = args[0]
         if ":" in group:
             (group, condition) = group.split(":")
-            if (runlevel in condition) == ("-" in condition):
+            if (runlevel in condition) == ('-' in condition):
                 continue
         if group not in groups:
             groups[group] = []
