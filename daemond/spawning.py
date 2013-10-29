@@ -6,7 +6,7 @@ import sys
 from subprocess import Popen, PIPE
 
 
-S = *string : [s.split(" ") for s in string]
+S = lambda *string : [s.split(" ") for s in string]
 '''
 Create an array of word splited strings
 '''

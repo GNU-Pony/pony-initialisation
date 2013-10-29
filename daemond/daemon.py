@@ -52,7 +52,7 @@ def make_daemon(args):
     Create a daemon structure from a daemontab entry
     
     @param   args:list<str>  Arguments in daemontab entry
-    @return  :Daemon         The daemon described by the entry
+    @return  :Daemon?        The daemon described by the entry, `None` if there as none
     '''
     autostart_condition = None
     daemon_name = None
@@ -65,7 +65,7 @@ def make_daemon(args):
         autostart_condition = args[0].replace("!", "-").replace("--", "")
         args[:] = args[1:]
     if len(args) == 0:
-        continue
+        return None
     
     daemon_name = args[0]
     args[:] = args[1:]

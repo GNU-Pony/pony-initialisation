@@ -4,13 +4,14 @@ from parsing import *
 from daemon import *
 
 
-def populate_tables(daemons, groups, group_entries, runlevel, daemontab):
+def populate_tables(daemons, groups, group_entries, legacy_daemons, runlevel, daemontab):
     '''
     Populate daemon and group tables
     
     @param  daemons:dict<str, Daemon>      Mapping, from daemon name to daemon structure, to fill
     @param  groups:dict<str, list<str>>    Mapping, from group name (including the % prefix) to group members, to fill
     @param  group_entries:list<list<str>>  List, of group entries, to fill
+    @param  legacy_daemons:list<str>       List of daemons specified the legacy way
     @param  runlevel:str                   The current runlevel
     @param  daemontab:str                  Daemon table file
     '''
@@ -39,7 +40,7 @@ def populate_tables(daemons, groups, group_entries, runlevel, daemontab):
         
         # List daemon
         daemon = make_daemon(args)
-        if daemon.defined_for(runlevel):
+        if (daemon is not None) and daemon.defined_for(runlevel):
             daemons[daemon.name] = daemon
             
             # Keep track of whether +fork exists and autostarts
@@ -57,7 +58,7 @@ def populate_tables(daemons, groups, group_entries, runlevel, daemontab):
                     fork_joins.append(daemon.name)
         
         # List +fork
-        daemons["+fork"] = Deamon(None, "+fork", False, None, fork_joins, [])
+        daemons["+fork"] = Daemon(None, "+fork", False, None, fork_joins, [])
     
     # Populate `groups`
     populate_groups(groups, group_entries, runlevel)
