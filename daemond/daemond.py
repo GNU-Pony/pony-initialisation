@@ -2,6 +2,8 @@
 
 import os
 import sys
+import time ## TODO this is here while we do not use domain sockets
+from threading import Thread, Lock, Condition
 
 from spawning import *
 from table import *
@@ -96,4 +98,50 @@ for daemon in daemons:
         else:
             for member in groups[join]:
                 daemons[member].cuing.append(daemon)
+
+
+# Start daemons
+queue_lock = Lock()
+queue_condition = Condition(queue_lock)
+
+def thread():
+    global queue_lock, queue_condition, initial_daemons
+    while True:
+        daemon = None
+        queue_lock.acquire()
+        try:
+            if len(initial_daemons) > 0:
+                daemon = initial_daemons[0]
+                initial_daemons[:] = initial_daemons[1:]
+            if daemon is None:
+                queue_condition.wait()
+                continue
+        finally:
+            queue_lock.release()
+        try:
+            daemon.start()
+            queue_lock.acquire()
+            try:
+                for cuing in daemon.cuing:
+                    if daemon.name in cuing.waiting:
+                        cuing.waiting.remove(daemon.name)
+                    for group in members[daemon.name]:
+                        if group in cuing.waiting:
+                            cuing.waiting.remove(group)
+                    if len(cuing.waiting) == 0:
+                        initial_daemons.append(cuing)
+                        queue_condition.notify_all()
+            finally:
+                queue_lock.release()
+        except:
+            pass
+    
+    
+for _ in range(CPU_COUNT):
+    Thread(target = thread).start()
+
+
+# TODO start using domain socket
+while True:
+    time.sleep(10)
 

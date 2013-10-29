@@ -47,6 +47,13 @@ class Daemon():
         return (r is None) or ((runlevel in r) ^ ("-" not in r))
     
     
+    def start(self): # TODO
+        '''
+        Start the daemon
+        '''
+        print(self.name)
+    
+    
     def __str__(self):
         '''
         Create text representation of daemon entry
