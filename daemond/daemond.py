@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+# -*- mode: python, coding: utf-8 -*-
 
 import os
 import sys
@@ -25,6 +26,7 @@ for arg in sys.argv[1:]:
     elif arg.startswith("--prevlevel="):  PREVLEVEL = arg[len("--prevlevel="):]
     elif arg.startswith("--path="):       PATH      = arg[len("--path="):]
     elif arg.startswith("--cpus="):       CPU_COUNT = int(arg[len("--cpus="):])
+# TODO stop-all  <--  stop all daemons in reverse start order
 
 
 # Do everything in a fork

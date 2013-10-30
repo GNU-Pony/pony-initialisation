@@ -3,21 +3,12 @@
 # Single-user start-up script.
 #
 
-. £{ETC}/rc.conf
 . £{DAEMON_DIR}/functions
 
-run_hook single_start
-
 if [[ $PREVLEVEL != N ]]; then
-
-    stop_all_daemons
-
-    run_hook single_prekillall
-
+    daemond stop-all
     kill_all
-
-    run_hook single_postkillall
-
+    
     # Start/trigger udev, load MODULES, and settle udev
     udevd_modprobe single
     
@@ -25,14 +16,9 @@ if [[ $PREVLEVEL != N ]]; then
     remove_leftover
 fi
 
-run_hook single_end
-
 bootlogd_stop
 
 if [[ $RUNLEVEL = 1 ]]; then
-    printsep
-    printhl "Entering single-user mode..."
-    # make sure £{DEV}/initctl is in place
     kill -HUP 1
     exec init -t1 S
 fi

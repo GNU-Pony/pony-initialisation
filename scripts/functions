@@ -1,13 +1,4 @@
-#!/bin/bash
-#
-# pony-initialisation functions.
-#
-
-# sanitize PATH (will be overridden later when £{ETC}/profile is sourced but is useful for udev)
-export PATH="£{LOCAL}£{SBIN}:£{LOCAL}£{BIN}:£{USR}£{SBIN}:£{USR}£{BIN}:£{SBIN}:£{BIN}"
-
-# clear the TZ envvar, so daemons always respect £{ETC}/localtime
-unset TZ
+# -*- shell-script -*-
 
 RANDOM_SEED=£{VAR_LIB}/£{MISC}/random-seed
 
@@ -69,7 +60,7 @@ fi
 unset TERM_COLOURS
 
 unquote() {
-    local -r quotes=$'[\'"]'
+    local -r quotes=$'[\'"]'  #"
 
     if [[ ${1:0:1} = $quotes && ${1:(-1)} = "${1:0:1}" ]]; then
         printf '%s' "${1:1:(-1)}"
@@ -298,39 +289,6 @@ add_omit_pids() {
     omit_pids+=( $@ )
 }
 
-# Stop all daemons
-# This function should *never* ever perform any other actions beside calling stop_daemon()!
-# It might be used by a splash system etc. to get a list of daemons to be stopped.
-stop_all_daemons() {
-    # Find daemons NOT in the DAEMONS array. Shut these down first
-    local daemon
-    for daemon in £{RUN}/daemons/*; do
-        [[ -f $daemon ]] || continue
-        daemon=${daemon##*/}
-        ck_autostart "$daemon" && stop_daemon "$daemon"
-    done
-    
-    # Shutdown daemons in reverse order
-    local i daemon deamon_r deamon_n deamon_w
-    for (( i=${#DAEMONS[@]}-1; i>=0; i-- )); do
-        daemon=${DAEMONS[i]}
-        if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
-	    daemon="${daemon:0:${#daemon}-1}"
-        fi
-        if [ ! "${daemon/:/}" = "$daemon" ]; then
-            deamon_r="${daemon#*:}"
-            [ "${deamon_r:0:1}" = "-" ] ; deamon_n=$?
-            [ ! "${deamon_r/$RUNLEVEL/}" = "$deamon_r" ] ; deamon_w=$?
-            if [ $deamon_n = $deamon_w ]; then
-                continue
-            fi
-        fi
-        [[ ${DAEMONS[i]} = '!'* ]] && continue
-        daemon=${DAEMONS[i]#@}
-        ck_daemon "$daemon" || stop_daemon "$daemon"
-    done
-}
-
 # $1 - signal
 # $2 - iterations
 kill_all_wait() {
@@ -360,23 +318,13 @@ kill_all_wait() {
 
 kill_all() {
     stat_busy "Sending SIGTERM to processes"
-        kill_all_wait 15 40
-        if (( $? == 0 )); then
-            stat_done
-        else
-            stat_fail
-            status "Sending SIGKILL to processes" kill_all_wait 9 60
-        fi
-}
-
-print_welcome() {
-    # see os-release(5)
-    . £{ETC}/os-release
-
-    echo " "
-    printhl "${PRETTY_NAME}\n"
-    printhl "${C_H2}${HOME_URL}"
-    printsep
+    kill_all_wait 15 40
+    if (( $? == 0 )); then
+        stat_done
+    else
+        stat_fail
+        status "Sending SIGKILL to processes" kill_all_wait 9 60
+    fi
 }
 
 create_blacklist() {

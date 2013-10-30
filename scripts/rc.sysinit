@@ -1,49 +1,9 @@
 #!/bin/bash
-#
-# Common system initialisation script.
-#
-
-unset HOSTNAME
 
 . £{ETC}/rc.conf
 . £{DAEMON_DIR}/functions
 
-if [[ -z "$HOSTNAME" && -s £{ETC}/hostname ]]; then
-    HOSTNAME="$(< £{ETC}/hostname)"
-fi
-
-# don't let all the systemd tools be too verbose
-export SYSTEMD_LOG_LEVEL="notice"
-
-# Prints distro name and URL
-print_welcome
-
-# mount the API filesystems
-# £{PROC}, £{SYS}, £{RUN}, £{DEV}, £{RUN_LOCK}, £{DEV_PTS}, £{DEV_SHM}
-mountpoint -q £{PROC}    || mount -t proc proc £{PROC} -o nosuid,noexec,nodev
-mountpoint -q £{SYS}     || mount -t sysfs sys £{SYS} -o nosuid,noexec,nodev
-mountpoint -q £{RUN}     || mount -t tmpfs run £{RUN} -o mode=0755,nosuid,nodev
-mountpoint -q £{DEV}     || mount -t devtmpfs dev £{DEV} -o mode=0755,nosuid
-mkdir -p £{DEV_PTS} £{DEV_SHM}
-mountpoint -q £{DEV_PTS} || mount £{DEV_PTS} &>£{DEV}/null || mount -t devpts devpts £{DEV_PTS} -o mode=0620,gid=5,nosuid,noexec
-mountpoint -q £{DEV_SHM} || mount £{DEV_SHM} &>£{DEV}/null || mount -t tmpfs shm £{DEV_SHM} -o mode=1777,nosuid,nodev
-
-if [[ ! -e £{RUN}/initramfs/root-fsck ]]; then
-    # remount root ro to allow for fsck later on, we remount now to
-    # make sure nothing can open files rw on root which would block a remount
-    findmnt / --options ro &>£{DEV}/null ||
-        status "Mounting root read-only" mount -o remount,ro /
-fi
-
-# log all console messages
-bootlogd -p £{RUN}/bootlogd.pid
-
-run_hook sysinit_start
-
-if [[ $HOSTNAME ]]; then
-    stat_busy "Setting hostname: $HOSTNAME"
-    echo "$HOSTNAME" >| £{PROC}/sys/kernel/hostname && stat_done || stat_fail
-fi
+/etc/rc.sysinit.py
 
 HWCLOCK_PARAMS="--systz"
 

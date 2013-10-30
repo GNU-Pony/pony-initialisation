@@ -10,3 +10,6 @@ Improvement over initscripts-fork:
 •  Easier multihoming from /etc/rc.conf
 •  Easier runlevel dependency for daemons in rc.conf
 •  You can silence problematic daemons
+•  Better parallelisation
+•  More modular
+

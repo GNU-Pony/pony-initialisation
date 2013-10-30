@@ -20,7 +20,7 @@ run_hook shutdown_start
 
 [[ -x £{ETC}/rc.local.shutdown ]] && £{ETC}/rc.local.shutdown
 
-stop_all_daemons
+daemond stop-all
 
 #status 'Saving random seed' £{USR}£{LIB}/systemd/systemd-random-seed save
 stat_busy "Saving Random Seed"

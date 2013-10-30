@@ -19,41 +19,7 @@ run_hook multi_start
 £{USR}£{LIB}/pony-initialisation/pony-binfmt
 
 # Start daemons
-for daemon in "${DAEMONS[@]}"; do
-    quite=0
-    if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
-	quite=1
-	daemon="${daemon:0:${#daemon}-1}"
-    fi
-    if [ ! "${daemon/:/}" = "$daemon" ]; then
-	daemon_r="${daemon#*:}"
-	daemon="${daemon%%:*}"
-	if [ "${daemon:${#daemon}-1:1}" = "@" ]; then
-	    quite=1
-	    daemon="${daemon:0:${#daemon}-1}"
-	fi
-	if [ ! "$RUNLEVEL" = "" ]; then
-	    [ "${daemon_r:0:1}" = "-" ] ; daemon_n=$?
-	    [ ! "${daemon_r/$RUNLEVEL/}" = "$daemon_r" ] ; daemon_w=$?
-	    if [ $daemon_n = $daemon_w ]; then
-		continue
-	    fi
-	fi
-    fi
-    if [ $quite = 1 ]; then
-	case "${daemon:0:1}" in
-            '!') continue;;     # Skip this daemon.
-            '@') start_daemon_bkgd "${daemon#@}" 2>£{DEV}/null;;
-            *)   start_daemon "$daemon" 2>£{DEV}/null;;
-	esac
-    else
-	case "${daemon:0:1}" in
-            '!') continue;;     # Skip this daemon.
-            '@') start_daemon_bkgd "${daemon#@}";;
-            *)   start_daemon "$daemon";;
-	esac
-    fi
-done
+daemond -- "${DAEMONS[@]}"
 
 [[ -x £{ETC}/rc.local ]] && £{ETC}/rc.local
 
