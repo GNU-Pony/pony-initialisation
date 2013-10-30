@@ -13,12 +13,7 @@ if [ -d $__dir ]; then
     for __file in $(ls -1 $__dir); do
 	__file=$__dir/$__file
 	if [ -f $__file ] && [ -x $__file ]; then
-	    __first_line="$(head -n 1 < $__file)"
-	    if [ "${__first_line::2}" = "#!" ]; then
-		$__file
-	    else
-		. $__file
-	    fi
+	    $__file
 	fi
     done
 fi
