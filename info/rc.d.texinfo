@@ -9,10 +9,8 @@
 @finalout
 @c %**end of header
 
-@c --- start of do not touch ---
-@set PREFIX /usr
-@set LIBEXEC /libexec
-@c --- end of do not touch ---
+@set PREFIX £{USR}
+@set LIBEXEC £{LIBEXEC}
 
 
 @copying

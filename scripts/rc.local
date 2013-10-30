@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# </etc>/rc.local: Local multi-user start-up script.
+# Local multi-user start-up script.
 #
 
 
-# If you have any files in </etc>/rc.local.d
+# If you have any files in £{ETC}/rc.local.d
 # that are marked as executable they will be executed
 # if they contain a shebang and sourced if not.
 
-__dir=</etc>/rc.local.d
+__dir=£{ETC}/rc.local.d
 if [ -d $__dir ]; then
     for __file in $(ls -1 $__dir); do
 	__file=$__dir/$__file

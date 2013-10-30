@@ -1,22 +1,22 @@
 #!/bin/bash
 #
-# </etc>/rc.multi
+# Multi-user start-up script.
 #
 
-. </etc>/rc.conf
-. </usr></libexec>/rc.d/functions
+. £{ETC}/rc.conf
+. £{DAEMON_DIR}/functions
 
-[[ -x </etc>/rc.local.early ]] && </etc>/rc.local.early
+[[ -x £{ETC}/rc.local.early ]] && £{ETC}/rc.local.early
 
 run_hook multi_start
 
 # Load sysctl config files
-#</usr></lib>/systemd/systemd-sysctl
-</usr></lib>/pony-initialisation/pony-sysctl
+#£{USR}£{LIB}/systemd/systemd-sysctl
+£{USR}£{LIB}/pony-initialisation/pony-sysctl
 
 # Load additional binary formats
-#</usr></lib>/systemd/systemd-binfmt
-</usr></lib>/pony-initialisation/pony-binfmt
+#£{USR}£{LIB}/systemd/systemd-binfmt
+£{USR}£{LIB}/pony-initialisation/pony-binfmt
 
 # Start daemons
 for daemon in "${DAEMONS[@]}"; do
@@ -43,8 +43,8 @@ for daemon in "${DAEMONS[@]}"; do
     if [ $quite = 1 ]; then
 	case "${daemon:0:1}" in
             '!') continue;;     # Skip this daemon.
-            '@') start_daemon_bkgd "${daemon#@}" 2></dev>/null;;
-            *)   start_daemon "$daemon" 2></dev>/null;;
+            '@') start_daemon_bkgd "${daemon#@}" 2>£{DEV}/null;;
+            *)   start_daemon "$daemon" 2>£{DEV}/null;;
 	esac
     else
 	case "${daemon:0:1}" in
@@ -55,11 +55,11 @@ for daemon in "${DAEMONS[@]}"; do
     fi
 done
 
-[[ -x </etc>/rc.local ]] && </etc>/rc.local
+[[ -x £{ETC}/rc.local ]] && £{ETC}/rc.local
 
 run_hook multi_end
 
 bootlogd_stop
 
-rm -f </run>/nologin
+rm -f £{RUN}/nologin
 

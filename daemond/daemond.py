@@ -33,7 +33,7 @@ child_pid = os.fork()
 
 if child_pid == 0:
     os.close(0)
-    os.open("/dev/null", os.O_RDWR)
+    os.open("£{DEV}/null", os.O_RDWR)
     os.setsid()
 else:
     def noop(_a, _b):
@@ -44,8 +44,8 @@ else:
 
 
 # Get CPU thread count, $PATH, previous runlevel and current runlevel
-CPU_COUNT = CPU_COUNT if CPU_COUNT is not None else len(os.listdir("/sys/bus/cpu/devices"))
-PATH = PATH if PATH is not None else "/bin:/usr/bin:/sbin:/usr/sbin"
+CPU_COUNT = CPU_COUNT if CPU_COUNT is not None else len(os.listdir("£{SYS}/bus/cpu/devices"))
+PATH = PATH if PATH is not None else "£{BIN}:£{USR}£{BIN}:£{SBIN}:£{USR}£{SBIN}"
 if (PREVLEVEL is None) or (RUNLEVEL is None):
     (_PREVLEVEL, _RUNLEVEL) = pipe(["runlevel"])[0].split(" ")
     PREVLEVEL = PREVLEVEL if PREVLEVEL is not None else _PREVLEVEL
@@ -56,8 +56,8 @@ if (PREVLEVEL is None) or (RUNLEVEL is None):
 os.putenv("RUNLEVEL", RUNLEVEL)
 os.putenv("PREVLEVEL", PREVLEVEL)
 os.putenv("PATH", PATH)
-console = os.getenv("CONSOLE", "/dev/console")
-os.putenv("CONSOLE", console if console != "" else "/dev/console")
+console = os.getenv("CONSOLE", "£{DEV}/console")
+os.putenv("CONSOLE", console if console != "" else "£{DEV}/console")
 
 
 daemons = {}
@@ -77,7 +77,7 @@ members = {}
 
 
 # Fill `daemons` and `groups`
-populate_tables(daemons, groups, [], legacy_daemons, RUNLEVEL, "/etc/daemontab")
+populate_tables(daemons, groups, [], legacy_daemons, RUNLEVEL, "£{ETC}/daemontab")
 
 # Transpose `groups`
 for group in groups:

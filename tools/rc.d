@@ -1,7 +1,7 @@
 #!/bin/bash
 
-. </etc>/rc.conf
-. </usr></libexec>/rc.d/functions
+. £{ETC}/rc.conf
+. £{DAEMON_DIR}/functions
 
 # print usage and exit
 usage() {
@@ -15,7 +15,7 @@ options:
   -a, --auto        Filter auto started daemons
   -A, --noauto      Filter manually started daemons
 
-<daemons> is a space separated list of script in >/usr></libexec>/rc.d
+<daemons> is a space separated list of script in >£{DAEMON_DIR}
 <action> can be a start, stop, restart, reload, status, ...
 NOTE: scripts are free to implement or not the above actions.
 
@@ -84,7 +84,7 @@ for daemon; do
 done
 
 # going into script directory
-cd </usr></libexec>/rc.d
+cd £{DAEMON_DIR}
 
 case $action in
     help)
@@ -115,15 +115,15 @@ case $action in
         [[ -z $daemons ]] && usage
         filter_daemons
         # set same environment variables as init
-        runlevel=$(</sbin>/runlevel)
-        ENV=('PATH=</bin>:</usr></bin>:</sbin>:</usr></sbin>'
+        runlevel=$(£{SBIN}/runlevel)
+        ENV=('PATH=£{BIN}:£{USR}£{BIN}:£{SBIN}:£{USR}£{SBIN}'
             "PREVLEVEL=${runlevel%% *}"
             "RUNLEVEL=${runlevel##* }"
-            "CONSOLE=${CONSOLE:-</dev>/console}"
+            "CONSOLE=${CONSOLE:-£{DEV}/console}"
             "TERM=$TERM")
         cd /
         for daemon in "${daemons[@]}"; do
-            env -i "${ENV[@]}" "</usr></libexec>/rc.d/$daemon" "$action"
+            env -i "${ENV[@]}" "£{DAEMON_DIR}/$daemon" "$action"
             (( ret += !! $? ))  # clamp exit value to 0/1
         done
     ;;

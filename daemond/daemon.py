@@ -53,7 +53,7 @@ class Daemon():
         '''
         Start the daemon
         '''
-        Popen(['/libexec/rc.d/' + self.name, 'start']).wait()
+        Popen(['£{DEAMON_DIR}' + self.name, 'start']).wait()
     
     
     def __str__(self):

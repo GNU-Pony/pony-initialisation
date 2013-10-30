@@ -1,7 +1,5 @@
 #!/bin/bash
 #
-# </usr></lib>/pony-initialisation/pony-binfmt
-#
 # Configure additional binary formats at boot
 #
 
@@ -13,9 +11,9 @@ if (( $# > 0 )); then
     for arg; do [[ -r "$arg" ]] && binfmt_d+=("$arg"); done
 else
     binfmt_d=(
-        </usr></lib>/binfmt.d/*.conf
-        </etc>/binfmt.d/*.conf
-        </run>/binfmt.d/*.conf
+        £{USR}£{LIB}/binfmt.d/*.conf
+        £{ETC}/binfmt.d/*.conf
+        £{RUN}/binfmt.d/*.conf
     )
 fi
 
@@ -23,12 +21,12 @@ fi
 (( ${#binfmt_d[@]} > 0 )) || exit 1
 
 # mount binfmt_misc if api filesystem is missing
-mountpoint -q </proc>/sys/fs/binfmt_misc ||
-    mount </proc>/sys/fs/binfmt_misc &></dev>/null ||
-        mount -t binfmt_misc binfmt </proc>/sys/fs/binfmt_misc
+mountpoint -q £{PROC}/sys/fs/binfmt_misc ||
+    mount £{PROC}/sys/fs/binfmt_misc &>£{DEV}/null ||
+        mount -t binfmt_misc binfmt £{PROC}/sys/fs/binfmt_misc
 
 # files declared later in the binfmt_d array will override earlier
-# Example: `</etc>/binfmt.d/foo.conf' supersedes `</usr></lib>/binfmt.d/foo.conf'.
+# Example: `£{ETCs}/binfmt.d/foo.conf' supersedes `£{USR}£{LIB}/binfmt.d/foo.conf'.
 declare -A fragments
 for path in "${binfmt_d[@]}"; do
     [[ -f $path ]] && fragments[${path##*/}]=$path
@@ -37,7 +35,7 @@ done
 for path in "${fragments[@]}"; do
     while read -r line; do
         [[ ${line:0:1} == '#' ]] && continue
-        printf "%s" "$line" > </proc>/sys/fs/binfmt_misc/register
+        printf "%s" "$line" > £{PROC}/sys/fs/binfmt_misc/register
     done < "$path"
 done
 

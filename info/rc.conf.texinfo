@@ -9,14 +9,12 @@
 @finalout
 @c %**end of header
 
-@c --- start of do not touch ---
-@set PREFIX /usr
-@set LIBEXEC /libexec
-@set SYSCONF /etc
-@set DATA /share
-@set DEV /dev
-@set SYS /sys
-@c --- end of do not touch ---
+@set PREFIX £{PREFIX}
+@set LIBEXEC £{LIBEXEC}
+@set SYSCONF £{ETC}
+@set DATA £{SHARE}
+@set DEV £{DEV}
+@set SYS £{SYS}
 
 
 @copying

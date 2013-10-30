@@ -2,8 +2,8 @@
 # daemon for: nfs-utils
 
 # sourcing our current rc.conf requires this to be a bash script
-. </etc>/rc.conf
-. </usr></libexec>/rc.d/functions
+. £{ETC}/rc.conf
+. £{DAEMON_DIR}/functions
 
 case "$1" in
     start)

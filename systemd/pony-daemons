@@ -1,13 +1,10 @@
 #!/bin/bash
-#
-# </usr></lib>/systemd/system-generators/pony-daemons
-#
 
-. </etc>/rc.conf
+. £{ETC}/rc.conf
 
 [[ $1 ]] || exit 1
 
-# when called at boot, this is </run>/systemd/generator.late
+# when called at boot, this is £{RUN}/systemd/generator.late
 dest=$3
 
 # list of services that have to be started before the next one
@@ -15,7 +12,7 @@ deps=()
 
 # Check if $1 is a valid daemon name
 have_daemon() {
-    [[ -f </usr></libexec>/rc.d/$1 && -x </usr></libexec>/rc.d/$1 ]]
+    [[ -f £{DAEMON_DIR}/$1 && -x £{DAEMON_DIR}/$1 ]]
 }
 
 # Make service file
@@ -30,26 +27,26 @@ create_unit() {
 
     printf \
 '[Unit]
-SourcePath=</etc>/rc.conf
+SourcePath=£{ETC}/rc.conf
 Documentation=man:pony-daemons(8)
 Description=LEGACY unit for "%s" rc script
 %s
 [Service]
-ExecStartPre=</usr></bin>/echo "WARNING: A legacy rc script is being used. Consider removing this from your DAEMONS array and enabling a native systemd service instead."
-ExecStart=</usr></libexec>/rc.d/%s start
-ExecStop=</usr></libexec>/rc.d/%s stop
+ExecStartPre=£{USR}£{BIN}/echo "WARNING: A legacy rc script is being used. Consider removing this from your DAEMONS array and enabling a native systemd service instead."
+ExecStart=£{DAEMON_DIR}/%s start
+ExecStop=£{DAEMON_DIR}/%s stop
 RemainAfterExit=yes
 Type=forking
 ' "$daemon" "$deps" "$daemon" "$daemon" > "$dest/$1"
 
 }
 
-for daemon in </usr></libexec>/rc.d/*; do
+for daemon in £{DAEMON_DIR}/*; do
     create_unit "${daemon##*/}".service
 done
 
 [[ -d "$dest"/pony-daemons.target.wants ]] || \
-    </bin>/mkdir -p "$dest/pony-daemons.target.wants"
+    £{BIN}/mkdir -p "$dest/pony-daemons.target.wants"
 
 for daemon in "${DAEMONS[@]}"; do
     if [ "${daemon:${#daemon}-1:1}" = "@" ]; then

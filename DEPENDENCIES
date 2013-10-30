@@ -2,6 +2,9 @@ REQUIRED MAKE DEPENDENCIES::
 
 grep
 sed
+gpp
+make
+coreutils
 
 
 REQUIRED RUNTIME DEPENDENCIES::

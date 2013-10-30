@@ -1,12 +1,12 @@
 [Unit]
-Description=</etc>/rc.local.shutdown Compatibility
-ConditionFileIsExecutable=</etc>/rc.local.shutdown
+Description=£{ETC}/rc.local.shutdown Compatibility
+ConditionFileIsExecutable=£{ETC}/rc.local.shutdown
 DefaultDependencies=no
 After=rc-local.service basic.target
 Before=shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=</etc>/rc.local.shutdown
+ExecStart=£{ETC}/rc.local.shutdown
 StandardInput=tty
 RemainAfterExit=yes

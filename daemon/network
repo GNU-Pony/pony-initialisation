@@ -1,11 +1,11 @@
 #!/bin/bash
 # daemon for: net-tools
 
-. </etc>/rc.conf
-. </usr></libexec>/rc.d/functions
+. £{ETC}/rc.conf
+. £{DAEMON_DIR}/functions
 
 for s in wireless bonding bridges dhcpcd; do
-    [[ -f </etc>/conf.d/$s ]] && . "/etc/conf.d/$s"
+    [[ -f £{ETC}/conf.d/$s ]] && . "£{ETC}/conf.d/$s"
 done
 
 # helper function to determine if legacy network support is needed
@@ -59,11 +59,11 @@ network_down() {
     done
     for (( _i=0; (( _i < _i_count )); (( _i++ )) )); do
         if [[ ! -n ${interface[$_i]} ]]; then
-            if [[ -f </run>/dhcpcd.pid ]]; then
+            if [[ -f £{RUN}/dhcpcd.pid ]]; then
                 dhcpcd -qk || return 1
             fi
         else
-            if [[ ! -n ${address[$_i]} && -f </run>/dhcpcd-${interface[$_i]}.pid ]]; then
+            if [[ ! -n ${address[$_i]} && -f £{RUN}/dhcpcd-${interface[$_i]}.pid ]]; then
                 dhcpcd -qk ${interface[$_i]} || return 1
             else
                 ip addr flush dev ${interface[$_i]} || return 1
@@ -94,8 +94,8 @@ ifup() {
 
     if [[ $ifcfg = dhcp ]]; then
         # remove the .pid file if it exists
-        rm -f </run>/dhcpcd-${1}.pid ></dev>/null 2>&1
-        rm -f </run>/dhcpcd-${1}.cache ></dev>/null 2>&1
+        rm -f £{RUN}/dhcpcd-${1}.pid >£{DEV}/null 2>&1
+        rm -f £{RUN}/dhcpcd-${1}.cache >£{DEV}/null 2>&1
         dhcpcd $DHCPCD_ARGS ${1}
     else
         ifconfig $ifcfg
@@ -127,11 +127,11 @@ ifdown() {
         return 1
     fi
 
-    if [[ $ifcfg = dhcp && -f </run>/dhcpcd-${1}.pid ]]; then
-        dhcpcd -k ${1} ></dev>/null 2>&1
+    if [[ $ifcfg = dhcp && -f £{RUN}/dhcpcd-${1}.pid ]]; then
+        dhcpcd -k ${1} >£{DEV}/null 2>&1
     fi
     # Always bring the interface itself down
-    ifconfig ${1} down ></dev>/null 2>&1
+    ifconfig ${1} down >£{DEV}/null 2>&1
 }
 
 iflist() {
@@ -210,7 +210,7 @@ bridge_up() {
     for br in ${BRIDGE_INTERFACES[@]}; do
         if [[ $br = ${br#!} ]]; then
             # if the bridge already exists, remove it
-            if [[ $(ifconfig $br 2></dev>/null) ]]; then
+            if [[ $(ifconfig $br 2>£{DEV}/null) ]]; then
                 ifconfig $br down
                 brctl delbr $br
             fi
