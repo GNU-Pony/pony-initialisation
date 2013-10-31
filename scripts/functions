@@ -1,7 +1,5 @@
 # -*- shell-script -*-
 
-[[ -z $LANG ]] && . £{ETC}/profile.d/read_locale.sh
-
 if [[ "$1" == "start" ]]; then
     if [[ $STARTING ]]; then
         echo "A daemon is starting another daemon; this is unlikely to work as intended."
@@ -65,55 +63,6 @@ unquote() {
     else
         printf '%s' "$1"
     fi
-}
-
-parse_envfile() {
-    local file=$1 validkeys=("${@:2}") ret=0 lineno=0 key= val=
-    local -r comments=$'[;#]*'
-
-    if [[ -z $file ]]; then
-        printf "error: no environment file specified\n"
-        return 1
-    fi
-
-    if [[ ! -f $file ]]; then
-        printf "error: cannot parse \`%s': No such file or directory\n" "$file"
-        return 1
-    fi
-
-    if [[ ! -r $file ]]; then
-        printf "error: cannot read \`%s': Permission denied\n" "$file"
-        return 1
-    fi
-
-    while IFS='=' read -r key val; do
-        (( ++lineno ))
-
-        # trim whitespace, avoiding usage of a tempfile
-        key=$(echo "$key" | { read -r key; echo "$key"; })
-
-        # key must exist and line must not be a comment
-        [[ -z $key || ${key:0:1} = $comments ]] && continue
-
-        # trim whitespace, strip matching quotes
-        val=$(echo "$val" | { read -r val; unquote "$val"; })
-
-        if [[ -z $val ]]; then
-            printf "error: found key \`%s' without value on line %s of %s\n" \
-                    "$key" "$lineno" "$file"
-            (( ++ret ))
-            continue
-        fi
-
-        # ignore invalid keys if we have a list of valid ones
-        if (( ${#validkeys[*]} )) && ! in_array "$key" "${validkeys[@]}"; then
-            continue
-        fi
-
-        export "$key=$val" || (( ++ret ))
-    done <"$file"
-
-    return $ret
 }
 
 # functions:
@@ -189,18 +138,6 @@ status() {
     local ret=$?
     (( ret == 0 )) && stat_done || stat_fail
     return $ret
-}
-
-#  usage : in_array( $needle, $haystack )
-# return : 0 - found
-#          1 - not found
-in_array() {
-    local needle=$1; shift
-    local item
-    for item; do
-        [[ $item = "${needle}" ]] && return 0
-    done
-    return 1 # Not Found
 }
 
 # daemons:
@@ -497,55 +434,6 @@ read_crypttab() {
     return $failed
 }
 
-
-# Check local filesystems
-fsck_all() {
-    if [[ -f /forcefsck ]] || in_array forcefsck $(< £{PROC}/cmdline); then
-        FORCEFSCK="-f"
-    elif [[ -f /fastboot ]] || in_array fastboot $(< £{PROC}/cmdline); then
-        return 0
-    elif [[ -e £{RUN}/initramfs/root-fsck ]]; then
-        IGNORE_MOUNTED="-M"
-    fi
-
-    fsck -A -T -C${FSCK_FD} -a -t no${NETFS//,/,no},noopts=_netdev ${IGNORE_MOUNTED} -- ${FORCEFSCK}
-}
-
-# Single-user login and/or automatic reboot after fsck (if needed)
-fsck_reboot() {
-    # $1 = exit code returned by fsck
-    # Ignore conditions 'FS errors corrected' and 'Cancelled by the user'
-    (( ($1 | 33) == 33 )) && return 0
-    if (( $1 & 2 )); then
-        echo
-        echo "********************** REBOOT REQUIRED *********************"
-        echo "*                                                          *"
-        echo "* The system will be rebooted automatically in 15 seconds. *"
-        echo "*                                                          *"
-        echo "************************************************************"
-        echo
-        sleep 15
-    else
-        echo
-        echo "*****************  FILESYSTEM CHECK FAILED  ****************"
-        echo "*                                                          *"
-        echo "*  Please repair manually and reboot. Note that the root   *"
-        echo "*  file system is currently mounted read-only. To remount  *"
-        echo "*  it read-write, type: mount -o remount,rw /              *"
-        echo "*  When you exit the maintenance shell, the system will    *"
-        echo "*  reboot automatically.                                   *"
-        echo "*                                                          *"
-        echo "************************************************************"
-        echo
-        sulogin -p
-    fi
-    echo "Automatic reboot in progress..."
-    umount -a
-    mount -o remount,ro /
-    reboot -f
-    exit 0
-}
-
 umount_all() {
     # $1: restrict to fstype
 
@@ -577,55 +465,12 @@ umount_all() {
 
 }
 
-remove_leftover() {
-    #status 'Removing leftover files' systemd-tmpfiles --create --remove --clean
-    status 'Removing leftover files' £{USR}£{LIB}/pony-initialisation/pony-tmpfiles --create --remove
-}
-
 bootlogd_stop() {
     [[ -f £{RUN}/bootlogd.pid ]] || return 0
     touch £{VAR_LOG}/boot
     kill $(< £{RUN}/bootlogd.pid)
     rm -f £{RUN}/bootlogd.pid
 }
-
-#######################################
-# Custom hooks in pony-initialisation #
-#######################################
-# Hooks can be used to include custom code in various places in the rc.* scripts
-#
-# Define a hook function in a functions.d file using:
-#  function_name() {
-#    ...
-#  }
-#  add_hook hook_name function_name
-# It is allowed to register several hook functions for the same hook
-# Is is also allowed to register the same hook function for several hooks
-#
-# Currently, the following hooks exist:
-# sysinit_start: at the beginning of rc.sysinit
-# multi_start: at the beginning of rc.multi
-# single_start: at the beginning of rc.single
-# shutdown_start: at the beginning of rc.shutdown
-# sysinit_end: at the end of rc.sysinit
-# multi_end: at the end of rc.multi
-# single_end: at the end of rc.single
-# sysinit_udevlaunched: after udev has been launched in rc.sysinit
-# single_udevlaunched: after udev has been launched in rc.single
-# sysinit_udevsettled: after uevents have settled in rc.sysinit
-# single_udevsettled: after uevents have settled in rc.single
-# sysinit_premount: before local filesystems are mounted, but after root is mounted read-write in rc.sysinit
-# sysinit_postmount: after local filesystems are mounted
-# shutdown_prekillall: before all processes are being killed in rc.shutdown
-# single_prekillall: before all processes are being killed in rc.single
-# shutdown_postkillall: after all processes have been killed in rc.shutdown
-# single_postkillall: after all processes have been killed in rc.single
-# shutdown_preumount: after last filesystem write, but before filesystems are unmounted
-# shutdown_postumount: after filesystems are unmounted
-# shutdown_poweroff: directly before powering off in rc.shutdown
-#
-# Declare add_hook and run_hook as read-only to prevent overwriting them.
-# Too bad we cannot do the same thing with hook_funcs
 
 if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
     declare -A hook_funcs
@@ -678,9 +523,3 @@ fi
 
 PREFIX_REG="::"
 PREFIX_HL=" >"
-
-# Source additional functions at the end to allow overrides
-for f in £{DAEMON_DIR}/functions.d/*; do
-    [[ -e $f ]] && . "$f"
-done
-

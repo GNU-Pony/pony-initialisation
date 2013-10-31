@@ -1,23 +1,8 @@
 #!/bin/bash
 
-. £{ETC}/rc.conf
-
-/etc/rc.sysinit.py
-
-# Check filesystems
-
-if [[ -x "$(type -P fsck)" ]]; then
-    stat_busy "Checking filesystems"
-        fsck_all >|"${FSCK_OUT:-£{DEV}/stdout}" 2>|"${FSCK_ERR:-£{DEV}/stdout}"
-    declare -r fsckret=$?
-    (( fsckret <= 1 )) && stat_done || stat_fail
-else
-    declare -r fsckret=0
+if [[ -z "$LANG" ]]; then
+    source £{ETC}/profile.d/read_locale.sh
 fi
 
-# Single-user login and/or automatic reboot if needed
-fsck_reboot $fsckret
-
-# Remove leftover files (positioned before saving dmesg log)
-remove_leftover
+exec £{ETC}/rc.sysinit.py
 

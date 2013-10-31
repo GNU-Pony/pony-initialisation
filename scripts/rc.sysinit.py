@@ -5,6 +5,8 @@
 #
 
 import os
+import sys
+import time
 
 from functions import *
 
@@ -220,15 +222,66 @@ if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/bloc
 ### Set up non-root encrypted partition mappings, if any (after lvm, requires /dev, devd)
 
 if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
-    # TODO read_crypttab do_unlock
+    # FIXME read_crypttab do_unlock
     # Maybe somepony has LVM on an encrypted block device
     if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/block"):
         __("vgchange", "--sysinit", "-a", "y")
 
 
 
-### Check filesystems (after crypt, requires /dev, devd)   TODO
+### Check filesystems (after crypt, requires /dev, devd)
 ### Single-user login and/or automatic reboot if needed
+
+fsckret = 0
+
+if in_path("fsck"):
+    cmdline = None
+    with open("£{PROC}/cmdline", "rb") as file:
+        cmdline = file.read().decode("utf-8", "replace").replace("\n", "").split(" ")
+    
+    fsck = ["fsck", "-A", "-T", "-C", "-a", "-t"]
+    fsck.append("no" + NETFS.replace(",", ",no") + ",noopts=_netdev")
+    
+    if os.path.exists("/forcefsck") or ('forcefsck' in cmdline):
+        fsck += ["--", "-f"]
+    elif os.path.exists("/fastboot") or ('fastboot' in cmdline):
+        fsck = None
+    elif os.path.exists("£{RUN}/initramfs/root-fsck"):
+        fsck.append("-M")
+    
+    if fsck is not None:
+        proc = Popen(fsck)
+        proc.wait()
+        fsckret = proc.returncode ## TODO failed if > 1
+
+if (fsckret | 33) != 33: # Ignore conditions 'FS errors corrected' and 'Cancelled by the user'
+    if (fsckret | 2) != 0:
+        print()
+        print("********************** REBOOT REQUIRED *********************")
+        print("*                                                          *")
+        print("* The system will be rebooted automatically in 15 seconds. *")
+        print("*                                                          *")
+        print("************************************************************")
+        print()
+        time.sleep(15)
+    else:
+        print()
+        print("*****************  FILESYSTEM CHECK FAILED  ****************")
+        print("*                                                          *")
+        print("*  Please repair manually and reboot. Note that the root   *")
+        print("*  file system is currently mounted read-only. To remount  *")
+        print("*  it read-write, type: mount -o remount,rw /              *")
+        print("*  When you exit the maintenance shell, the system will    *")
+        print("*  reboot automatically.                                   *")
+        print("*                                                          *")
+        print("************************************************************")
+        print()
+        _("sulogin", "-p")
+    print("Automatic reboot in progress...")
+    _("umount", "-a")
+    _("mount", "-o", "remount,ro", "/")
+    _("reboot", "-f")
+    sys.exit(0)
 
 
 
@@ -276,6 +329,12 @@ with open("£{VAR_LIB}/£{MISC}/random-seed", "rb") as rfile:
     with open("£{DEV}/urandom", "wb") as wfile:
         wfile.write(rfile.read())
         wfile.flush()
+
+
+
+### Remove leftover files (second to last)  TODO should this be removed?
+
+_("£{USR}£{LIB}/pony-initialisation/pony-tmpfiles", "--create", "--remove")
 
 
 
