@@ -12,4 +12,5 @@ Improvement over initscripts-fork:
 •  You can silence problematic daemons
 •  Better parallelisation
 •  More modular
+•  Purged from systemd
 

@@ -1,108 +1,11 @@
 #!/bin/bash
 
 . £{ETC}/rc.conf
-. £{DAEMON_DIR}/functions
 
 /etc/rc.sysinit.py
 
-HWCLOCK_PARAMS="--systz"
-
-if [[ $HARDWARECLOCK ]]; then
-
-    [[ -f £{ETC}/adjtime ]] && { read ; read ; read ADJTIME; } < £{ETC}/adjtime
-
-    if [[ "$ADJTIME" == 'LOCAL' ]]; then
-        if    [[ "$HARDWARECLOCK" == 'UTC' ]]; then
-            printf "${C_FAIL}£{ETC}/rc.conf says the RTC is in UTC, but £{ETC}/adjtime says it is in localtime.\n${C_OTHER}."
-        fi
-    else
-        if [[ "$HARDWARECLOCK" == 'LOCALTIME' ]]; then
-            printf "${C_FAIL}£{ETC}/rc.conf says the RTC is in localtime, but hwclock (£{ETC}/adjtime) thinks it is in UTC.\n${C_OTHER}."
-        fi
-    fi
-
-    case "$HARDWARECLOCK" in
-        UTC) HWCLOCK_PARAMS+=" --utc --noadjfile";;
-        localtime) HWCLOCK_PARAMS+=" --localtime --noadjfile";;
-        *) HWCLOCK_PARAMS="";;
-    esac
-fi
-
-if [[ $HWCLOCK_PARAMS ]]; then
-    stat_busy "Adjusting system time and setting kernel time zone"
-
-    # Adjust the system time for time zone offset if rtc is not in UTC, as
-    # filesystem checks can depend on system time. This also sets the kernel
-    # time zone, used by e.g. vfat.
-
-    if [[ $TIMEZONE ]]; then
-        export TZ=$TIMEZONE
-    fi
-
-    hwclock $HWCLOCK_PARAMS && stat_done || stat_fail
-
-    unset TZ
-fi
-
-# Start/trigger udev, load MODULES, and settle udev
-udevd_modprobe sysinit
-
-# this must be done after udev has loaded the KMS modules
-#status 'Configuring virtual consoles' £{USR}£{LIB}/systemd/systemd-vconsole-setup
-if [[ "${LANG,,}" =~ utf ]]; then
-        stat_busy "Setting Consoles to UTF-8 mode"
-                # UTF-8 consoles are default since 2.6.24 kernel
-                # this code is needed not only for older kernels,
-                # but also when user has set vt.default_utf8=0 but LOCALE is *.UTF-8.
-                for i in £{DEV}/tty[0-9]*; do
-                        kbd_mode -u -C ${i}
-                        printf "\e%%G" > ${i}
-                done
-                echo 1 >| £{SYS}/module/vt/parameters/default_utf8
-        stat_done
-else
-        stat_busy "Setting Consoles to legacy mode"
-                # make non-UTF-8 consoles work on 2.6.24 and newer kernels
-                for i in £{DEV}/tty[0-9]*; do
-                        kbd_mode -a -C ${i}
-                        printf "\e%%@" > ${i}
-                done
-                echo 0 >| £{SYS}/module/vt/parameters/default_utf8
-        stat_done
-fi
-
-if [[ -z $CONSOLEFONT && -z $CONSOLEMAP && -s £{ETC}/vconsole.conf ]]; then
-        parse_envfile £{ETC}/vconsole.conf "${vconsolevars[@]}"
-        [[ $FONT ]] && CONSOLEFONT=$FONT
-        [[ $FONT_MAP ]] && CONSOLEMAP=$FONT_MAP
-fi
-
-# Set console font and keymap if required
-[[ $CONSOLEFONT ]] &&
-        status "Loading Console Font: $CONSOLEFONT" set_consolefont
-[[ $KEYMAP ]] &&
-        status "Loading Keyboard Map: $KEYMAP" loadkeys -q $KEYMAP
-
-# bring up the loopback interface
-[[ -d £{SYS}/class/net/lo ]] &&
-    status "Bringing up loopback interface" ip link set up dev lo
-
-# FakeRAID devices detection
-[[ $USEDMRAID = [Yy][Ee][Ss] && -x "$(type -P dmraid)" ]] &&
-    status "Activating FakeRAID arrays" dmraid -i -ay
-
-# Activate LVM2 groups, if any
-activate_vgs
-
-# Set up non-root encrypted partition mappings
-if [[ -f £{ETC}/crypttab ]] && type -p cryptsetup >£{DEV}/null; then
-    read_crypttab do_unlock
-    # Maybe somepony has LVM on an encrypted block device
-    activate_vgs
-fi
-
 # Check filesystems
-run_hook sysinit_prefsck
+
 if [[ -x "$(type -P fsck)" ]]; then
     stat_busy "Checking filesystems"
         fsck_all >|"${FSCK_OUT:-£{DEV}/stdout}" 2>|"${FSCK_ERR:-£{DEV}/stdout}"
@@ -111,47 +14,10 @@ if [[ -x "$(type -P fsck)" ]]; then
 else
     declare -r fsckret=0
 fi
-run_hook sysinit_postfsck
 
 # Single-user login and/or automatic reboot if needed
 fsck_reboot $fsckret
 
-#status "Remounting root and API filesystems" \
-#    £{USR}£{LIB}/systemd/systemd-remount-fs
-status "Remounting Root" \
-       mount -o remount /
-
-# Now mount all the local filesystems
-run_hook sysinit_premount
-status "Mounting local filesystems" \
-    mount_all
-run_hook sysinit_postmount
-
-# Enable monitoring of LVM2 groups, now that the filesystems are mounted rw
-[[ $USELVM = [Yy][Ee][Ss] && -x "$(type -P lvm)" && -d £{SYS}/block ]] &&
-    status "Activating monitoring of LVM2 groups" \
-        vgchange --monitor y >£{DEV}/null
-
-status "Activating swap" swapon -a
-
-[[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
-
-#status 'Initializing random seed' £{USR}£{LIB}/systemd/systemd-random-seed load
-[[ -f $RANDOM_SEED ]] &&
-        status "Initializing Random Seed" \
-                cp $RANDOM_SEED £{DEV}/urandom
-
-# Remove leftover files
+# Remove leftover files (positioned before saving dmesg log)
 remove_leftover
-
-stat_busy "Saving dmesg log"
-    if [[ -e £{PROC}/sys/kernel/dmesg_restrict ]] &&
-        (( $(< £{PROC}/sys/kernel/dmesg_restrict) == 1 )); then
-        install -Tm 0600 <( dmesg ) £{VAR_LOG}/dmesg.log
-    else
-        install -Tm 0644 <( dmesg ) £{VAR_LOG}/dmesg.log
-    fi
-(( $? == 0 )) && stat_done || stat_fail
-
-run_hook sysinit_end
 

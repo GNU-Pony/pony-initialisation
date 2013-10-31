@@ -70,7 +70,7 @@ def mount(vfstype, device, directory, options, attempt_automount = False):
     '''
     if attempt_automount and __("mount", directory):
         return
-    os.path.exists(directory) or os.makedirs(directory, mode = 0o777, exist_ok = True])
+    os.path.exists(directory) or os.makedirs(directory, mode = 0o777, exist_ok = True)
     os.path.ismount(directory) or _("mount", "-t", vfstype, device, directory, "-o", options)
 
 
@@ -158,4 +158,29 @@ def try_invoke(function):
         return function()
     except:
         return None
+
+
+def is_path(command):
+    '''
+    Check whether a command exists inside PATH
+    
+    @param  command  The command, excluding location
+    '''
+    for path in os.getenv("PATH").split(":"):
+        if len(path) > 0:
+            return os.access(path + "/" + command, os.F_OK | os.R_OK | os.X_OK)
+    return False
+
+
+def get_vts():
+    '''
+    Gets all files matching /dev/tty[0-9]*
+    
+    @return  All files matching /dev/tty[0-9]*
+    '''
+    def is_vt(device):
+        for digit in "0123456879":
+            device = device.replace(digit, "")
+        return device == "tty"
+    return ["£{DEV}/" + tty for tty in filter(lambda dev : is_vt(dev), os.listdir("£{DEV}"))]
 
