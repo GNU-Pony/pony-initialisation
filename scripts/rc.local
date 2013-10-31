@@ -8,12 +8,12 @@
 # that are marked as executable they will be executed
 # if they contain a shebang and sourced if not.
 
-__dir=£{ETC}/rc.local.d
-if [ -d $__dir ]; then
-    for __file in $(ls -1 $__dir); do
-	__file=$__dir/$__file
-	if [ -f $__file ] && [ -x $__file ]; then
-	    $__file
+__dir="£{ETC}/rc.local.d"
+if [ -d "${__dir}" ]; then
+    for __file in $(ls -1 "${__dir}"); do
+	__file="${__dir}/${__file}"
+	if [ -f "${__file}" ] && [ -x "${__file}" ]; then
+	    "${__file}"
 	fi
     done
 fi

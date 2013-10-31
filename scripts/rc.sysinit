@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [[ -z "$LANG" ]]; then
-    source £{ETC}/profile.d/read_locale.sh
+if [[ -z "${LANG}" ]]; then
+    source "£{ETC}/profile.d/read_locale.sh"
 fi
 
-exec £{ETC}/rc.sysinit.py
+exec "£{ETC}/rc.sysinit.py"
 
