@@ -323,7 +323,7 @@ if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
         if (proc is not None) and (proc.returncode != 0):
             entry_failed = True
         failed |= entry_failed
-            
+    
     
     # Maybe somepony has LVM on an encrypted block device
     if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
