@@ -15,7 +15,6 @@ def populate_tables(daemons, groups, group_entries, legacy_daemons, runlevel, da
     @param  runlevel:str                   The current runlevel
     @param  daemontab:str                  Daemon table file
     '''
-    
     # Load daemon table
     tab = None
     with open(daemontab, "rb") as file:
