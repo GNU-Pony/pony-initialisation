@@ -74,9 +74,12 @@ if USE_COLOUR is None:
     if sys.stdout.isatty():
         try:
             tty = os.readlink("£{PROC}/self/fd/%i" % sys.stdout.fileno())
-            for c in "0123456789":
-                tty = tty.replace(c, "")
-            USE_COLOUR = tty in ("£{DEV}/tty", "£{DEV_PTS}/")
+            if tty == "£{DEV}/console":
+                USE_COLOUR = True
+            else:
+                for c in "0123456789":
+                    tty = tty.replace(c, "")
+                USE_COLOUR = tty in ("£{DEV}/tty", "£{DEV_PTS}/")
         except:
             USE_COLOUR = False
 for envvar in ["USECOLOUR", "USE_COLOUR", "USECOLOR", "USE_COLOR"]:
