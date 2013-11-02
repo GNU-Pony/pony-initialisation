@@ -69,5 +69,5 @@ def spawn(*commands, stdin = None, silent = False):
     @param   silent:bool          Whether the pipeline's stderr is silenced
     @return  :(str?, int)         The output of the pipeline and the highest returned return code
     '''
-    return spawn(commands, stdin = stdin, stdout = sys.stdout, silent = silent)
+    return pipe(commands, stdin = stdin, stdout = sys.stdout, silent = silent)
 
