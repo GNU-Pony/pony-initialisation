@@ -5,7 +5,9 @@
 
 ### Load locale
 if [ -z "${LANG}" ]; then
-    source "£{ETC}/profile.d/read_locale.sh"
+    if [ -e £{ETC}/profile.d/read_locale.sh ]; then
+	source "£{ETC}/profile.d/read_locale.sh"
+    fi
 fi
 
 ### Override process with rc.sysinit.py
