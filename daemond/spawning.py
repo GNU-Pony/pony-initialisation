@@ -67,7 +67,7 @@ def spawn(*commands, stdin = None, silent = False):
     @param   commands:*list<str>  The commands to run
     @param   stdin:str?           Input for the first process's stdin, `None` for using the spawner's stdin
     @param   silent:bool          Whether the pipeline's stderr is silenced
-    @return  :(str?, int)         The output of the pipeline and the highest returned return code
+    @return  :(None, int)         The output of the pipeline and the highest returned return code
     '''
     return pipe(commands, stdin = stdin, stdout = sys.stdout, silent = silent)
 
