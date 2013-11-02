@@ -11,8 +11,13 @@ from subprocess import Popen, PIPE
 from rclexal import *
 
 
+rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+
 CPU_COUNT = kernel_opts("--init-threads", lambda x : int(x))
 CPU_COUNT = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
+USECOLOUR = get(None, rc_conf["USECOLOUR"], "")
+
+os.putenv("USECOLOUR", USECOLOUR)
 
 
 
@@ -29,7 +34,13 @@ if os.access("£{ETC}/rc.local.early", os.F_OK | os.R_OK | os.X_OK):
 
 
 ### Start daemons
-Popen(["daemond", "--cpus=%i" % CPU_COUNT, "--"] + sh_lex("£{ETC}/rc.conf")["DAEMONS"]).wait()
+cmd = ["daemond", "--cpus=%i" % CPU_COUNT, "--usecolour=" + USECOLOUR, "--"]
+legacy_daemons = sh_lex("£{ETC}/rc.conf")
+legacy_daemons = legacy_daemons["DAEMONS"] if "DAEMONS" in legacy_daemons else None
+if (legacy_daemons is not None) and isinstance(legacy_daemons, str):
+    legacy_daemons = legacy_daemons.split(" ")
+cmd += legacy_daemons
+Popen(cmd).wait()
 
 
 ### Run late local rc.multi scripts
