@@ -301,36 +301,6 @@ do_lock() {
     (( $? == 0 )) && stat_done || stat_fail
 }
 
-umount_all() {
-    # $1: restrict to fstype
-
-    findmnt -mrunRo TARGET,FSTYPE,OPTIONS / | {
-        while read -r target fstype options; do
-            # match only targeted fstypes
-            if [[ $1 && $1 != "$fstype" ]]; then
-                continue
-            fi
-
-            # do not unmount API filesystems
-            if [[ $target = @(£{PROC}|£{SYS}|£{RUN}|£{DEV}|£{DEV_PTS}) ]]; then
-                continue
-            fi
-
-            # avoid networked devices
-            IFS=, read -ra opts <<< "$options"
-            if in_array _netdev "${opts[@]}"; then
-                continue
-            fi
-
-            mounts=("$target" "${mounts[@]}")
-        done
-
-        if (( ${#mounts[*]} )); then
-            umount -r "${mounts[@]}"
-        fi
-    }
-
-}
 
 if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
     declare -A hook_funcs

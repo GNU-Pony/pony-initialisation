@@ -7,6 +7,7 @@
 import os
 import sys
 import time
+from subprocess import Popen, PIPE
 
 from functions import *
 from lexal import *
@@ -17,7 +18,8 @@ NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse
 os_release = try_invoke(lambda : sh_lex("£{ETC}/os-release"))
 rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
 
-CPU_COUNT     = get(None, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
+CPU_COUNT     = kernel_opts("--init-threads", lambda x : int(x))
+CPU_COUNT     = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
 NAME          = get(None, os_release["NAME"], "")
 VERSION       = get(None, os_release["VERSION"], "")
 PRETTY_NAME   = get(None, os_release["PRETTY_NAME"], "")
@@ -26,7 +28,8 @@ HOME_URL      = get(None, os_release["HOME_URL"], "")
 HOSTNAME      = get(None, rc_conf["HOSTNAME"], "")
 TIMEZONE      = get(None, rc_conf["TIMEZONE"], "")
 HARDWARECLOCK = get(None, rc_conf["HARDWARECLOCK"], "")
-USEDMRAID     = get(None, rc_conf["USEDMRAID"], "")
+USEDMRAID     = get(None, rc_conf["USEDMRAID"], "").lower() == "yes"
+USELVM        = get(None, rc_conf["USELVM"], "").lower() == "yes"
 MODULES       = get(None, rc_conf["MODULES"], "")
 CONSOLEFONT   = get(None, rc_conf["CONSOLEFONT"], "")
 CONSOLEMAP    = get(None, rc_conf["CONSOLEMAP"], "")
@@ -148,7 +151,7 @@ if not isinstance(MODULES, str):
 
 devd_command = 'devd' if in_path('devd') else 'udevd'
 devadm_command = 'devadm' if in_path('devadm') else 'udevadm'
-# You should really have symlinks named devd devadm to your device daemon and controller
+# You should really have symlinks named devd and devadm to your device daemon and controller
 
 _(devd_command, "--daemon")
 _(devadm_command, "trigger", "--action=add", "--type=subsystems")
@@ -208,14 +211,14 @@ if os.path.exists("£{SYS}/class/net/lo"):
 
 ### FakeRAID devices detection (requires /dev, devd)
 
-if (USEDMRAID.lower() == "yes") and in_path("dmraid"):
+if USEDMRAID and in_path("dmraid"):
     _("dmraid" "-i" "-ay")
 
 
 
 ### Activate LVM groups, if any (after fakeraid, requires /dev, devd)
 
-if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/block"):
+if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
     __("vgchange", "--sysinit", "-a", "y")
 
 
@@ -319,7 +322,7 @@ if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
             
     
     # Maybe somepony has LVM on an encrypted block device
-    if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/block"):
+    if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
         __("vgchange", "--sysinit", "-a", "y")
 
 
@@ -394,7 +397,7 @@ _("mount", "-a", "-t", "no" + NETFS.replace(",", ",no"), "-O", "no_netdev")
 
 ### Activate monitoring of LVM groups (requires mount)
 
-if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/block"):
+if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
     __("vgchange", "--monitor", "y")
 
 

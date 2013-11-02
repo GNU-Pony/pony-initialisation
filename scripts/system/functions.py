@@ -74,6 +74,42 @@ def mount(vfstype, device, directory, options, attempt_automount = False):
     os.path.ismount(directory) or _("mount", "-t", vfstype, device, directory, "-o", options)
 
 
+def umount_all(*types):
+    '''
+    Unmount non-API filesystems
+    
+    @param  types  Filesystem types to unmount
+    '''
+    proc = ["findmnt", "-mrunRo", "TARGET,FSTYPE,OPTIONS", "/"]
+    proc = Popen(proc, stdout = PIPE)
+    mounts = proc.communicate()[0].split("\n")
+    types = None if len(types) == 0 else set(types)
+    API_MOUNT_POINTS = set(["£{PROC}", "£{SYS}", "£{RUN}", "£{DEV}", "£{DEV_PTS}"])
+    umounts = []
+    
+    for mount_point in mounts:
+        if len(mount_point) == 0:
+            continue
+        (target, fstype, options) = mount_poiny.split(" ")
+        
+        # Match only targeted filesystem types
+        if (types is not None) and (fstype not in types):
+            continue
+        
+        # Do not unmount API filesystems
+        if target in API_MOUNT_POINTS:
+            continue
+        
+        # Avoid networked devices
+        if "_netdev" in options.split(","):
+            continue
+        
+        umounts.append(target)
+    
+    if len(umounts) > 0:
+        _("umount", "-r", *reversed(target))
+
+
 def try_invoke(function):
     '''
     Return the value returned by a function, but `None` on failure
@@ -87,7 +123,7 @@ def try_invoke(function):
         return None
 
 
-def is_path(command):
+def in_path(command):
     '''
     Check whether a command exists inside PATH
     

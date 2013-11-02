@@ -1,141 +1,223 @@
-#!/bin/bash
+#!/usr/bin/python3
+# -*- mode: python, coding: utf-8 -*-
 #
 # System shutdown script
 #
 
-. "£{ETC}/rc.conf"
-. "£{DAEMON_DIR}/functions"
+import os
+import time
+import signal
+from subprocess import Popen, PIPE
 
-# don't let all the systemd tools be too verbose
-export SYSTEMD_LOG_LEVEL="notice"
+from functions import *
+from lexal import *
 
-# avoid staircase effect
-stty onlcr
 
-echo " "
-printhl "Initiating shutdown..."
-echo " "
+rc_conf   = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
 
-run_hook shutdown_start
+CPU_COUNT = kernel_opts("--init-threads", lambda x : int(x))
+CPU_COUNT = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
+TIMEZONE  = get(None, rc_conf["TIMEZONE"], "")
+USELVM    = get(None, rc_conf["USELVM"], "").lower() == "yes"
 
-[[ -x £{ETC}/rc.local.shutdown ]] && £{ETC}/rc.local.shutdown
 
-daemond stop-all
 
-#status 'Saving random seed' £{USR}£{LIB}/systemd/systemd-random-seed save
-stat_busy "Saving Random Seed"
-    RANDOM_SEED=${VAR_LIB}/£{MISC}/random-seed
-    install -TDm 0600 £{DEV}/null $RANDOM_SEED
-    POOL_FILE=£{PROC}/sys/kernel/random/poolsize
-    if [[ -r $POOL_FILE ]]; then
-        read POOL_SIZE < $POOL_FILE
-        (( POOL_SIZE /= 8 ))
-    else
-        POOL_SIZE=512
-    fi
-    dd if=£{DEV}/urandom of=$RANDOM_SEED count=1 bs=$POOL_SIZE &>£{DEV}/null
-stat_done
 
-[[ $TIMEZONE ]] && status "Configuring time zone" set_timezone "$TIMEZONE"
+### Avoid staircase effect
 
-# Write to wtmp file before unmounting
-halt -w
+_("stty", "onlcr")
 
-# stop monitoring of LVM2 groups before unmounting filesystems
-[[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) ]] &&
-    status "Deactivating monitoring of LVM2 groups" vgchange --monitor n
 
-# any future uevents can and should be ignored
-status "Shutting down udev" udevadm control --exit
 
-run_hook shutdown_prekillall
+### Print want is happening
 
-kill_all
+print("")
+print("Initiating shutdown...")
+print("")
 
-run_hook shutdown_postkillall
 
-run_hook shutdown_preumount
 
-# unmount any non-API partitions that are backed by swap; we don't want to
-# move their contents into memory (waste of time and might caues OOM).
-status "Unmounting swap-backed filesystems" umount_all "tmpfs"
+### Run local rc.shutdown scripts
 
-# almost everything is dead now, so the swap should hopefully be relatively
-# empty, and quick to switch off
-status "Deactivating swap" swapoff -a
+if os.access("£{ETC}/rc.local.shutdown", os.F_OK | os.R_OK | os.X_OK):
+    _("£{ETC}/rc.local.shutdown")
 
-status "Unmounting non-API filesystems" umount_all
 
-run_hook shutdown_postumount
 
-# Kill non-root encrypted partition mappings
-if [[ -f £{ETC}/crypttab ]] && type -p cryptsetup >£{DEV}/null; then
+### Stop all daemons
+
+_("daemond", "stop-all")
+
+
+
+### Save random seed
+
+random_seed = "£{VAR_LIB}/£{MISC}/random-seed"
+pool_file = "£{PROC}/sys/kernel/random/poolsize"
+pool_size = 512
+
+os.makedirs("£{VAR_LIB}/£{MISC}", mode = 0o755, exists_ok = True)
+with open(random_seed, "x") as file:
+    file.flush()
+
+if os.access(pool_file, os.F_OK | os.R_OK):
+    with open(pool_file, "r") as file:
+        pool_size = int(file.read().replace("\n", "")) // 8
+    with open("£{DEV}/urandom", "rb") as ifile:
+        with open(random_seed, "wb") as ofile:
+            ofile.write(ifile.read(pool_size))
+            ofile.flush()
+
+
+### Configure time zone
+
+if not TIMEZONE == "":
+    zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
+    if not os.path.exists(zonefile)
+        pass ## TODO not a valid time zone
+    elif not os.path.islink("£{ETC}/localtime"):
+        if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
+            os.remove("£{ETC}/localtime")
+            os.unlink(zonefile, "£{ETC}/localtime")
+
+
+
+### Write to wtmp file before unmounting
+
+_("halt", "-w")
+
+
+
+### Deactivate monitoring of LVM groups
+
+if USELVM and in_path("lwm"):
+    _("vgchange", "--monitor", "n")
+
+
+
+### Any future uevents can and should be ignored: shutting down devd
+
+_('devadm' if in_path('devadm') else 'udevadm', "control", "--exit")
+# You should really have a symlink named devadm to your device controller
+
+
+
+### Try to terminate all process, then kill them
+
+def kill_all_wait(sig, iterations):
+    Popen(["killall5", "-" + str(sig)], stdout = PIPE, stderr = PIPE).wait()
+    for _ in range(iterations):
+        time.sleep(0.25)
+        proc = Popen(["killall5", "-" + str(signal.SIGCONT)])
+        proc.wait()
+        if proc.returncode == 2:
+            return True
+    return False
+
+kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60)
+
+
+
+## Unmount swap-backed filesystems
+
+# Unmount any non-API partitions that are backed by swap; we don't want to
+# move their contents into memory (waste of time and might cause OOM).
+
+umount_all("tmpfs")
+
+
+
+### Deactivate swap
+
+# Almost everything is dead now, so the swap should hopefully be relatively
+# empty, and quick to switch off.
+
+_("swapoff", "-a")
+
+
+
+### Unmount non-API filesystems
+
+umount_all()
+
+
+
+### Kill non-root encrypted partition mappings
+
+if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
     # Maybe somepony has LVM on an encrypted block device
     # executing an extra vgchange is errorless
-    [[ $USELVM = [Yy][Ee][Ss] ]] && vgchange --sysinit -a n &>£{DEV}/null
-    read_crypttab do_lock
-fi
+    if USELVM:
+        Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait()
+    
+    crypttab, failed = None, False
+    with open("£{ETC}/crypttab", "rb") as file:
+        crypttab = file.read()
+    crypttab = sh_tab(crypttab.decode("utf-8", "replace"), 4)
+    crypttab = [e[:3] + [" ".join(e[3:])] for e in crypttab]
+    for (name, _device, _password, _options) in crypttab:
+        # Detaching encrypted device
+        Popen(["cryptsetup", "remove", name], stdout = PIPE, stderr = PIPE).wait()
 
-[[ $USELVM = [Yy][Ee][Ss] && -x $(type -P lvm) ]] &&
-    status "Deactivating LVM2 groups" vgchange --sysinit -a n &>£{DEV}/null
 
-run_hook shutdown_poweroff
+### Deactivating LVM groups
 
-if [[ -x £{RUN}/initramfs/shutdown ]]; then
+if USELVM and in_path("lvm"):
+    Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait()
 
-    # decide what we want to do
-    if [[ $RUNLEVEL = 0 ]]; then
-        action="poweroff"
-    else
-        { read kexec_loaded < £{SYS}/kernel/kexec_loaded; } 2>£{DEV}/null
-        if (( kexec_loaded )); then
-            action="kexec"
-        else
-            action="reboot"
-        fi
-    fi
 
-    # make /run/initramfs a mount
-    mount --bind £{RUN}/initramfs £{RUN}/initramfs
+if os.access("£{RUN}/initramfs/shutdown", os.F_OK, os.X_OK):
+    ### Decide what we want to do
+    action = "poweroff"
+    if os.getenv("RUNLEVEL", "") == "0":
+        action = "reboot"
+        try:
+            with open("£{SYS}/kernel/kexec_loaded", "r") as file:
+                if not file.read().replace("\n", "") == "1":
+                    action = "kexec"
+        except:
+            pass
+    
+    ### Make /run/initramfs a mount
+    _("mount", "--bind", "£{RUN}/initramfs", "£{RUN}/initramfs")
+    
+    ### In case somepony has shared our mountpoints, unshare them
+    _("mount", "--make-private", "£{RUN}/initramfs")
+    _("mount", "--make-private", "/")
+    
+    ### Bind all API mounts
+    if not os.path.exists("/oldroot"):
+        os.mkdir("/oldroot")
+    for mount_point in ["£{SYS}", "£{PROC}", "£{DEV}", "£{RUN}", ]:
+        os.makedirs("£{RUN}/initramfs" + mount_point, exists_ok = True)
+        _("mount", "--bind", mount_point, "£{RUN}/initramfs" + mount_point)
+    
+    ### Enter shutdownramfs
+    os.chdir("£{RUN}/initramfs")
+    _("pivot_root", ".", "oldroot")
+    
+    ### Reexec init
+    _("/oldroot£{SBIN}/init", "u")
+    
+    ### Run /shutdown in the new root
+    os.close(0)
+    os.close(1)
+    os.close(2)
+    os.open("£{DEV}/console", os.O_RDWR)
+    os.dup2(0, 1)
+    os.dup2(0, 2)
+    os.execlp("chroot", "chroot", ".", "/shutdown", action)
 
-    # in case somepony has shared our mountpoints, unshare them
-    mount --make-private £{RUN}/initramfs
-    mount --make-private /
+else:
+    ### Remounting root filesystem read-only
+    _("mount", "-o", "remount,ro", "/")
 
-    # bind all API mounts
-    mkdir -p £{RUN}/initramfs{£{SYS},£{PROC},£{DEV},£{RUN},/oldroot}
-    mount --bind £{SYS} £{RUN}/initramfs£{SYS}
-    mount --bind £{PROC} £{RUN}/initramfs£{PROC}
-    mount --bind £{DEV} £{RUN}/initramfs£{DEV}
-    mount --bind £{RUN} £{RUN}/initramfs£{RUN}
-
-    # enter shutdownramfs
-    cd £{RUN}/initramfs
-    pivot_root . oldroot
-
-    # reexec init
-    /oldroot£{SBIN}/init u
-
-    # run /shutdown in the new root
-    exec chroot . /shutdown $action < £{DEV}/console > £{DEV}/console 2>&1
-
-else
-
-    status "Remounting root filesystem read-only" \
-        mount -o remount,ro /
-
-    # Power off or reboot
-    printsep
-    if [[ $RUNLEVEL = 0 ]]; then
-        printhl "${C_H2}POWER OFF"
-        poweroff -d -f -h -i
-    else
-        printhl "${C_H2}REBOOTING"
-        # if kexec is installed and a kernel is loaded, use it
-        [[ -x "$(type -P kexec)" ]] && kexec -e &>£{DEV}/null
-        reboot -d -f -i
-    fi
-
-fi
-
+    ### Power off or reboot
+    if os.genenv("RUNLEVEL", "") == "0":
+        _("poweroff", "-d", "-f", "-h", "-i")
+    else:
+        # If kexec is installed and a kernel is loaded, use it
+        if in_path("kexec"):
+            Popen(["kexec", "-e"], stdout = PIPE, stderr = PIPE).wait()
+        _("reboot", "-d", "-f", "-i")
 

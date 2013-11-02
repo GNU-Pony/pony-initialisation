@@ -4,6 +4,31 @@
 #
 
 
+def kernel_opts(option, converter):
+    '''
+    Parse an option with an argument from the kernel command line arguments
+    
+    @param   option     The option
+    @param   converter  Function to convert the argument to a usable type
+    @return             The option's argument, None if it did not exist,
+                        did not have a value, or if the value as not parseable
+    '''
+    rc = None
+    try:
+        option += "="
+        cmdline = None
+        with open("£{PROC}/cmdline", "r") as file:
+            cmdline = file.read().replace("\n", "").split(" ")
+        for opt in cmdline:
+            if opt.startswith(option) and (opt != option):
+                rc = opt[len(option):]
+                break
+        rc = converter(rc)
+    except:
+        rc = None
+    return rc
+
+
 def sh_lex(sh_file):
     '''
     Restricted shell variable assignment parsing
