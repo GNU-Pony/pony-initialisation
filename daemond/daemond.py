@@ -13,30 +13,40 @@ from table import *
 
 
 # Fields for CPU thread count, $PATH, previous runlevel and current runlevel, and use colour
-CPU_COUNT, PATH = None, None
+CPU_COUNT, PATH     = None, None
 PREVLEVEL, RUNLEVEL = None, None
-USE_COLOUR = ""
+USE_COLOUR          = ""
 
 
 
 # Parse command line
-legacy_daemons = None
+start_daemons    = None   # Daemons to start or daemons to filter list to
+stop_all_daemons = False  # Stop all daemons in reverse start order
+list_daemons     = False  # List daemon statuses
+started_daemons  = False  # Filter to started daemons
+stopped_daemons  = False  # Filter to stopped daemons
+auto_daemons     = False  # Filter to auto started daemons
+noauto_daemons   = False  # Filter to manually started daemon
+get_help         = False  # Print help information
+verb             = None   # Execute daemon with verb, such as start, stop and restart
 for arg in sys.argv[1:]:
-    if legacy_daemons is not None:        legacy_daemons.append(arg)
-    elif arg == "--":                     legacy_daemons = []
+    if start_daemons is not None:         start_daemons.append(arg)
+    elif arg == "--":                     start_daemons = []
     elif arg.startswith("--runlevel="):   RUNLEVEL   = arg[len("--runlevel="):]
     elif arg.startswith("--prevlevel="):  PREVLEVEL  = arg[len("--prevlevel="):]
     elif arg.startswith("--path="):       PATH       = arg[len("--path="):]
     elif arg.startswith("--cpus="):       CPU_COUNT  = int(arg[len("--cpus="):])
     elif arg.startswith("--usecolour="):  USE_COLOUR = arg[len("--usecolour="):]
-# TODO stop-all       <--  Stop all daemons in reverse start order
-# TODO list           <--  List daemon statuses
-# TODO *              <--  Execute daemon with verb, such as start, stop and restart
-# TODO help(--help)   <--  Print help information
-# TODO -s(--started)  <--  Filter started daemons
-# TODO -S(--stopped)  <--  Filter stopped daemons
-# TODO -a(--auto)     <--  Filter auto started daemons
-# TODO -A(--noauto)   <--  Filter manually started daemon
+    elif arg == "stop-all":               stop_all_daemons = True
+    elif arg == "list":                   list_daemons = True
+    elif arg in ("help", "--help"):       get_help = True
+    elif arg in ("-s", "--started"):      started_daemons = True
+    elif arg in ("-S", "--stopped"):      stopped_daemons = True
+    elif arg in ("-a", "--auto"):         auto_daemons = True
+    elif arg in ("-A", "--noauto"):       noauto_daemons = True
+    elif arg.startswith("-"):             pass # Not recognised
+    elif verb is None:                    verb = arg
+    elif start_daemons is None:           start_daemons = [arg]
 
 
 
@@ -112,7 +122,7 @@ members = {}
 
 
 # Fill `daemons` and `groups`
-populate_tables(daemons, groups, [], legacy_daemons, RUNLEVEL, "£{ETC}/daemontab")
+populate_tables(daemons, groups, [], start_daemons, RUNLEVEL, "£{ETC}/daemontab")
 
 # Transpose `groups`
 for group in groups:
