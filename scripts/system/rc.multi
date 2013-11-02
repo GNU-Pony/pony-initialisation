@@ -8,7 +8,7 @@ import os
 import signal
 from subprocess import Popen, PIPE
 
-from lexal import sh_lex
+from rclexal import sh_lex
 
 
 CPU_COUNT = kernel_opts("--init-threads", lambda x : int(x))

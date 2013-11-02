@@ -9,8 +9,8 @@ import sys
 import time
 from subprocess import Popen, PIPE
 
-from functions import *
-from lexal import *
+from rcfunctions import *
+from rclexal import *
 
 
 NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.glusterfs"

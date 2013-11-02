@@ -9,8 +9,8 @@ import time
 import signal
 from subprocess import Popen, PIPE
 
-from functions import *
-from lexal import *
+from rcfunctions import *
+from rclexal import *
 
 
 rc_conf   = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
