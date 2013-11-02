@@ -12,9 +12,11 @@ from table import *
 ## TODO autolaunching is not implemented
 
 
-# Fields for CPU thread count, $PATH, previous runlevel and current runlevel
+# Fields for CPU thread count, $PATH, previous runlevel and current runlevel, and use colour
 CPU_COUNT, PATH = None, None
 PREVLEVEL, RUNLEVEL = None, None
+USE_COLOUR = ""
+
 
 
 # Parse command line
@@ -22,10 +24,11 @@ legacy_daemons = None
 for arg in sys.argv[1:]:
     if legacy_daemons is not None:        legacy_daemons.append(arg)
     elif arg == "--":                     legacy_daemons = []
-    elif arg.startswith("--runlevel="):   RUNLEVEL  = arg[len("--runlevel="):]
-    elif arg.startswith("--prevlevel="):  PREVLEVEL = arg[len("--prevlevel="):]
-    elif arg.startswith("--path="):       PATH      = arg[len("--path="):]
-    elif arg.startswith("--cpus="):       CPU_COUNT = int(arg[len("--cpus="):])
+    elif arg.startswith("--runlevel="):   RUNLEVEL   = arg[len("--runlevel="):]
+    elif arg.startswith("--prevlevel="):  PREVLEVEL  = arg[len("--prevlevel="):]
+    elif arg.startswith("--path="):       PATH       = arg[len("--path="):]
+    elif arg.startswith("--cpus="):       CPU_COUNT  = int(arg[len("--cpus="):])
+    elif arg.startswith("--usecolour="):  USE_COLOUR = arg[len("--usecolour="):]
 # TODO stop-all       <--  Stop all daemons in reverse start order
 # TODO list           <--  List daemon statuses
 # TODO *              <--  Execute daemon with verb, such as start, stop and restart
@@ -34,6 +37,7 @@ for arg in sys.argv[1:]:
 # TODO -S(--stopped)  <--  Filter stopped daemons
 # TODO -a(--auto)     <--  Filter auto started daemons
 # TODO -A(--noauto)   <--  Filter manually started daemon
+
 
 
 # Do everything in a fork
@@ -59,6 +63,25 @@ if (PREVLEVEL is None) or (RUNLEVEL is None):
     (_PREVLEVEL, _RUNLEVEL) = pipe(["runlevel"])[0].split(" ")
     PREVLEVEL = PREVLEVEL if PREVLEVEL is not None else _PREVLEVEL
     RUNLEVEL  = RUNLEVEL  if RUNLEVEL  is not None else _RUNLEVEL
+
+
+# Use colour?
+for envvar in ["USECOLOUR", "USE_COLOUR", "USECOLOR", "USE_COLOR"]:
+    if USE_COLOUR == "":  USE_COLOUR = os.getenv(envvar, "")
+    if USE_COLOUR == "":  USE_COLOUR = os.getenv(envvar + "S", "")
+USE_COLOUR = None USE_COLOUR.lower() == "auto" else USE_COLOUR.lower() in ("y", "1", "yes")
+if USE_COLOUR is None:
+    if sys.stdout.isatty():
+        try:
+            tty = os.readlink("£{PROC}/self/fd/%i" % sys.stdout.fileno())
+            for c in "0123456789":
+                tty = tty.replace(c, "")
+            USE_COLOUR = tty in ("£{DEV}/tty", "£{DEV_PTS}/")
+        except:
+            USE_COLOUR = False
+for envvar in ["USECOLOUR", "USE_COLOUR", "USECOLOR", "USE_COLOR"]:
+    os.putenv(envvar, "yes" if USE_COLOUR else "no")
+    os.putenv(envvar + "S", "yes" if USE_COLOUR else "no")
 
 
 # export RUNLEVEL, PREVLEVEL, PATH and CONSOLE
