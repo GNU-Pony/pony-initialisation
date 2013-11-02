@@ -187,6 +187,8 @@ def thread():
             if len(initial_daemons) > 0:
                 daemon = initial_daemons[0]
                 initial_daemons[:] = initial_daemons[1:]
+            if daemon in groups["%blacklist"]:
+                continue
             if daemon is None:
                 queue_condition.wait()
                 continue
