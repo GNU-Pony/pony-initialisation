@@ -17,13 +17,13 @@ def kernel_opts(option, converter):
     try:
         option += "="
         cmdline = None
-        with open("£{PROC}/cmdline", "r") as file:
-            cmdline = file.read().replace("\n", "").split(" ")
+        with open("£{PROC}/cmdline", "rb") as file:
+            cmdline = file.read().decode("utf-8", "replace").replace("\n", "").split(" ")
         for opt in cmdline:
             if opt.startswith(option) and (opt != option):
                 rc = opt[len(option):]
                 break
-        rc = converter(rc)
+        rc = rc if rc is None else converter(rc)
     except:
         rc = None
     return rc
@@ -37,24 +37,19 @@ def sh_lex(sh_file):
     @return           Map from variable name to variable value (string or list of strings)
     '''
     lines = None
-    with open(sh_file, "r") as file:
+    with open(sh_file, "rb") as file:
         lines = file.read()
     lines = lines.decode("utf-8", "replace")
     
-    comment = False
-    bracket = None
-    escape = False
-    quote = None
-    name = ''
-    value = None
+    comment, bracket, escape, quote, name, value = False, None, False, None, "", None
     rc = {}
     
     for c in lines:
         if comment:
             if c == '\n':
-                comment = False
+                comment, bracket, escape, quote, name, value = False, None, False, None, "", None
         elif escape:
-            if c not in '\n\r\f':
+            if c not in "\n\r\f":
                 value += c
         elif (quote is not None) and (c == quote):
             quote = None
@@ -67,23 +62,22 @@ def sh_lex(sh_file):
             value += c
         elif c in " \t\n\r\f":
             if bracket is None:
-                name = ""
                 if value is not None:
-                    rc[name] = value
-                value = ""
+                    rc[name] = value.replace("\0", "")
+                name, value = "", None
             else:
                 bracket.append(value)
-                value = None
+                value = ""
         elif c == '#':
             comment = True
         elif c == '\\':
             escape = True
         elif c in "\"'":
-            value += '\0'
+            value += "\0"
             quote = c
         elif value is None:
             if c == '=':
-                value = ''
+                value = ""
             else:
                 name += c
         else:
@@ -92,10 +86,8 @@ def sh_lex(sh_file):
             elif c == ')':
                 if not value == "":
                     bracket.append(value)
-                rc[name] = [v.replace('\0', '') for v in bracket]
-                bracket = None
-                value = ""
-                name = None
+                rc[name] = [v.replace("\0", "") for v in bracket]
+                name, value, bracket = "", None, None
             else:
                 value += c
     
@@ -133,11 +125,11 @@ def sh_tab(table, columns):
                 buf += c
         elif c in " \t\n":
             if len(buf) != 0:
-                cols.append(b.replace("\0", ""))
+                cols.append(buf.replace("\0", ""))
                 buf = ""
             if (c == '\n') and (len(cols) > 0):
                 if len(cols) < 4:
-                    rc.append((cols + [""] * columns)[:colums])
+                    rc.append((cols + [""] * columns)[:columns])
                 else:
                     rc.append(cols)
                 cols = []

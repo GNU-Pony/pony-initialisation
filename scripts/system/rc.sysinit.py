@@ -232,7 +232,11 @@ if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
     crypttab = sh_tab(crypttab.decode("utf-8", "replace"), 4)
     crypttab = [e[:3] + [" ".join(e[3:])] for e in crypttab]
     for (name, device, password, options) in crypttab:
-        ## TODO add systemd syntax for backwards compatibility (?) (see functions::do_unlock)
+        for key in ["ID", "UUID", "PARTUUID", "LABEL"]:
+            if device.startswith(key + "="):
+                device = device[len(key) + 1:].replace(" ", "\\x")
+                device = "£{DEV}/disk/by-" + device.lower() + "/" + device
+                break
         
         proc = None
         open_verb, a, b, entry_failed = "create", name, device, False
