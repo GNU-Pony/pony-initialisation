@@ -1,31 +1,56 @@
-#!/bin/bash
+#!/usr/bin/python3
+# -*- mode: python, coding: utf-8 -*-
 #
 # Multi-user start-up script
 #
 
-. "£{ETC}/rc.conf"
-. "£{DAEMON_DIR}/functions"
+import os
+import signal
+from subprocess import Popen, PIPE
 
-[[ -x "£{ETC}/rc.local.early" ]] && "£{ETC}/rc.local.early"
+from lexal import sh_lex
 
-# Load sysctl config files
-#£{USR}£{LIB}/systemd/systemd-sysctl
-"£{USR}£{LIB}/pony-initialisation/pony-sysctl"
 
-# Load additional binary formats
-#£{USR}£{LIB}/systemd/systemd-binfmt
-"£{USR}£{LIB}/pony-initialisation/pony-binfmt"
+### Sanitize PATH (will be overridden later by £{ETC}/profile)
+os.putenv("PATH", "£{LOCAL}£{SBIN}:£{LOCAL}£{BIN}:£{USR}£{SBIN}:£{USR}£{BIN}:£{SBIN}:£{BIN}")
 
-# Start daemons
-daemond -- "${DAEMONS[@]}"
+### Clear TZ, so daemons always respect £{ETC}/localtime
+os.unsetenv("TZ")
 
-[[ -x "£{ETC}/rc.local" ]] && "£{ETC}/rc.local"
 
-if [ -f "£{RUN}/bootlogd.pid" ]; then
-    touch "£{VAR_LOG}/boot"
-    kill $(< "£{RUN}/bootlogd.pid")
-    rm -f "£{RUN}/bootlogd.pid"
-fi
+### Run early local rc.multi scripts
+if os.access("£{ETC}/rc.local.early", F_OK | R_OK | X_OK):
+    Popen(["£{ETC}/rc.local.early"]).wait()
 
-rm -f "£{RUN}/nologin"
+
+### Load sysctl config files --- TODO should this be removed?
+sysctl_proc = Popen(["£{PREFIX}£{LIBEXEC}/pony-sysctl"])
+
+### Load additional binary formats  ---  TODO should this be removed?
+binfmt_proc = Popen(["£{USR}£{LIBEXEC}/pony-binfmt"])
+
+### Wait for pony-sysctl and pony-binfmt
+sysctl_proc.wait()
+binfmt_proc.wait()
+
+
+### Start daemons
+Popen(["daemond", "--"] + sh_lex("£{ETC}/daemontab")["DAEMONS"]).wait()
+
+
+### Run late local rc.multi scripts
+if os.access("£{ETC}/rc.local", F_OK | R_OK | X_OK):
+    Popen(["£{ETC}/rc.local"]).wait()
+
+
+### Stop boot logging
+if os.path.exists("£{RUN}/bootlogd.pid"):
+    with open("£{VAR_LOG}/boot", "a") as file:
+        file.flush()
+    with open("£{RUN}/bootlogd.pid", "r") as file:
+        os.kill(int(file.read().replace("\n", "")), signal.TERM)
+    os.remove("£{RUN}/bootlogd.pid")
+
+### Remove /run/nologin
+os.remove("£{RUN}/nologin")
 

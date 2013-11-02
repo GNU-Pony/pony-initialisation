@@ -9,6 +9,7 @@ import sys
 import time
 
 from functions import *
+from lexal import *
 
 
 NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.glusterfs"

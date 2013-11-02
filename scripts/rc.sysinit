@@ -3,9 +3,11 @@
 # Common system initialisation script
 #
 
-if [[ -z "${LANG}" ]]; then
+### Load locale
+if [ -z "${LANG}" ]; then
     source "£{ETC}/profile.d/read_locale.sh"
 fi
 
+### Override process with rc.sysinit.py
 exec "£{PREFIX}${LIBEXEC}/rc.sysinit.py"
 
