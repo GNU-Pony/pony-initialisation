@@ -105,18 +105,10 @@ console = os.getenv("CONSOLE", "£{DEV}/console")
 os.putenv("CONSOLE", console if console != "" else "£{DEV}/console")
 
 
-daemons = {}
+daemons, groups, membes = {}, {}, {}
 '''
-:dict<str, Daemon>  Mapping from daemon name to daemon structure
-'''
-
-groups = {}
-'''
+:dict<str, Daemon>     Mapping from daemon name to daemon structure
 :dict<str, list<str>>  Mapping from group name (including the % prefix) to group members
-'''
-
-members = {}
-'''
 :dict<str, list<str>>  Transposition of `groups`
 '''
 
