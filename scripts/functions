@@ -332,13 +332,6 @@ umount_all() {
 
 }
 
-bootlogd_stop() {
-    [[ -f £{RUN}/bootlogd.pid ]] || return 0
-    touch £{VAR_LOG}/boot
-    kill $(< £{RUN}/bootlogd.pid)
-    rm -f £{RUN}/bootlogd.pid
-}
-
 if (( RC_FUNCTIONS_HOOK_FUNCS_DEFINED != 1 )); then
     declare -A hook_funcs
 

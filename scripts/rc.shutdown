@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# System shutdown script.
+# System shutdown script
 #
 
-. £{ETC}/rc.conf
-. £{DAEMON_DIR}/functions
+. "£{ETC}/rc.conf"
+. "£{DAEMON_DIR}/functions"
 
 # don't let all the systemd tools be too verbose
 export SYSTEMD_LOG_LEVEL="notice"

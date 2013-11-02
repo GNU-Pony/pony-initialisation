@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Commands executed on issues with the power.
+# Commands executed on issues with the power
 #
 
 if [ "$1" = wait ]; then

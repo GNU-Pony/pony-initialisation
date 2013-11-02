@@ -1,24 +1,27 @@
 #!/bin/bash
 #
-# Single-user start-up script.
+# Single-user start-up script
 #
 
-. £{DAEMON_DIR}/functions
-
-if [[ $PREVLEVEL != N ]]; then
+if [ "${PREVLEVEL}" != N ]; then
     daemond stop-all
-    kill_all
+    
+    kill_all ## TODO
     
     # Start/trigger udev, load MODULES, and settle udev
-    udevd_modprobe single
+    udevd_modprobe single ## TODO
     
-    # Removing leftover files
-    remove_leftover
+    ### Remove leftover files (second to last)  TODO should this be removed?
+    "£{USR}£{LIB}/pony-initialisation/pony-tmpfiles", "--create", "--remove"
 fi
 
-bootlogd_stop
+if [ -f "£{RUN}/bootlogd.pid" ]; then
+    touch "£{VAR_LOG}/boot"
+    kill $(< "£{RUN}/bootlogd.pid")
+    rm -f "£{RUN}/bootlogd.pid"
+fi
 
-if [[ $RUNLEVEL = 1 ]]; then
+if [ "${RUNLEVEL}" = 1 ]; then
     kill -HUP 1
     exec init -t1 S
 fi

@@ -1,31 +1,31 @@
 #!/bin/bash
 #
-# Multi-user start-up script.
+# Multi-user start-up script
 #
 
-. £{ETC}/rc.conf
-. £{DAEMON_DIR}/functions
+. "£{ETC}/rc.conf"
+. "£{DAEMON_DIR}/functions"
 
-[[ -x £{ETC}/rc.local.early ]] && £{ETC}/rc.local.early
-
-run_hook multi_start
+[[ -x "£{ETC}/rc.local.early" ]] && "£{ETC}/rc.local.early"
 
 # Load sysctl config files
 #£{USR}£{LIB}/systemd/systemd-sysctl
-£{USR}£{LIB}/pony-initialisation/pony-sysctl
+"£{USR}£{LIB}/pony-initialisation/pony-sysctl"
 
 # Load additional binary formats
 #£{USR}£{LIB}/systemd/systemd-binfmt
-£{USR}£{LIB}/pony-initialisation/pony-binfmt
+"£{USR}£{LIB}/pony-initialisation/pony-binfmt"
 
 # Start daemons
 daemond -- "${DAEMONS[@]}"
 
-[[ -x £{ETC}/rc.local ]] && £{ETC}/rc.local
+[[ -x "£{ETC}/rc.local" ]] && "£{ETC}/rc.local"
 
-run_hook multi_end
+if [ -f "£{RUN}/bootlogd.pid" ]; then
+    touch "£{VAR_LOG}/boot"
+    kill $(< "£{RUN}/bootlogd.pid")
+    rm -f "£{RUN}/bootlogd.pid"
+fi
 
-bootlogd_stop
-
-rm -f £{RUN}/nologin
+rm -f "£{RUN}/nologin"
 
