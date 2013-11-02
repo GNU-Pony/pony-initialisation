@@ -26,7 +26,14 @@ for arg in sys.argv[1:]:
     elif arg.startswith("--prevlevel="):  PREVLEVEL = arg[len("--prevlevel="):]
     elif arg.startswith("--path="):       PATH      = arg[len("--path="):]
     elif arg.startswith("--cpus="):       CPU_COUNT = int(arg[len("--cpus="):])
-# TODO stop-all  <--  stop all daemons in reverse start order
+# TODO stop-all       <--  Stop all daemons in reverse start order
+# TODO list           <--  List daemon statuses
+# TODO *              <--  Execute daemon with verb, such as start, stop and restart
+# TODO help(--help)   <--  Print help information
+# TODO -s(--started)  <--  Filter started daemons
+# TODO -S(--stopped)  <--  Filter stopped daemons
+# TODO -a(--auto)     <--  Filter auto started daemons
+# TODO -A(--noauto)   <--  Filter manually started daemon
 
 
 # Do everything in a fork

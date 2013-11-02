@@ -53,7 +53,7 @@ class Daemon():
         '''
         Start the daemon
         '''
-        Popen(['£{DEAMON_DIR}' + self.name, 'start']).wait()
+        Popen(["£{DEAMON_DIR}/" + self.name, "start"]).wait()
     
     
     def __str__(self):
@@ -62,12 +62,12 @@ class Daemon():
         
         @return  :str  Text representation of daemon entry
         '''
-        return '(%s%s%s%s%s%s)' % (self.name,
-                                  ' %s' % self.autostart if self.autostart is not None else '',
-                                  ' +silence' if self.silence else '',
-                                  ' runlevel:%s' % self.runlevel if self.runlevel is not None else '',
-                                  ' & %s' % ' & '.join(self.joins) if len(self.joins) > 0 else '',
-                                  ' <- %s' % ' <- '.join([' '.join(L) for L in self.launchers]) if len(self.launchers) > 0 else '')
+        return "(%s%s%s%s%s%s)" % (self.name,
+                                  " %s" % self.autostart if self.autostart is not None else "",
+                                  " +silence" if self.silence else "",
+                                  " runlevel:%s" % self.runlevel if self.runlevel is not None else "",
+                                  " & %s" % " & ".join(self.joins) if len(self.joins) > 0 else "",
+                                  " <- %s" % " <- ".join([" ".join(L) for L in self.launchers]) if len(self.launchers) > 0 else "")
 
 
 def make_daemon(args):
