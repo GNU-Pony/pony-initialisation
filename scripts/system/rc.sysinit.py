@@ -280,8 +280,8 @@ if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
                 ckfile = "£{DEV}/ckfile"
                 ckdir = "£{DEV}/ckdir"
                 no_digits = True
-                for c in "0123456789":
-                    if c in cka:
+                for i in reversed(range(len(cka))):
+                    if ord('0') <= ord(cka[i]) <= ord('9'):
                         no_digits = False
                         break
                 if no_digits:
