@@ -430,12 +430,6 @@ with open("£{VAR_LIB}/£{MISC}/random-seed", "rb") as rfile:
 
 
 
-### Remove leftover files (second to last)  TODO should this be removed?
-
-_("£{USR}£{LIB}/pony-initialisation/pony-tmpfiles", "--create", "--remove")
-
-
-
 ### Saving dmesg log (last)
 
 dmesg_mode = 0o644

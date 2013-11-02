@@ -73,10 +73,6 @@ if not os.getenv("PREVLEVEL", "") == "N":
     _("modprobe", "-ab", *list(filter(lambda module : not module.startswith("!"), MODULES)))
     
     _(devadm_command, "settle")
-    
-    
-    ### Remove leftover files (second to last)  TODO should this be removed?
-    _("£{USR}£{LIB}/pony-initialisation/pony-tmpfiles", "--create", "--remove")
 
 
 ### Stop boot logging
