@@ -53,7 +53,7 @@ class Daemon():
         '''
         Start the daemon
         '''
-        Popen(["£{DEAMON_DIR}/" + self.name, "start"]).wait()
+        Popen(["£{DAEMON_DIR}/" + self.name, "start"]).wait()
     
     
     def __str__(self):
