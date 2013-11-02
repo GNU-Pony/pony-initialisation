@@ -66,6 +66,7 @@ else:
     sys.exit(0)
 
 
+
 # Get CPU thread count, $PATH, previous runlevel and current runlevel
 CPU_COUNT = CPU_COUNT if CPU_COUNT is not None else len(os.listdir("£{SYS}/bus/cpu/devices"))
 PATH = PATH if PATH is not None else "£{BIN}:£{USR}£{BIN}:£{SBIN}:£{USR}£{SBIN}"
@@ -73,6 +74,14 @@ if (PREVLEVEL is None) or (RUNLEVEL is None):
     (_PREVLEVEL, _RUNLEVEL) = pipe(["runlevel"])[0].split(" ")
     PREVLEVEL = PREVLEVEL if PREVLEVEL is not None else _PREVLEVEL
     RUNLEVEL  = RUNLEVEL  if RUNLEVEL  is not None else _RUNLEVEL
+
+
+# export RUNLEVEL, PREVLEVEL, PATH and CONSOLE
+os.putenv("RUNLEVEL", RUNLEVEL)
+os.putenv("PREVLEVEL", PREVLEVEL)
+os.putenv("PATH", PATH)
+console = os.getenv("CONSOLE", "£{DEV}/console")
+os.putenv("CONSOLE", console if console != "" else "£{DEV}/console")
 
 
 # Use colour?
@@ -84,7 +93,7 @@ if USE_COLOUR is None:
     if sys.stdout.isatty():
         try:
             tty = os.readlink("£{PROC}/self/fd/%i" % sys.stdout.fileno())
-            if tty == "£{DEV}/console":
+            if tty == console:
                 USE_COLOUR = True
             else:
                 for c in "0123456789":
@@ -96,13 +105,6 @@ for envvar in ["USECOLOUR", "USE_COLOUR", "USECOLOR", "USE_COLOR"]:
     os.putenv(envvar, "yes" if USE_COLOUR else "no")
     os.putenv(envvar + "S", "yes" if USE_COLOUR else "no")
 
-
-# export RUNLEVEL, PREVLEVEL, PATH and CONSOLE
-os.putenv("RUNLEVEL", RUNLEVEL)
-os.putenv("PREVLEVEL", PREVLEVEL)
-os.putenv("PATH", PATH)
-console = os.getenv("CONSOLE", "£{DEV}/console")
-os.putenv("CONSOLE", console if console != "" else "£{DEV}/console")
 
 
 daemons, groups, membes = {}, {}, {}

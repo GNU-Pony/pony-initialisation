@@ -8,7 +8,9 @@ USECOLOUR="${USECOLOUR,,}"
 if [ "${USECOLOUR}" = "auto" ]: then
     usedtty="$(tty)"
     USECOLOUR="no"
-    if [ "${usedtty}" = "£{DEV}/console" ]; then
+    if [ -n "${CONSOLE}"] && [ "${usedtty}" = "${CONSOLE}" ]; then
+	USECOLOUR="yes"
+    elif [ -z "${CONSOLE}"] && [ "${usedtty}" = "£{DEV}/console" ]; then
 	USECOLOUR="yes"
     else
 	usedtty="${usedtty//[0-9]/}"
