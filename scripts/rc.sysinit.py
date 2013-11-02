@@ -222,7 +222,101 @@ if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/bloc
 ### Set up non-root encrypted partition mappings, if any (after lvm, requires /dev, devd)
 
 if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
-    # FIXME read_crypttab do_unlock
+    crypttab, failed = None, False
+    with open("£{ETC}/crypttab", "rb") as file:
+        crypttab = file.read()
+    crypttab = sh_tab(crypttab.decode("utf-8", "replace"), 4)
+    crypttab = [e[:3] + [" ".join(e[3:])] for e in crypttab]
+    for (name, device, password, options) in crypttab:
+        ## TODO add systemd syntax for backwards compatibility (?) (see functions::do_unlock)
+        
+        proc = None
+        open_verb, a, b, entry_failed = "create", name, device, False
+        if __("cryptsetup", "isLuks", device):
+            open_verb, a, b = "luksOpen", b, a
+        
+        if password == "SWAP":
+            overwriteokay = False
+            if os.access(device, os.F_OK | os.R_OK):
+                if os.path.stat.S_ISBLK(os.stat(device).st_mode):
+                    # This is DANGEROUS! If there is any known file system,
+                    # partition table, RAID, or LVM volume on the device,
+                    # we don't overwrite it.
+                    #
+                    # 'blkid' returns 2 if no valid signature has been found.
+                    # Only in this case should we allow overwriting the device.
+                    #
+                    # This sanity check _should_ be sufficient, but it might not.
+                    # This may cause data loss if it is not used carefully.
+                    proc = Popen(["blkid", "-p", device], stdout = PIPE, stderr = PIPE)
+                    proc.wait()
+                    if proc.returncode == 2:
+                        overwriteokay = True
+            if not overwriteokay:
+                entry_failed = True
+            elif __("crypttab", "-d", "£{DEV}/urandom", options, open_verb, a, b):
+                entry_failed = not __("mkswap", "-f", "-L", name, "£{DEV}/mapper/name")
+            proc = None
+        
+        elif password == "ASK":
+            with open("£{DEV}/console", "r") as console:
+                proc = Popen(["cryptsetup", options, open_verb, a, b], stdin = console)
+            proc.wait()
+        
+        elif password.startswith("£{DEV}/"):
+            try:
+                ckdev = password.split(":")[0]
+                cka = ":".join(password.split(":")[1:])
+                ckb = cka.split(":")[0]
+                cka = ":".join(ska.split(":")[1:])
+                ckfile = "£{DEV}/ckfile"
+                ckdir = "£{DEV}/ckdir"
+                no_digits = True
+                for c in "0123456789":
+                    if c in cka:
+                        no_digits = False
+                        break
+                if no_digits:
+                    # Use a file on the device
+                    # cka is not numeric: cka=filesystem, ckb=path
+                    os.mkdir(ckdir)
+                    _("mount", "-r", "-t", cka, ckdev, ckdir)
+                    with open(ckdir + "/" + ckb, "rb") as ifile:
+                        with open(ckfile, "wb") as ofile:
+                            ofile.write(ifile.read())
+                            ofile.flush()
+                    _("umount", ckdir)
+                    os.rmdir(ckdir)
+                else:
+                    # Read raw data from the block device
+                    # cka is numeric: cka=offset, ckb=length
+                    proc = ["dd", "if=" + ckdev, "of=" + ckfile,
+                            "bs=1", "skip=" + cka, "count=" + ckb]
+                    proc = Popen(proc, stdout = PIPE, stderr = PIPE)
+                    proc.wait()
+                __("cryptsetup", "-d", ckfile, options, open_verb, a, b)
+                proc = ["dd", "if=£{DEV}/urandom", "of=" + ckfile,
+                        "bs=1", "conv=notrunc", "count=" + str(os.stat(ckfile).st_size)]
+                proc = Popen(proc, stdout = PIPE, stderr = PIPE)
+                proc.wait()
+                os.remove(ckfile)
+            except:
+                proc = None
+                entry_failed = True
+        
+        elif password.startswith("/"):
+            proc = Popen(["cryptsetup", "-d", password, open_verb, options, a, b], stdout = PIPE)
+            proc.wait()
+        
+        else:
+            proc = Popen(["cryptsetup", options, open_verb, a, b], stdin = PIPE, stdout = PIPE)
+            proc.communicate(password.encode("utf-8"))
+        
+        if (proc is not None) and (proc.returncode != 0):
+            entry_failed = True
+        failed |= entry_failed
+            
+    
     # Maybe somepony has LVM on an encrypted block device
     if (USELVM.lower() == "yes") and in_path("lwm") and os.path.exists("£{SYS}/block"):
         __("vgchange", "--sysinit", "-a", "y")

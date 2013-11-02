@@ -1,8 +1,11 @@
 #!/bin/bash
+#
+# Common system initialisation script
+#
 
 if [[ -z "${LANG}" ]]; then
     source "£{ETC}/profile.d/read_locale.sh"
 fi
 
-exec "£{ETC}/rc.sysinit.py"
+exec "£{PREFIX}${LIBEXEC}/rc.sysinit.py"
 

@@ -184,3 +184,52 @@ def get_vts():
         return device == "tty"
     return ["£{DEV}/" + tty for tty in filter(lambda dev : is_vt(dev), os.listdir("£{DEV}"))]
 
+
+def sh_tab(table, columns):
+    '''
+    Parse a table file which uses restricted shell syntax
+    
+    @param   table    Raw table file content
+    @param   columns  The number of columns in the table
+    @return           The table parsed
+    '''
+    rc = []
+    cols = []
+    comment = False
+    escape = False
+    quote = '\0'
+    buf = ""
+    for c in table + "\n":
+        if comment:
+            if c == '\n':
+                comment = False
+        elif escape:
+            if c != '\n':
+                buf += c
+            escape = False
+        elif (c == '\\') and (quote != '\''):
+            escape = True
+        elif quote != '\0':
+            if c == quote:
+                quote = '\0'
+            else:
+                buf += c
+        elif c in " \t\n":
+            if len(buf) != 0:
+                cols.append(b.replace("\0", ""))
+                buf = ""
+            if (c == '\n') and (len(cols) > 0):
+                if len(cols) < 4:
+                    rc.append((cols + [""] * columns)[:colums])
+                else:
+                    rc.append(cols)
+                cols = []
+        elif c in "\"'":
+            quote = c
+            buf += '\0'
+        elif c == '#':
+            comment = True
+        else:
+            buf += c
+    return rc
+
