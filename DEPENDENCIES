@@ -1,13 +1,19 @@
-REQUIRED MAKE DEPENDENCIES::
+REQUIRED MAKE DEPENDENCIES
 
-grep
-sed
-gpp
-make
-coreutils
+grep			Preprocessing
+gpp			Preprocessing
+make			Building script
+coreutils		Installation of files and preprocessing
 
 
-REQUIRED RUNTIME DEPENDENCIES::
+OPTIONAL MAKE DEPENDENCIES
+
+autoautocomplete	Shell completion compilation
+info			Compilation and installation of info manuals
+gzip			Compression of info manuals
+
+
+REQUIRED RUNTIME DEPENDENCIES
 
 glibc
 bash
@@ -17,14 +23,15 @@ iproute2
 ncurses
 kbd
 findutils
+python>=3
 
 
-OPTIONAL RUNTIME DPEENDENCIES:
+OPTIONAL RUNTIME DPEENDENCIES
 
-net-tools:	Legacy networking support
-bridge-utils:	Network bridging support
-dhcpcd:		DHCP network configuration
-wireless_tools:	Wireless networking
-sysvinit:	Legacy init support
+net-tools		Betworking support
+bridge-utils		Network bridging support
+dhcpcd			DHCP network configuration
+wireless_tools		Wireless networking
+sysvinit		Init support
 
 
