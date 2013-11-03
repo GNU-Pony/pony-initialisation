@@ -59,6 +59,7 @@ if child_pid == 0:
     os.close(0)
     os.open("£{DEV}/null", os.O_RDWR)
     os.setsid()
+    start_printer()
 else:
     def noop(_a, _b):
         pass
