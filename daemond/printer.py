@@ -64,6 +64,15 @@ def start_printer():
 
 
 
+def print_warning(message):
+    '''
+    Print a warning message
+    
+    @param  message:str  The message
+    '''
+    printer_print("01;31", message, None)
+
+
 def print_blacklisted(message):
     '''
     Print a message that a daemon is blacklisted
@@ -110,7 +119,7 @@ def printer_print(message, colour, status, index = None):
     
     @param   message:str  The message to print
     @param   colour:str   The ANSI colour of the message
-    @param   status:str   Status message (hidden with colours), should always be of same length
+    @param   status:str?  Status message (hidden with colours), should always be of same length
     @param   index:int?   The line to rewrite, or `None` for a new line
     @return  :int         The line to message is printed on
     '''
@@ -119,7 +128,9 @@ def printer_print(message, colour, status, index = None):
         index = None
     if USECOLOUR:
         msglen = len(message) + len(status) + 3
-        message = "\033[00;%sm%s\033[00m \033[30m[%s]\033[00m" % (colour, message, status)
+        message = "\033[00;%sm%s\033[00m" % (colour, message)
+        if status is not None:
+            message += " \033[30m[%s]\033[00m" % status
         printer_lock.acquire()
         if index is not None:
             diff = printer_line - index

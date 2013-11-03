@@ -257,19 +257,22 @@ queue_condition = Condition(queue_lock)
 fork_lock = Lock()
 fork_condition = Condition(fork_lock)
 
-daemon_start = Daemon.start
+daemon_start, forked = Daemon.start, False
 def fork_start(self):
-    global fork_lock, fork_condition, daemon_start
-    if self.name == '+fork':
-        fork_lock.acquire()
-        fork_condition.notify()
-        fork_lock.release()
+    global fork_lock, fork_condition, daemon_start, forked
+    if (self.name is None) or (self.name == '+fork'):
+        if not forked:
+            fork_lock.acquire()
+            fork_condition.notify()
+            fork_lock.release()
+            forked = True
     else:
         daemon_start(self)
 Daemon.start = fork_start
 
-def thread(): # TODO +fork when stale
-    global queue_lock, queue_condition, initial_daemons
+threads_waiting = 0
+def thread():
+    global queue_lock, queue_condition, initial_daemons, forked, threads_waiting
     while True:
         daemon = None
         queue_lock.acquire()
@@ -284,7 +287,12 @@ def thread(): # TODO +fork when stale
                     print_blacklisted("%s is blacklisted" % daemon.name)
                 continue
             if daemon is None:
+                threads_waiting += 1
+                if (not forked) and (threads_waiting == CPU_COUNT):
+                    print_warning("Warning: daemond is stale, putting in background")
+                    fork_start(None)
                 queue_condition.wait()
+                threads_waiting -= 1
                 continue
         finally:
             queue_lock.release()
@@ -293,7 +301,7 @@ def thread(): # TODO +fork when stale
             if daemon.callback is not None:
                 daemon.callback("S")
             success = daemon.start(daemon.verb, daemon.output)
-            # We do not care wether the daemon started we will try its dependees anyway
+            # We do not care whether the daemon started we will try its dependees anyway
             if daemon.verb == "start":
                 queue_lock.acquire()
                 try:
