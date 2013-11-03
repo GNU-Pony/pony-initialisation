@@ -131,7 +131,7 @@ c20:345:respawn:£{SBIN}/agetty -8 -s 38400 tty20 linux
 
 
 # Start serial virtual console for KVM and others VMs, uncomment to enable
-#s0:345:respawn:£{SBIN}/agetty -8 -s 9600 ttyS0 linux
+#s0:345:respawn:£{SBIN}/agetty -8 -s 9600 ttyS0 vt100
 
 
 # Start hypervisor virtual console for Xen and KVM, uncomment to enable

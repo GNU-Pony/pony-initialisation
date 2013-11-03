@@ -1,5 +1,6 @@
 # -*- python -*-
 
+
 from subprocess import Popen
 
 from printer import *
@@ -51,25 +52,32 @@ class Daemon():
         return (r is None) or ((runlevel in r) ^ ("-" not in r))
     
     
-    def start(self, verb):
+    def start(self, verb, output = None):
         '''
         Send a verb the daemon
         
-        @param   verb:str  The verb to start with
-        @return  :boolean  Whether the daemon received and acted on the verb sucessfully
+        @param   verb:str       The verb to start with
+        @param   output:ofile?  Output file, `None` for standard output
+        @return  :boolean       Whether the daemon received and acted on the verb sucessfully
         '''
         message = "Sending %s signal to %s" % (verb[0].upper() + verb[1:], self.name)
         args = ["£{DAEMON_DIR}/" + self.name, verb]
-        
-        index = print_starting(message)
-        try:
-            r = pipe(args, stdout = printer_pipe, stderr = printer_pipe, silent = self.silence)
-            if r[1] == 0:
-                print_successful(message, index)
-                return True
-        except:
-            print_failed(message, index)
-            return False
+        if output is None:
+            index = print_starting(message)
+            try:
+                r = pipe(args, stdout = printer_pipe, stderr = printer_pipe, silent = self.silence)
+                if r[1] == 0:
+                    print_successful(message, index)
+                    return True
+            except:
+                print_failed(message, index)
+                return False
+        else:
+            try:
+                r = pipe(args, stdout = printer_pipe, stderr = output, silent = self.silence)
+                return r[1] == 0
+            except:
+                return False
     
     
     def __str__(self):

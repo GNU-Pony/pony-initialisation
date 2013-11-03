@@ -58,6 +58,7 @@ def start_printer():
     
     printer_lock = Lock()
     printer_thread = Thread(target = print_thread)
+    printer_thread.daemon = True
     printer_thread.start()
 
 

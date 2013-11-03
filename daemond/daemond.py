@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- mode: python, coding: utf-8 -*-
 
+
 import os
 import sys
 import signal
@@ -13,6 +14,20 @@ from table import *
 ## TODO autolaunching is not implemented
 
 
+
+def print(text = '', end = '\n'):
+    '''
+    Hack to enforce UTF-8 in output (in the future, if you see anypony not using utf-8 in
+    programs by default, report them to Princess Celestia so she can banish them to the moon)
+    
+    @param  text:str  The text to print (empty string is default)
+    @param  end:str   The appendix to the text to print (line breaking is default)
+    '''
+    sys.stdout.buffer.write((str(text) + end).encode('utf-8'))
+    sys.stdout.buffer.flush()
+
+
+
 # Fields for CPU thread count, $PATH, previous runlevel and current runlevel, and use colour and whether +fork is reached
 CPU_COUNT, PATH       = None, None
 PREVLEVEL, RUNLEVEL   = None, None
@@ -22,14 +37,13 @@ USE_COLOUR, FORKED_OF = "", False
 
 # Parse command line
 start_daemons    = None   # Daemons to start or daemons to filter list to
-stop_all_daemons = False  # Stop all daemons in reverse start order
-list_daemons     = False  # List daemon statuses
 started_daemons  = False  # Filter to started daemons
 stopped_daemons  = False  # Filter to stopped daemons
 auto_daemons     = False  # Filter to auto started daemons
 noauto_daemons   = False  # Filter to manually started daemon
 get_help         = False  # Print help information
 verb             = None   # Execute daemon with verb, such as start, stop and restart
+
 for arg in sys.argv[1:]:
     if start_daemons is not None:         start_daemons.append(arg)
     elif arg == "--":                     start_daemons = []
@@ -38,8 +52,6 @@ for arg in sys.argv[1:]:
     elif arg.startswith("--path="):       PATH       = arg[len("--path="):]
     elif arg.startswith("--cpus="):       CPU_COUNT  = int(arg[len("--cpus="):])
     elif arg.startswith("--usecolour="):  USE_COLOUR = arg[len("--usecolour="):]
-    elif arg == "stop-all":               stop_all_daemons = True
-    elif arg == "list":                   list_daemons = True
     elif arg in ("help", "--help"):       get_help = True
     elif arg in ("-s", "--started"):      started_daemons = True
     elif arg in ("-S", "--stopped"):      stopped_daemons = True
@@ -48,6 +60,79 @@ for arg in sys.argv[1:]:
     elif arg.startswith("-"):             pass # Not recognised
     elif verb is None:                    verb = arg
     elif start_daemons is None:           start_daemons = [arg]
+
+if start_daemons is None:
+    start_daemons = []
+
+
+
+# Use options
+if get_help and (len(start_daemons) == 0):
+    print("USAGE: name [action] [options] [--] [daemons]")
+    print()
+    print("ACTIONS:")
+    print("  list              List daemon statuses")
+    print("  stop-all          Stop all daemons")
+    print("  start             Start one or more daemons")
+    print("  restart           Restart one or more daemons")
+    print("  stop              Stop one or more daemons")
+    print("  reload            Reload one or more daemons (optional)")
+    print("  (none)            Start all daemons in £{ETC}/daemontab")
+    print()
+    print("OPTIONS:")
+    print("  -s, --started     Filter to started daemons")
+    print("  -S, --stopped     Filter to stopped daemons")
+    print("  -a, --auto        Filter to auto started daemons")
+    print("  -A, --noauto      Filter to manually started daemons")
+    print()
+    print("See `info daemond` for more information.")
+    print()
+    sys.exit(0)
+
+elif get_help:
+    verb = "help"
+
+elif (verb is not None) and (len(start_daemons) == 0):
+    print(sys.argv[0] + ": No daemons have been specified")
+    sys.exit(1)
+
+
+if (verb is None) or (verb not in ("help", "list")):
+    if os.getuid() != 0:
+        print(sys.argv[0] + ": Permission denied, you need to be root")
+        sys.exit(1)
+
+elif verb is not None:
+    if verb == "help":
+        for daemon in start_daemons:
+            if USECOLOUR:
+                print("\033[00;34mHelp for daemon \033[01m" + daemon + "\033[00m")
+            else:
+                print("Help for daemon " + daemon)
+                print("----------------" + '-' * len(daemon))
+            spawn("£{DAEMON_DIR}/" + daemon, "help")
+            print("")
+            print("")
+        sys.exit(0)
+    else:
+        if (verb == "stop-all") and (len(start_daemons) > 0):
+            print(sys.argv[0] + ": Cannot combine stop-all with a daemon list, did you mean `stop`?")
+            sys.exit(1)
+        if not already_running():
+            print(sys.argv[0] + ": daemond is not running")
+            sys.exit(1)
+        privileged = verb == "list"
+        if privileged and (os.getuid() != 0):
+            print(sys.argv[0] + ": Permission denied, you need to be root")
+            sys.exit(1)
+        started = started_daemons if (started_daemons ^ stopped_daemons) else None
+        auto = auto_daemons if (auto_daemons ^ noauto_daemons) else None
+        fails = signal_daemond(verb, started, auto, start_daemons, USE_COLOUR)
+        sys.exit(min(fails, 255))
+
+if already_running():
+     print(sys.argv[0] + ": daemond is already running")
+     sys.exit(1)
 
 
 
@@ -59,6 +144,8 @@ if child_pid == 0:
     os.close(0)
     os.open("£{DEV}/null", os.O_RDWR)
     os.setsid()
+    create_pidfile()
+    create_socket()
     start_printer()
 else:
     def noop(_a, _b):
@@ -78,7 +165,7 @@ if (PREVLEVEL is None) or (RUNLEVEL is None):
     RUNLEVEL  = RUNLEVEL  if RUNLEVEL  is not None else _RUNLEVEL
 
 
-# export RUNLEVEL, PREVLEVEL, PATH and CONSOLE
+# Export RUNLEVEL, PREVLEVEL, PATH and CONSOLE
 os.putenv("RUNLEVEL", RUNLEVEL)
 os.putenv("PREVLEVEL", PREVLEVEL)
 os.putenv("PATH", PATH)
@@ -134,10 +221,12 @@ initial_daemons = []
 '''
 
 
-# Set verb for each daemon
+# Set verb, callback and output for each daemon
 for daemon in daemons:
     daemon = daemons[daemon]
     daemon.verb = "start"
+    daemon.callback = None
+    daemon.output = None
 
 # Create mappings between daemons for join statements
 for daemon in daemons:
@@ -179,7 +268,7 @@ def fork_start(self):
         daemon_start(self)
 Daemon.start = fork_start
 
-def thread():
+def thread(): # TODO +fork when stale
     global queue_lock, queue_condition, initial_daemons
     while True:
         daemon = None
@@ -189,15 +278,22 @@ def thread():
                 daemon = initial_daemons[0]
                 initial_daemons[:] = initial_daemons[1:]
             if daemon in groups["%blacklist"]:
-                print_blacklisted("%s is blacklisted")
+                if daemon.callback is not None:
+                    daemon.callback("B")
+                else:
+                    print_blacklisted("%s is blacklisted" % daemon.name)
                 continue
             if daemon is None:
                 queue_condition.wait()
                 continue
         finally:
             queue_lock.release()
+        success = False
         try:
-            daemon.start(daemon.verb) # We do not care wether the daemon started we will try its dependees anyway
+            if daemon.callback is not None:
+                daemon.callback("S")
+            success = daemon.start(daemon.verb, daemon.output)
+            # We do not care wether the daemon started we will try its dependees anyway
             if daemon.verb == "start":
                 queue_lock.acquire()
                 try:
@@ -215,6 +311,8 @@ def thread():
                     queue_lock.release()
         except:
             pass
+        if daemon.callback is not None:
+            daemon.callback("D" if success else "F")
 
 fork_lock.acquire()
 
@@ -228,7 +326,54 @@ os.kill(parent_pid, signal.SIGUSR2)
 fork_lock.release()
 
 
-# TODO start using domain socket
+# Start acting a server for daemond clients
+if os.path.exits("£{RUN}/daemond/pipe"):
+    os.unlink("£{RUN}/daemond/pipe")
+os.mkfifo("£{RUN}/daemond/pipe", mode = 0o750)
+pipe = open("£{RUN}/daemond/pipe", "wb")
 while True:
-    signal.pause()
+    sock, state = accept_connection(), 0
+    verb, started, auto, buf = "", None, None, ""
+    use_colour = False ## TODO pass use_colour to daemon spawns
+    continue_loop = True
+    daemons = []
+    while continue_loop:
+        data = sock.recv(32)
+        if len(data) == 0:
+            time.sleep(0.5) # Should not happen
+            continue
+        for c in data:
+            if c == '\0':
+                if state == 4:
+                    if buf == "":
+                        state += 1
+                        if verb == "stop-all":
+                            pass # TODO
+                        elif verb == "list":
+                            pass # TODO
+                        else:
+                            pass # TODO
+                    else:
+                        daemons.append(buf)
+                    buf = ""
+                elif state == 5:
+                    continue_loop = False
+                    break
+                else:
+                    state += 1
+            elif state == 0:
+                verb += c
+            elif state == 1:
+                sock.sendall("P%s\0" % "£{RUN}/daemond/pipe")
+                if c in "TF":  started = c == 'T'
+                state += 1
+            elif state == 2:
+                if c in "TF":  auto = c == 'T'
+                state += 1
+            elif state == 3:
+                use_colour = c == 'T'
+                state += 1
+            else:
+                buf += c
+    sock.close()
 
