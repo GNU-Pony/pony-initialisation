@@ -60,6 +60,8 @@ def printer_print(message, colour, status, index = None):
     @param   index:int?   The line to rewrite, or `None` for a new line
     @return  :int         The line to message is printed on
     '''
+    if FORKED_OF:
+        index = None
     if USECOLOUR:
         print("\033[00;%sm%s\033[00m \033[30m[%s]\033[00m" % (colour, message, status))
     else:

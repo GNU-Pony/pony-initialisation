@@ -13,10 +13,10 @@ from table import *
 ## TODO autolaunching is not implemented
 
 
-# Fields for CPU thread count, $PATH, previous runlevel and current runlevel, and use colour
-CPU_COUNT, PATH     = None, None
-PREVLEVEL, RUNLEVEL = None, None
-USE_COLOUR          = ""
+# Fields for CPU thread count, $PATH, previous runlevel and current runlevel, and use colour and whether +fork is reached
+CPU_COUNT, PATH       = None, None
+PREVLEVEL, RUNLEVEL   = None, None
+USE_COLOUR, FORKED_OF = "", False
 
 
 
@@ -216,6 +216,7 @@ for _ in range(CPU_COUNT):
     t.start()
 
 fork_condition.wait()
+FORKED_OF = True
 os.kill(parent_pid, signal.SIGUSR2)
 fork_lock.release()
 
