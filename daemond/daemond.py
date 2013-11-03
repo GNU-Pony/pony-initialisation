@@ -189,7 +189,7 @@ def thread():
         finally:
             queue_lock.release()
         try:
-            daemon.start()
+            daemon.start("start")
             queue_lock.acquire()
             try:
                 for cuing in daemon.cuing:

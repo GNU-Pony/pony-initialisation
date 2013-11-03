@@ -49,11 +49,11 @@ class Daemon():
         return (r is None) or ((runlevel in r) ^ ("-" not in r))
     
     
-    def start(self):
+    def start(self, verb):
         '''
         Start the daemon
         '''
-        Popen(["£{DAEMON_DIR}/" + self.name, "start"]).wait()
+        spawn(["£{DAEMON_DIR}/" + self.name, verb])
     
     
     def __str__(self):
