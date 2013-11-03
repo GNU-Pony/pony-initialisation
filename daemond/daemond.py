@@ -134,6 +134,11 @@ initial_daemons = []
 '''
 
 
+# Set verb for each daemon
+for daemon in daemons:
+    daemon = daemons[daemon]
+    daemon.verb = "start"
+
 # Create mappings between daemons for join statements
 for daemon in daemons:
     daemon = daemons[daemon]
@@ -192,21 +197,22 @@ def thread():
         finally:
             queue_lock.release()
         try:
-            daemon.start("start") # We do not care wether the daemon started we will try its dependees anyway
-            queue_lock.acquire()
-            try:
-                for cuing in daemon.cuing:
-                    if daemon.name in cuing.waiting:
-                        cuing.waiting.remove(daemon.name)
-                    if daemon.name in members:
-                        for group in members[daemon.name]:
-                            if group in cuing.waiting:
-                                cuing.waiting.remove(group)
-                    if len(cuing.waiting) == 0:
-                        initial_daemons.append(cuing)
-                        queue_condition.notify_all()
-            finally:
-                queue_lock.release()
+            daemon.start(daemon.verb) # We do not care wether the daemon started we will try its dependees anyway
+            if daemon.verb == "start":
+                queue_lock.acquire()
+                try:
+                    for cuing in daemon.cuing:
+                        if daemon.name in cuing.waiting:
+                            cuing.waiting.remove(daemon.name)
+                        if daemon.name in members:
+                            for group in members[daemon.name]:
+                                if group in cuing.waiting:
+                                    cuing.waiting.remove(group)
+                        if len(cuing.waiting) == 0:
+                            initial_daemons.append(cuing)
+                            queue_condition.notify_all()
+                finally:
+                    queue_lock.release()
         except:
             pass
 

@@ -58,7 +58,7 @@ class Daemon():
         @param   verb:str  The verb to start with
         @return  :boolean  Whether the daemon received and acted on the verb sucessfully
         '''
-        message = "%sing %s" % (verb[0].upper() + verb[1:], self.name)
+        message = "Sending %s signal to %s" % (verb[0].upper() + verb[1:], self.name)
         args = ["£{DAEMON_DIR}/" + self.name, verb]
         
         index = print_starting(message)
