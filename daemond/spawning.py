@@ -12,19 +12,20 @@ Create an array of word splited strings
 '''
 
 
-def pipe(*commands, stdin = None, stdout = None, silent = False):
+def pipe(*commands, stdin = None, stdout = None, stderr = None, silent = False):
     '''
     Open a process pipeline
     
     @param   commands:*list<str>  The commands to run
     @param   stdin:str?           Input for the first process's stdin, `None` for using the spawner's stdin
     @param   stdout:ofile         The output sink for the last process in the command line
+    @param   stderr:ofile?        The stderr sink for the processes', `None` for the spawner's stderr
     @param   silent:bool          Whether the pipeline's stderr is silenced
     @return  :(str?, int)         The output of the pipeline and the highest returned return code
     '''
     cmds = list(commands)
     stdin_ = sys.stdin if stdin is None else PIPE
-    stderr = PIPE if silent else sys.stderr
+    stderr = PIPE if silent else (sys.stderr if stderr is None else stderr)
     procs = [None] * len(cmds)
     
     # Create pipeline

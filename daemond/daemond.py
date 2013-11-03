@@ -7,6 +7,7 @@ import signal
 from threading import Thread, Lock, Condition
 
 from spawning import *
+from printer import *
 from table import *
 
 ## TODO autolaunching is not implemented
@@ -182,6 +183,7 @@ def thread():
                 daemon = initial_daemons[0]
                 initial_daemons[:] = initial_daemons[1:]
             if daemon in groups["%blacklist"]:
+                print_blacklisted("%s is blacklisted")
                 continue
             if daemon is None:
                 queue_condition.wait()
@@ -189,7 +191,7 @@ def thread():
         finally:
             queue_lock.release()
         try:
-            daemon.start("start")
+            daemon.start("start") # We do not care wether the daemon started we will try its dependees anyway
             queue_lock.acquire()
             try:
                 for cuing in daemon.cuing:

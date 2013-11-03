@@ -2,6 +2,8 @@
 
 from subprocess import Popen
 
+from printer import *
+
 
 class Daemon():
     '''
@@ -51,9 +53,23 @@ class Daemon():
     
     def start(self, verb):
         '''
-        Start the daemon
+        Send a verb the daemon
+        
+        @param   verb:str  The verb to start with
+        @return  :boolean  Whether the daemon received and acted on the verb sucessfully
         '''
-        spawn(["£{DAEMON_DIR}/" + self.name, verb])
+        message = "%sing %s" % (verb[0].upper() + verb[1:], self.name)
+        args = ["£{DAEMON_DIR}/" + self.name, verb]
+        
+        index = print_starting(message)
+        try:
+            r = pipe(args, stdout = printer_pipe, stderr = printer_pipe, silent = self.silence)
+            if r[1] == 0:
+                print_successful(message, index)
+                return True
+        except:
+            print_failed(message, index)
+            return False
     
     
     def __str__(self):
