@@ -6,7 +6,7 @@
 ### Load locale
 if [ -z "${LANG}" ]; then
     if [ -e £{ETC}/profile.d/read_locale.sh ]; then
-	source "£{ETC}/profile.d/read_locale.sh"
+	. "£{ETC}/profile.d/read_locale.sh"
     fi
 fi
 
