@@ -11,32 +11,37 @@ from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
-_ = spawn
-__ = spawn_
+_ = lambda *args : try_invoke(lambda : spawn(*args))
+__ = lambda *args : try_invoke(lambda : spawn_(*args))
 
 
 NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.glusterfs"
 
 os_release = try_invoke(lambda : sh_lex("£{ETC}/os-release"))
-rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+if rc_conf is None:
+    os_release = {}
+
+rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+if rc_conf is None:
+    rc_conf = {}
 
 CPU_COUNT     = kernel_opts("--init-threads", lambda x : int(x))
 CPU_COUNT     = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
-NAME          = get(None, os_release["NAME"], "")
-VERSION       = get(None, os_release["VERSION"], "")
-PRETTY_NAME   = get(None, os_release["PRETTY_NAME"], "")
-ANSI_COLOR    = get(None, os_release["ANSI_COLOR"], "")
-HOME_URL      = get(None, os_release["HOME_URL"], "")
-HOSTNAME      = get(None, rc_conf["HOSTNAME"], "")
-TIMEZONE      = get(None, rc_conf["TIMEZONE"], "")
-HARDWARECLOCK = get(None, rc_conf["HARDWARECLOCK"], "")
-USEDMRAID     = get(None, rc_conf["USEDMRAID"], "").lower() == "yes"
-USELVM        = get(None, rc_conf["USELVM"], "").lower() == "yes"
-MODULES       = get(None, rc_conf["MODULES"], "")
-CONSOLEFONT   = get(None, rc_conf["CONSOLEFONT"], "")
-CONSOLEMAP    = get(None, rc_conf["CONSOLEMAP"], "")
-KEYMAP        = get(None, rc_conf["KEYMAP"], "")
-LOCALE        = get(None, rc_conf["LOCALE"], "")
+NAME          = get(None, os_release, "NAME", "")
+VERSION       = get(None, os_release, "VERSION", "")
+PRETTY_NAME   = get(None, os_release, "PRETTY_NAME", "")
+ANSI_COLOR    = get(None, os_release, "ANSI_COLOR", "")
+HOME_URL      = get(None, os_release, "HOME_URL", "")
+HOSTNAME      = get(None, rc_conf, "HOSTNAME", "")
+TIMEZONE      = get(None, rc_conf, "TIMEZONE", "")
+HARDWARECLOCK = get(None, rc_conf, "HARDWARECLOCK", "")
+USEDMRAID     = get(None, rc_conf, "USEDMRAID", "").lower() == "yes"
+USELVM        = get(None, rc_conf, "USELVM", "").lower() == "yes"
+MODULES       = get(None, rc_conf, "MODULES", "")
+CONSOLEFONT   = get(None, rc_conf, "CONSOLEFONT", "")
+CONSOLEMAP    = get(None, rc_conf, "CONSOLEMAP", "")
+KEYMAP        = get(None, rc_conf, "KEYMAP", "")
+LOCALE        = get(None, rc_conf, "LOCALE", "")
 
 
 
@@ -51,12 +56,12 @@ print()
 print()
 if not PRETTY_NAME == "":
     if not ANSI_COLOR == "":
-        print('\033[%sm%s\033[00m' % (PRETTY_NAME, ANSI_COLOR))
+        print('\033[%sm%s\033[00m' % (ANSI_COLOR, PRETTY_NAME))
     else:
         print(PRETTY_NAME)
 if not HOME_URL == "":
     if (not ANSI_COLOR == "") and (PRETTY_NAME == ""):
-        print('\033[%sm%s\033[00m' % (HOME_URL, ANSI_COLOR))
+        print('\033[%sm%s\033[00m' % (ANSI_COLOR, HOME_URL))
     else:
         print(HOME_URL)
 print()
@@ -159,7 +164,9 @@ _(devd_command, "--daemon")
 _(devadm_command, "trigger", "--action=add", "--type=subsystems")
 _(devadm_command, "trigger", "--action=add", "--type=devices")
 
-_("modprobe", "-ab", *list(filter(lambda module : not module.startswith("!"), MODULES)))
+whitelisted_modules = list(filter(lambda module : not module.startswith("!"), MODULES))
+if len(whitelisted_modules) > 0:
+    _("modprobe", "-ab", *whitelisted_modules)
 
 _(devadm_command, "settle")
 
@@ -176,8 +183,8 @@ if 'UTF' in os.getenv("LANG").upper(): # UTF-8 mode
 # (otherwise) legacy mode: Make non-UTF-8 consoles work on 2.6.24 and newer kernels.
 
 for tty in get_vts():
-    _("kbd_mode", kbd_mode, "-C", "£{DEV}/" + tty)
-    with open("£{DEV}/" + tty, "wb") as file:
+    _("kbd_mode", kbd_mode, "-C", tty)
+    with open(tty, "wb") as file:
         file.write(tty_echo)
         file.flush()
 with open("£{SYS}/module/vt/parameters/default_utf8", "wb") as file:
@@ -416,39 +423,48 @@ _("swapon", "-a")
 
 ### Configuring time zone (requires mount)
 
-if not TIMEZONE == "":
-    zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
-    if not os.path.exists(zonefile):
-        pass ## TODO not a valid time zone
-    elif not os.path.islink("£{ETC}/localtime"):
-        if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
-            os.remove("£{ETC}/localtime")
-            os.unlink(zonefile, "£{ETC}/localtime")
+try:
+    if not TIMEZONE == "":
+        zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
+        if not os.path.exists(zonefile):
+            pass ## TODO not a valid time zone
+        elif not os.path.islink("£{ETC}/localtime"):
+            if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
+                os.remove("£{ETC}/localtime")
+                os.unlink(zonefile, "£{ETC}/localtime")
+except:
+    pass # TODO
 
 
 
 ### Initialising random seed
 
-with open("£{VAR_LIB}/£{MISC}/random-seed", "rb") as rfile:
-    with open("£{DEV}/urandom", "wb") as wfile:
-        wfile.write(rfile.read())
-        wfile.flush()
+try:
+    with open("£{VAR_LIB}/£{MISC}/random-seed", "rb") as rfile:
+        with open("£{DEV}/urandom", "wb") as wfile:
+            wfile.write(rfile.read())
+            wfile.flush()
+except:
+    pass # TODO
 
 
 
 ### Saving dmesg log (last)
 
-dmesg_mode = 0o644
-if os.path.exists("£{PROC}/sys/kernel/dmesg_restrict"):
-    with open("£{PROC}/sys/kernel/dmesg_restrict", "r") as file:
-        if file.read().replace("\n", "") == "1":
-            dmesg_mode = 0o600
-
-os.path.exists("£{VAR_LOG}/dmesg.log") and os.remove("£{VAR_LOG}/dmesg.log")
-with open("£{VAR_LOG}/dmesg.log", "x") as file:
-    file.flush()
-os.chmod("£{VAR_LOG}/dmesg.log", dmesg_mode)
-with open("£{VAR_LOG}/dmesg.log", "ab") as file:
-    Popen(["dmesg"], stdout = file).wait()
-    file.flush()
+try:
+    dmesg_mode = 0o644
+    if os.path.exists("£{PROC}/sys/kernel/dmesg_restrict"):
+        with open("£{PROC}/sys/kernel/dmesg_restrict", "r") as file:
+            if file.read().replace("\n", "") == "1":
+                dmesg_mode = 0o600
+    
+    os.path.exists("£{VAR_LOG}/dmesg.log") and os.remove("£{VAR_LOG}/dmesg.log")
+    with open("£{VAR_LOG}/dmesg.log", "x") as file:
+        file.flush()
+    os.chmod("£{VAR_LOG}/dmesg.log", dmesg_mode)
+    with open("£{VAR_LOG}/dmesg.log", "ab") as file:
+        Popen(["dmesg"], stdout = file).wait()
+        file.flush()
+except:
+    pass # TODO
 

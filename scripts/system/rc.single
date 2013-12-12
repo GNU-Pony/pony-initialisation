@@ -82,12 +82,15 @@ if not os.getenv("PREVLEVEL", "") == "N":
 
 
 ### Stop boot logging
-if os.path.exists("£{RUN}/bootlogd.pid"):
-    with open("£{VAR_LOG}/boot", "a") as file:
-        file.flush()
-    with open("£{RUN}/bootlogd.pid", "r") as file:
-        os.kill(int(file.read().replace("\n", "")), signal.TERM)
-    os.remove("£{RUN}/bootlogd.pid")
+try:
+    if os.path.exists("£{RUN}/bootlogd.pid"):
+        with open("£{VAR_LOG}/boot", "a") as file:
+            file.flush()
+        with open("£{RUN}/bootlogd.pid", "r") as file:
+            os.kill(int(file.read().replace("\n", "")), signal.SIGTERM)
+        os.remove("£{RUN}/bootlogd.pid")
+except:
+    pass # TODO
 
 
 ### Switch runlevel

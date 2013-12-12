@@ -8,18 +8,16 @@ import os
 import signal
 from subprocess import Popen, PIPE
 
+from rcfunctions import *
 from rclexal import *
 
-
-rc_conf = None
-try:
-    rc_conf = sh_lex("£{ETC}/rc.conf")
-except:
-    pass # instead of loading the entire rcfunctions for only try_invoke
+rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+if rc_conf is None:
+    rc_conf = {}
 
 CPU_COUNT = kernel_opts("--init-threads", lambda x : int(x))
 CPU_COUNT = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
-USECOLOUR = get(None, rc_conf["USECOLOUR"], "")
+USECOLOUR = get(None, rc_conf, "USECOLOUR", "")
 
 os.putenv("USECOLOUR", USECOLOUR)
 
@@ -33,33 +31,50 @@ os.unsetenv("TZ")
 
 
 ### Run early local rc.multi scripts
-if os.access("£{ETC}/rc.local.early", os.F_OK | os.R_OK | os.X_OK):
-    Popen(["£{ETC}/rc.local.early"]).wait()
+try:
+    if os.access("£{ETC}/rc.local.early", os.F_OK | os.R_OK | os.X_OK):
+        Popen(["£{ETC}/rc.local.early"]).wait()
+except:
+    pass # TODO
 
 
 ### Start daemons
-cmd = ["daemond", "--cpus=%i" % CPU_COUNT, "--usecolour=" + USECOLOUR, "--"]
-legacy_daemons = sh_lex("£{ETC}/rc.conf")
-legacy_daemons = legacy_daemons["DAEMONS"] if "DAEMONS" in legacy_daemons else None
-if (legacy_daemons is not None) and isinstance(legacy_daemons, str):
-    legacy_daemons = legacy_daemons.split(" ")
-cmd += legacy_daemons
-Popen(cmd).wait()
+try:
+    cmd = ["daemond", "--cpus=%i" % CPU_COUNT, "--usecolour=" + USECOLOUR, "--"]
+    legacy_daemons = sh_lex("£{ETC}/rc.conf")
+    legacy_daemons = legacy_daemons["DAEMONS"] if "DAEMONS" in legacy_daemons else None
+    if (legacy_daemons is not None) and isinstance(legacy_daemons, str):
+        legacy_daemons = legacy_daemons.split(" ")
+    cmd += legacy_daemons
+    popen(cmd).wait()
+except:
+    pass # TODO
 
 
 ### Run late local rc.multi scripts
-if os.access("£{ETC}/rc.local", os.F_OK | os.R_OK | os.X_OK):
-    Popen(["£{ETC}/rc.local"]).wait()
+try:
+    if os.access("£{ETC}/rc.local", os.F_OK | os.R_OK | os.X_OK):
+        Popen(["£{ETC}/rc.local"]).wait()
+except:
+    pass # TODO
 
 
 ### Stop boot logging
-if os.path.exists("£{RUN}/bootlogd.pid"):
-    with open("£{VAR_LOG}/boot", "a") as file:
-        file.flush()
-    with open("£{RUN}/bootlogd.pid", "r") as file:
-        os.kill(int(file.read().replace("\n", "")), signal.TERM)
-    os.remove("£{RUN}/bootlogd.pid")
+try:
+    if os.path.exists("£{RUN}/bootlogd.pid"):
+        with open("£{VAR_LOG}/boot", "a") as file:
+            file.flush()
+        with open("£{RUN}/bootlogd.pid", "r") as file:
+            os.kill(int(file.read().replace("\n", "")), signal.SIGTERM)
+        os.remove("£{RUN}/bootlogd.pid")
+except:
+    pass # TODO
+
 
 ### Remove /run/nologin
-os.remove("£{RUN}/nologin")
+try:
+    if os.path.exists("£{RUN}/nologin"):
+        os.remove("£{RUN}/nologin")
+except:
+    pass # TODO
 

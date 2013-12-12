@@ -14,13 +14,15 @@ from rclexal import *
 _ = lambda *args : try_invoke(lambda : spawn(*args))
 
 
-rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+if rc_conf is None:
+    rc_conf = {}
 
 CPU_COUNT  = kernel_opts("--init-threads", lambda x : int(x))
 CPU_COUNT  = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
-TIMEZONE   = get(None, rc_conf["TIMEZONE"], "")
-USELVM     = get(None, rc_conf["USELVM"], "").lower() == "yes"
-USECOLOUR  = get(None, rc_conf["USECOLOUR"], "")
+TIMEZONE   = get(None, rc_conf, "TIMEZONE", "")
+USELVM     = get(None, rc_conf, "USELVM", "").lower() == "yes"
+USECOLOUR  = get(None, rc_conf, "USECOLOUR", "")
 
 
 

@@ -28,34 +28,52 @@ def spawn(*args):
     return proc.returncode == 0
 
 
-def spawn_(*args):
+def spawn_(*args, with_stderr = True):
     '''
     Spawn a subprocess an wait for it to exit, but suppress stdout
     
-    @param   args  The command line arguments
-    @return        Whether the process was successful
+    @param   args         The command line arguments
+    @param   with_stderr  Whether to not suppres stderr
+    @return               Whether the process was successful
     '''
-    proc = Popen(list(args), stdout = PIPE)
+    proc = None
+    if with_stderr:
+        proc = Popen(list(args), stdout = PIPE)
+    else:
+        proc = Popen(list(args), stdout = PIPE, stderr = PIPE)
     proc.wait()
     return proc.returncode == 0
 
 
-def get(variable, value_lambda, default = None):
+def get(variable, arg1 = None, arg2 = None, arg3 = None):
     '''
     Get the proper value for a variable
     
     @param   variable      The current value of the variable
-    @param   value_lambda  Function for getting the proper value for the variable
-    @param   default       Fallback value
+    @param   arg1          Function for getting the proper value for the variable
+    @param   arg2          Fallback value
+    
+    -- OR --
+    
+    @param   variable      The current value of the variable
+    @param   arg1          Table of variable values
+    @param   arg2          Name of key to use in the table
+    @param   arg3          Fallback value
+    
     @return                The proper value for the variable
     '''
-    if default is None:
-        return variable if variable is not None else value_lambda()
+    if variable is not None:
+        return variable
+    if not isinstance(arg1, dict):
+        if arg2 is None:
+            return arg1()
+        else:
+            try:
+                return arg1()
+            except:
+                return arg2
     else:
-        try:
-            return variable if variable is not None else value_lambda()
-        except:
-            return default
+        return arg1[arg2] if arg2 in arg1 else arg3
 
 
 def mount(vfstype, device, directory, options, attempt_automount = False):
@@ -68,7 +86,7 @@ def mount(vfstype, device, directory, options, attempt_automount = False):
     @param  options            Mount options
     @param  attempt_automount  Try to use fstab to mount
     '''
-    if attempt_automount and spawn_("mount", directory):
+    if attempt_automount and spawn_("mount", directory, with_stderr = False):
         return
     os.path.exists(directory) or os.makedirs(directory, mode = 0o777, exist_ok = True)
     os.path.ismount(directory) or spawn("mount", "-t", vfstype, device, directory, "-o", options)
