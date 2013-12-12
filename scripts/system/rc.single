@@ -64,7 +64,7 @@ if not os.getenv("PREVLEVEL", "") == "N":
     
     devd_command = 'devd' if in_path('devd') else 'udevd'
     devadm_command = 'devadm' if in_path('devadm') else 'udevadm'
-    # You should really have symlinks named devd devadm to your device daemon and controller
+    # You should really have symlinks named devd and devadm to your device daemon and controller
     
     _(devd_command, "--daemon")
     _(devadm_command, "trigger", "--action=add", "--type=subsystems")
