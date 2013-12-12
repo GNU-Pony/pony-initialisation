@@ -416,7 +416,7 @@ _("swapon", "-a")
 
 if not TIMEZONE == "":
     zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
-    if not os.path.exists(zonefile)
+    if not os.path.exists(zonefile):
         pass ## TODO not a valid time zone
     elif not os.path.islink("£{ETC}/localtime"):
         if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
