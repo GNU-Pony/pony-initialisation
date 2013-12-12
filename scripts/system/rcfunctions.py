@@ -16,7 +16,7 @@ os.unsetenv("TZ")
 
 
 
-def _(*args):
+def spawn(*args):
     '''
     Spawn a subprocess an wait for it to exit
     
@@ -28,7 +28,7 @@ def _(*args):
     return proc.returncode == 0
 
 
-def __(*args):
+def spawn_(*args):
     '''
     Spawn a subprocess an wait for it to exit, but suppress stdout
     
@@ -68,10 +68,10 @@ def mount(vfstype, device, directory, options, attempt_automount = False):
     @param  options            Mount options
     @param  attempt_automount  Try to use fstab to mount
     '''
-    if attempt_automount and __("mount", directory):
+    if attempt_automount and spawn_("mount", directory):
         return
     os.path.exists(directory) or os.makedirs(directory, mode = 0o777, exist_ok = True)
-    os.path.ismount(directory) or _("mount", "-t", vfstype, device, directory, "-o", options)
+    os.path.ismount(directory) or spawn("mount", "-t", vfstype, device, directory, "-o", options)
 
 
 def umount_all(*types):
@@ -90,7 +90,7 @@ def umount_all(*types):
     for mount_point in mounts:
         if len(mount_point) == 0:
             continue
-        (target, fstype, options) = mount_poiny.split(" ")
+        (target, fstype, options) = mount_point.split(" ")
         
         # Match only targeted filesystem types
         if (types is not None) and (fstype not in types):
@@ -107,7 +107,7 @@ def umount_all(*types):
         umounts.append(target)
     
     if len(umounts) > 0:
-        _("umount", "-r", *reversed(target))
+        spawn("umount", "-r", *reversed(target))
 
 
 def try_invoke(function):

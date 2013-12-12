@@ -11,6 +11,7 @@ from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
+_ = spawn
 
 
 rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))

@@ -11,6 +11,8 @@ from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
+_ = spawn
+__ = spawn_
 
 
 NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.glusterfs"
