@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
-_ = spawn
+_ = lambda *args : try_invoke(lambda : spawn(*args))
 
 
 rc_conf    = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
@@ -58,29 +58,36 @@ random_seed = "£{VAR_LIB}/£{MISC}/random-seed"
 pool_file = "£{PROC}/sys/kernel/random/poolsize"
 pool_size = 512
 
-os.makedirs("£{VAR_LIB}/£{MISC}", mode = 0o755, exists_ok = True)
-with open(random_seed, "x") as file:
-    file.flush()
-
-if os.access(pool_file, os.F_OK | os.R_OK):
-    with open(pool_file, "r") as file:
-        pool_size = int(file.read().replace("\n", "")) // 8
-    with open("£{DEV}/urandom", "rb") as ifile:
-        with open(random_seed, "wb") as ofile:
-            ofile.write(ifile.read(pool_size))
-            ofile.flush()
+try:
+    os.makedirs("£{VAR_LIB}/£{MISC}", mode = 0o755, exist_ok = True)
+    with open(random_seed, "w") as file:
+        file.flush()
+    os.chmod(random_seed, 0o600)
+    
+    if os.access(pool_file, os.F_OK | os.R_OK):
+        with open(pool_file, "r") as file:
+            pool_size = int(file.read().replace("\n", "")) // 8
+        with open("£{DEV}/urandom", "rb") as ifile:
+            with open(random_seed, "wb") as ofile:
+                ofile.write(ifile.read(pool_size))
+                ofile.flush()
+except:
+    pass # TODO
 
 
 ### Configure time zone
 
-if not TIMEZONE == "":
-    zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
-    if not os.path.exists(zonefile):
-        pass ## TODO not a valid time zone
-    elif not os.path.islink("£{ETC}/localtime"):
-        if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
-            os.remove("£{ETC}/localtime")
-            os.unlink(zonefile, "£{ETC}/localtime")
+try:
+    if not TIMEZONE == "":
+        zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
+        if not os.path.exists(zonefile):
+            pass ## TODO not a valid time zone
+        elif not os.path.islink("£{ETC}/localtime"):
+            if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
+                os.remove("£{ETC}/localtime")
+                os.unlink(zonefile, "£{ETC}/localtime")
+except:
+    pass # TODO
 
 
 
@@ -193,7 +200,7 @@ if os.access("£{RUN}/initramfs/shutdown", os.F_OK | os.R_OK | os.X_OK):
     if not os.path.exists("/oldroot"):
         os.mkdir("/oldroot")
     for mount_point in ["£{SYS}", "£{PROC}", "£{DEV}", "£{RUN}"]:
-        os.makedirs("£{RUN}/initramfs" + mount_point, exists_ok = True)
+        os.makedirs("£{RUN}/initramfs" + mount_point, exist_ok = True)
         _("mount", "--bind", mount_point, "£{RUN}/initramfs" + mount_point)
     
     ### Enter shutdownramfs
@@ -217,7 +224,7 @@ else:
     _("mount", "-o", "remount,ro", "/")
 
     ### Power off or reboot
-    if os.genenv("RUNLEVEL", "") == "0":
+    if os.getenv("RUNLEVEL", "") == "0":
         _("poweroff", "-d", "-f", "-h", "-i")
     else:
         # If kexec is installed and a kernel is loaded, use it

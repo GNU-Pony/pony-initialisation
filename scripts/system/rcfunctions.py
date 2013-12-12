@@ -82,7 +82,7 @@ def umount_all(*types):
     '''
     proc = ["findmnt", "-mrunRo", "TARGET,FSTYPE,OPTIONS", "/"]
     proc = Popen(proc, stdout = PIPE)
-    mounts = proc.communicate()[0].split("\n")
+    mounts = proc.communicate()[0].decode("utf-8", "replace").split("\n")
     types = None if len(types) == 0 else set(types)
     API_MOUNT_POINTS = set(["£{PROC}", "£{SYS}", "£{RUN}", "£{DEV}", "£{DEV_PTS}"])
     umounts = []
@@ -107,7 +107,7 @@ def umount_all(*types):
         umounts.append(target)
     
     if len(umounts) > 0:
-        spawn("umount", "-r", *reversed(target))
+        spawn("umount", "-r", "--", *reversed(umounts))
 
 
 def try_invoke(function):
