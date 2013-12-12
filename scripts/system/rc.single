@@ -17,9 +17,12 @@ def _(*args):
     @param   args  The command line arguments
     @return        Whether the process was successful
     '''
-    proc = Popen(list(args))
-    proc.wait()
-    return proc.returncode == 0
+    try:
+        proc = Popen(list(args))
+        proc.wait()
+        return proc.returncode == 0
+    except:
+        return False
 
 
 def __(*args):
@@ -27,7 +30,7 @@ def __(*args):
     Spawn a subprocess, but suppress stdout and stderr
     
     @param   args  The command line arguments
-    @return        Whether the process
+    @return        The process
     '''
     return Popen(list(args), stdout = PIPE, stderr = PIPE)
 
@@ -40,7 +43,10 @@ if not os.getenv("PREVLEVEL", "") == "N":
     
     ### Try to terminate all process, then kill them
     def kill_all_wait(sig, iterations):
-        __("killall5", "-" + str(sig)).wait()
+        try:
+            __("killall5", "-" + str(sig)).wait()
+        except:
+            return False
         for _ in range(iterations):
             time.sleep(0.25)
             proc = _("killall5", "-" + str(signal.SIGCONT))
@@ -87,5 +93,5 @@ if os.path.exists("£{RUN}/bootlogd.pid"):
 ### Switch runlevel
 if os.getenv("RUNLEVEL", "") == "1":
     os.kill(1, signal.SIGHUP)
-    os.execv("£{SBIN}/init", "init", "-t1", "S")
+    os.execl("£{SBIN}/init", "init", "-t1", "S")
 

@@ -11,7 +11,11 @@ from subprocess import Popen, PIPE
 from rclexal import *
 
 
-rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
+rc_conf = None
+try:
+    rc_conf = sh_lex("£{ETC}/rc.conf")
+except:
+    pass # instead of loading the entire rcfunctions for only try_invoke
 
 CPU_COUNT = kernel_opts("--init-threads", lambda x : int(x))
 CPU_COUNT = get(CPU_COUNT, lambda : len(os.listdir("£{SYS}/bus/cpu/devices")), 4)
