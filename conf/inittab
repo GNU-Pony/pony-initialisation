@@ -1,3 +1,4 @@
+# -*- conf -*-
 # This is file is used by sysvinit to determine how to initialise
 # the system after initramfs's early initialisation.
 # 
