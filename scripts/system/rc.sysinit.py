@@ -77,6 +77,8 @@ mount("tmpfs",    "run",    "£{RUN}",     "mode=0755,nosuid,nodev")
 mount("devtmpfs", "dev",    "£{DEV}",     "mode=0755,nosuid")
 mount("devpts",   "devpts", "£{DEV_PTS}", "mode=0620,gid=5,nosuid,noexec", True)
 mount("tmpfs",    "shm",    "£{DEV_SHM}", "mode=1777,nosuid,nodev",        True)
+try_invoke(lambda : os.makedirs("£{DEV}/mqueue",    mode = 0o755, exist_ok = True))
+try_invoke(lambda : os.makedirs("£{DEV}/hugepages", mode = 0o755, exist_ok = True))
 
 
 
