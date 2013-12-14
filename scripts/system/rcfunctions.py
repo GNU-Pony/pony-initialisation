@@ -28,6 +28,9 @@ def async(function):
     thread.setDaemon(False)
     thread.start()
     return thread
+    # TODO it should be possbile to boot with asynchronously calls,
+    #      in which case this functions should just invoke `function`
+    #      and return a object with a noop `join([timeout])` function.
 
 
 def spawn(*args):
