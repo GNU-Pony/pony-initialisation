@@ -76,7 +76,9 @@ if not os.getenv("PREVLEVEL", "") == "N":
     _(devadm_command, "trigger", "--action=add", "--type=subsystems")
     _(devadm_command, "trigger", "--action=add", "--type=devices")
     
-    _("modprobe", "-ab", *list(filter(lambda module : not module.startswith("!"), MODULES)))
+    whitelisted_modules = list(filter(lambda module : not module.startswith("!"), MODULES))
+    if len(whitelisted_modules) > 0:
+        _("modprobe", "-ab", *whitelisted_modules)
     
     _(devadm_command, "settle")
 
