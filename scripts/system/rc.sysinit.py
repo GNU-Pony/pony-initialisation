@@ -71,20 +71,23 @@ print()
 
 ### Mount the API filesystems
 
-mount("proc",     "proc",   "£{PROC}",    "nosuid,noexec,nodev")
-mount("sysfs",    "sys",    "£{SYS}",     "nosuid,noexec,nodev")
-mount("tmpfs",    "run",    "£{RUN}",     "mode=0755,nosuid,nodev")
-mount("devtmpfs", "dev",    "£{DEV}",     "mode=0755,nosuid")
-mount("devpts",   "devpts", "£{DEV_PTS}", "mode=0620,gid=5,nosuid,noexec", True)
-mount("tmpfs",    "shm",    "£{DEV_SHM}", "mode=1777,nosuid,nodev",        True)
-try_invoke(lambda : os.makedirs("£{DEV}/mqueue",    mode = 0o755, exist_ok = True))
-try_invoke(lambda : os.makedirs("£{DEV}/hugepages", mode = 0o755, exist_ok = True))
+def mount_dev():
+    mount("devtmpfs", "dev", "£{DEV}", "mode=0755,nosuid")
+    try_invoke(lambda : os.makedirs("£{DEV}/mqueue",    mode = 0o755, exist_ok = True))
+    try_invoke(lambda : os.makedirs("£{DEV}/hugepages", mode = 0o755, exist_ok = True))
+t1 = async(mount_dev)
+t2 = async(lambda : mount("tmpfs",  "run",    "£{RUN}",     "mode=0755,nosuid,nodev"))
+t3 = async(lambda : mount("proc",   "proc",   "£{PROC}",    "nosuid,noexec,nodev"))
+t4 = async(lambda : mount("sysfs",  "sys",    "£{SYS}",     "nosuid,noexec,nodev"))
+t5 = async(lambda : mount("devpts", "devpts", "£{DEV_PTS}", "mode=0620,gid=5,nosuid,noexec", True))
+t6 = async(lambda : mount("tmpfs",  "shm",    "£{DEV_SHM}", "mode=1777,nosuid,nodev",        True))
 
 
 
 ### Ensure that / is readonly to allow `fsck` (requires /run)
 # We remount now so remount is not blocked by anything opening a file for writing
 
+t2.join()
 if not os.path.exists("£{RUN}/initramfs/root-fsck"):
     __("findmnt", "/", "--options", "ro") or _("mount", "-o", "remount,ro", "/")
 
@@ -92,6 +95,8 @@ if not os.path.exists("£{RUN}/initramfs/root-fsck"):
 
 ### Log all console messages (requires /proc /run /dev)
 
+t1.join()
+t3.join()
 _("bootlogd", "-p", "£{RUN}/bootlogd.pid")
 
 
@@ -108,7 +113,7 @@ if not HOSTNAME == "":
 
 
 
-### Adjust system time and setting kernel time zone
+### Adjust system time and setting kernel time zone (requires /dev?)
 
 hwclock_args = ["hwclock", "--systz"]
 
@@ -148,6 +153,7 @@ if hwclock_args is not None:
 
 ### Start/trigger udev, load MODULES, and settle udev (requires /dev, /sys, /run)
 
+t4.join()
 if not isinstance(MODULES, str):
     blacklist = list(filter(lambda module : module.startswith("!"), MODULES))
     if len(blacklist) > 0:
@@ -197,19 +203,22 @@ with open("£{SYS}/module/vt/parameters/default_utf8", "wb") as file:
 
 ### Set console font (requires vcon)
 
-if (not CONSOLEMAP == "") and ('UTF' in LOCALE.upper()):
-    CONSOLEMAP = "" # CONSOLEMAP in UTF-8 shouldn't be used
-for tty in get_vts():
-    if not CONSOLEMAP == "":
-        __("setfont", "-m", CONSOLEMAP, CONSOLEFONT, "-C", tty)
-    else:
-        __("setfont", CONSOLEFONT, "-C", tty)
+def console_font():
+    global CONSOLEMAP
+    if (not CONSOLEMAP == "") and ('UTF' in LOCALE.upper()):
+        CONSOLEMAP = "" # CONSOLEMAP in UTF-8 shouldn't be used
+    for tty in get_vts():
+        if not CONSOLEMAP == "":
+            __("setfont", "-m", CONSOLEMAP, CONSOLEFONT, "-C", tty)
+        else:
+            __("setfont", CONSOLEFONT, "-C", tty)
+t7 = async(console_font)
 
 
 
 ### Set keymap (requires vcon)
 
-_("loadkeys", "-q", KEYMAP)
+t8 = async(lambda : _("loadkeys", "-q", KEYMAP))
 
 
 
@@ -342,7 +351,7 @@ if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
 
 
 
-### Check filesystems (after crypt, requires /dev, devd)
+### Check filesystems (after crypt, requires /dev, devd, /run, /proc)
 ### Single-user login and/or automatic reboot if needed
 
 fsckret = 0
@@ -410,36 +419,52 @@ _("mount", "-a", "-t", "no" + NETFS.replace(",", ",no"), "-O", "no_netdev")
 
 
 
+### Activating swap (requires mount)
+
+t9 = async(lambda : _("swapon", "-a"))
+
+
+
 ### Activate monitoring of LVM groups (requires mount)
 
-if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
-    __("vgchange", "--monitor", "y")
-
-
-
-### Activating swap (requires remount)
-
-_("swapon", "-a")
+def lvm_monitor():
+    if USELVM and in_path("lwm") and os.path.exists("£{SYS}/block"):
+        __("vgchange", "--monitor", "y")
+    t5.join()
+    t6.join()
+t10 = async(lvm_monitor)
 
 
 
 ### Configuring time zone (requires mount)
 
-try:
-    if not TIMEZONE == "":
-        zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
-        if not os.path.exists(zonefile):
-            pass ## TODO not a valid time zone
-        elif not os.path.islink("£{ETC}/localtime"):
-            if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
-                os.remove("£{ETC}/localtime")
-                os.unlink(zonefile, "£{ETC}/localtime")
-except:
-    pass # TODO
+def time_zone():
+    try:
+        if not TIMEZONE == "":
+            zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
+            if not os.path.exists(zonefile):
+                pass ## TODO not a valid time zone
+            elif not os.path.islink("£{ETC}/localtime"):
+                if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
+                    os.remove("£{ETC}/localtime")
+                    os.unlink(zonefile, "£{ETC}/localtime")
+    except:
+        pass # TODO
+    t7.join()
+    t8.join()
+t11 = async(time_zone)
 
 
 
-### Initialising random seed
+### Join with remaining threads
+
+t9.join()
+t10.join() # joins with t5 and t6
+t11.join() # joins with t7 and t8
+
+
+
+### Initialising random seed (next to last)
 
 try:
     with open("£{VAR_LIB}/£{MISC}/random-seed", "rb") as rfile:

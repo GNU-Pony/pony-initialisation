@@ -129,21 +129,21 @@ kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60)
 
 
 
-## Unmount swap-backed filesystems
-
-# Unmount any non-API partitions that are backed by swap; we don't want to
-# move their contents into memory (waste of time and might cause OOM).
-
-umount_all("tmpfs")
-
-
-
 ### Deactivate swap
 
 # Almost everything is dead now, so the swap should hopefully be relatively
 # empty, and quick to switch off.
 
 _("swapoff", "-a")
+
+
+
+## Unmount swap-backed filesystems
+
+# Unmount any non-API partitions that are backed by swap; we don't want to
+# move their contents into memory (waste of time and might cause OOM).
+
+umount_all("tmpfs")
 
 
 

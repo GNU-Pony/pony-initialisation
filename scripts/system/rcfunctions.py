@@ -6,6 +6,7 @@
 
 import os
 from subprocess import Popen, PIPE
+from threading import Thread
 
 
 ### Sanitize PATH (will be overridden later by £{ETC}/profile)
@@ -14,6 +15,19 @@ os.putenv("PATH", "£{LOCAL}£{SBIN}:£{LOCAL}£{BIN}:£{USR}£{SBIN}:£{USR}£{
 ### Clear TZ, so daemons always respect £{ETC}/localtime
 os.unsetenv("TZ")
 
+
+
+def async(function):
+    '''
+    Start a function asynchronously
+    
+    @param   function  The function to invoke
+    @return            The created thread, it has a function `join(timeout = None)` for joining with it
+    '''
+    thread = Thread(target = function)
+    thread.setDaemon(False)
+    thread.start()
+    return thread
 
 
 def spawn(*args):
