@@ -58,7 +58,7 @@ if not PRETTY_NAME == "":
     if not ANSI_COLOR == "":
         print('\033[%sm%s\033[00m' % (ANSI_COLOR, PRETTY_NAME))
     else:
-        print(PRETTY_NAME)
+q        print(PRETTY_NAME)
 if not HOME_URL == "":
     if (not ANSI_COLOR == "") and (PRETTY_NAME == ""):
         print('\033[%sm%s\033[00m' % (ANSI_COLOR, HOME_URL))
@@ -182,12 +182,12 @@ _(devadm_command, "settle")
 
 ### Configuring virtual consoles (requires devd (for KMS), /dev, /sys)
 
-kbd_mode, tty_echo, vt_param = "-a", b"\033%@\n", b"0\n"
+kbd_mode, tty_echo, vt_param = "-a", b"\033%@", b"0\n"
 if 'UTF' in os.getenv("LANG").upper(): # UTF-8 mode
     # UTF-8 consoles are default since 2.6.24 kernel
     # this code is needed not only for older kernels,
     # but also when user has set vt.default_utf8=0 but LOCALE is *.UTF-8.
-    kbd_mode, tty_echo, vt_param = "-u", b"\033%G\n", b"1\n"
+    kbd_mode, tty_echo, vt_param = "-u", b"\033%G", b"1\n"
 # (otherwise) legacy mode: Make non-UTF-8 consoles work on 2.6.24 and newer kernels.
 
 for tty in get_vts():
