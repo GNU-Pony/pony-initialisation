@@ -28,7 +28,7 @@ from rcfunctions import *
 from rclexal import *
 _ = spawn(*args)
 __ = spawn_(*args)
-def _try(function):
+def try_(function):
     try:
         function()
         return True
@@ -136,7 +136,7 @@ t2.join()
 _working()
 try:
     if not os.path.exists("£{RUN}/initramfs/root-fsck"):
-        _try(lambda : __("findmnt", "/", "--options", "ro")) or _("mount", "-o", "remount,ro", "/")
+        try_(lambda : __("findmnt", "/", "--options", "ro")) or _("mount", "-o", "remount,ro", "/")
     _done()
 except:
     _failure()
@@ -511,8 +511,8 @@ try:
             _singular('Single user login')
             _("sulogin", "-p")
         print("Automatic reboot in progress...")
-        _try(_("umount", "-a"))
-        _try(_("mount", "-o", "remount,ro", "/"))
+        try_(lambda : _("umount", "-a"))
+        try_(lambda : _("mount", "-o", "remount,ro", "/"))
         _singular('Reboot')
         _("reboot", "-f")
         sys.exit(0)
