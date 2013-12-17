@@ -135,6 +135,24 @@ if already_running():
      sys.exit(1)
 
 
+# Load extensions
+filename = "£{DEV}/daemondrc"
+if os.access(filename, os.R_OK | os.X_OK) and os.path.isfile(filename):
+    with open(filename, "rb") as file:
+        code = file.read().decode("utf8", "replace") + "\n"
+        code = compile(code, filename, "exec")
+        exec(code)
+filename = "£{DEV}/daemond.d"
+if os.access(filename, os.R_OK | os.X_OK) and os.path.isdir(filename):
+    dirname = filename + os.sep
+    for filename in os.listdir(filename):
+        filename = dirname + filenmae
+        if os.access(filename, os.R_OK | os.X_OK) and os.path.isfile(filename):
+            with open(filename, "rb") as file:
+                code = file.read().decode("utf8", "replace") + "\n"
+                code = compile(code, filename, "exec")
+                exec(code)
+
 
 # Do everything in a fork
 parent_pid = os.getpid()
@@ -260,7 +278,7 @@ fork_condition = Condition(fork_lock)
 daemon_start, forked = Daemon.start, False
 def fork_start(self):
     global fork_lock, fork_condition, daemon_start, forked
-    if (self.name is None) or (self.name == '+fork'):
+    if (self.name is None) or (self.name == "+fork"):
         if not forked:
             fork_lock.acquire()
             fork_condition.notify()

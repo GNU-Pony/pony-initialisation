@@ -65,7 +65,7 @@ class Daemon():
         if output is None:
             index = print_starting(message)
             try:
-                r = pipe(args, stdout = printer_pipe, stderr = printer_pipe, silent = self.silence)
+                r = start(self, lambda : pipe(args, stdout = printer_pipe, stderr = printer_pipe, silent = self.silence))
                 if r[1] == 0:
                     print_successful(message, index)
                     return True
@@ -74,10 +74,20 @@ class Daemon():
                 return False
         else:
             try:
-                r = pipe(args, stdout = printer_pipe, stderr = output, silent = self.silence)
+                r = start(self, lambda : pipe(args, stdout = printer_pipe, stderr = output, silent = self.silence))
                 return r[1] == 0
             except:
                 return False
+    
+    
+    def start_(self, function):
+        '''
+        Method called by `start` to start a process
+        
+        @param   function:()→(output:str?, returncode:int)  Function that starts the process
+        @return  (output:str?, returncode:int)              The output of the pipeline and the highest returned return code
+        '''
+        return function()
     
     
     def __str__(self):
