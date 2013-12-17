@@ -28,12 +28,6 @@ from rcfunctions import *
 from rclexal import *
 _ = spawn(*args)
 __ = spawn_(*args)
-def try_(function):
-    try:
-        function()
-        return True
-    except:
-        return False
 def do(function):
     _working()
     try:

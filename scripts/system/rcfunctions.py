@@ -158,6 +158,20 @@ def try_invoke(function):
         return None
 
 
+def try_(function):
+    '''
+    Invoke a function and return whether it did not throw an exception
+    
+    @param   function  The function to run
+    @return            Whether it did not throw an exception
+    '''
+    try:
+        function()
+        return True
+    except:
+        return False
+
+
 def in_path(command):
     '''
     Check whether a command exists inside PATH
