@@ -4,6 +4,8 @@
 # System shutdown script
 #
 
+### Load libraries
+
 import os
 import time
 import signal
@@ -13,6 +15,9 @@ from rcfunctions import *
 from rclexal import *
 _ = lambda *args : try_invoke(lambda : spawn(*args))
 
+
+
+### Load variables
 
 rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
 if rc_conf is None:

@@ -4,6 +4,8 @@
 # Common system initialisation script
 #
 
+### Load libraries
+
 import os
 import sys
 import time
@@ -14,6 +16,9 @@ from rclexal import *
 _ = lambda *args : try_invoke(lambda : spawn(*args))
 __ = lambda *args : try_invoke(lambda : spawn_(*args))
 
+
+
+### Load variables
 
 NETFS = "nfs,nfs4,smbfs,cifs,codafs,ncpfs,shfs,fuse,fuseblk,glusterfs,davfs,fuse.glusterfs"
 

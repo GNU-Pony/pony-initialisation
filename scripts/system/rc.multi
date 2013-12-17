@@ -4,12 +4,18 @@
 # Multi-user start-up script
 #
 
+### Load libraries
+
 import os
 import signal
 from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
+
+
+
+### Load variables
 
 rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
 if rc_conf is None:
