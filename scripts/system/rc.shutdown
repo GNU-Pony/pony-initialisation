@@ -6,6 +6,9 @@
 
 ### Load libraries
 
+_msg = 'Load libraries'
+_working()
+
 import os
 import time
 import signal
@@ -13,11 +16,29 @@ from subprocess import Popen, PIPE
 
 from rcfunctions import *
 from rclexal import *
-_ = lambda *args : try_invoke(lambda : spawn(*args))
+_ = spawn(*args)
+def do(function):
+    _working()
+    try:
+        function()
+        _done()
+    except:
+        _failure()
+
+_done()
+
+
+
+### Avoid staircase effect
+
+_("stty", "onlcr")
 
 
 
 ### Load variables
+
+_msg = 'Load variables'
+_working()
 
 rc_conf = try_invoke(lambda : sh_lex("£{ETC}/rc.conf"))
 if rc_conf is None:
@@ -29,37 +50,36 @@ TIMEZONE   = get(None, rc_conf, "TIMEZONE", "")
 USELVM     = get(None, rc_conf, "USELVM", "").lower() == "yes"
 USECOLOUR  = get(None, rc_conf, "USECOLOUR", "")
 
-
-
-
-### Avoid staircase effect
-
-_("stty", "onlcr")
+_done()
 
 
 
 ### Print want is happening
 
 print("")
-print("Initiating shutdown...")
+_singular("Initiating shutdown...")
 print("")
 
 
 
 ### Run local rc.shutdown scripts
 
-if os.access("£{ETC}/rc.local.shutdown", os.F_OK | os.R_OK | os.X_OK):
-    _("£{ETC}/rc.local.shutdown")
+_msg = 'Run local rc.shutdown scripts'
+do(lambda : os.access("£{ETC}/rc.local.shutdown", os.F_OK | os.R_OK | os.X_OK) and _("£{ETC}/rc.local.shutdown"))
 
 
 
 ### Stop all daemons
 
-_("daemond", "stop-all", "--usecolours=" + USECOLOUR)
+_msg = Stop all daemons
+do(lambda : _("daemond", "stop-all", "--usecolours=" + USECOLOUR))
 
 
 
 ### Save random seed
+
+_msg = 'Save random seed'
+_working()
 
 random_seed = "£{VAR_LIB}/£{MISC}/random-seed"
 pool_file = "£{PROC}/sys/kernel/random/poolsize"
@@ -78,59 +98,74 @@ try:
             with open(random_seed, "wb") as ofile:
                 ofile.write(ifile.read(pool_size))
                 ofile.flush()
+    
+    _done()
 except:
-    pass # TODO
+    _failure()
 
 
 ### Configure time zone
 
+_msg = 'Configure time zone'
+_working()
 try:
     if not TIMEZONE == "":
         zonefile = "£{USR}£{SHARE}/zoneinfo/" + TIMEZONE
         if not os.path.exists(zonefile):
-            pass ## TODO not a valid time zone
+            print('Invalid time zone specified in £{ETC}/rc.conf')
+            _failure('Configure time zone')
         elif not os.path.islink("£{ETC}/localtime"):
             if os.path.realpath("£{ETC}/localtime") != os.path.realpath(zonefile):
                 os.remove("£{ETC}/localtime")
                 os.unlink(zonefile, "£{ETC}/localtime")
+            _done()
+    else:
+        _done()
 except:
-    pass # TODO
+    _failure()
 
 
 
 ### Write to wtmp file before unmounting
 
-_("halt", "-w")
+_msg = 'Write to wtmp file'
+do(lambda : _("halt", "-w"))
 
 
 
 ### Deactivate monitoring of LVM groups
 
-if USELVM and in_path("lwm"):
-    _("vgchange", "--monitor", "n")
+_msg = 'Deactivate monitoring of LVM groups'
+do(lambda : USELVM and in_path("lwm") and _("vgchange", "--monitor", "n"))
 
 
 
 ### Any future uevents can and should be ignored: shutting down devd
 
-_('devadm' if in_path('devadm') else 'udevadm', "control", "--exit")
+_msg = 'Shut down devd'
+do(lambda : _('devadm' if in_path('devadm') else 'udevadm', "control", "--exit"))
 # You should really have a symlink named devadm to your device controller
 
 
 
 ### Try to terminate all process, then kill them
 
-def kill_all_wait(sig, iterations):
-    Popen(["killall5", "-" + str(sig)], stdout = PIPE, stderr = PIPE).wait()
-    for _ in range(iterations):
-        time.sleep(0.25)
-        proc = Popen(["killall5", "-" + str(signal.SIGCONT)])
-        proc.wait()
-        if proc.returncode == 2:
-            return True
-    return False
-
-kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60)
+_msg = 'Terminate all process'
+_working()
+try:
+    def kill_all_wait(sig, iterations):
+        Popen(["killall5", "-" + str(sig)], stdout = PIPE, stderr = PIPE).wait()
+        for _ in range(iterations):
+            time.sleep(0.25)
+            proc = Popen(["killall5", "-" + str(signal.SIGCONT)])
+            proc.wait()
+            if proc.returncode == 2:
+                return True
+        return False
+    
+    (kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60) or _failure()) and _done()
+except:
+    _failure()
 
 
 
@@ -139,7 +174,8 @@ kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60)
 # Almost everything is dead now, so the swap should hopefully be relatively
 # empty, and quick to switch off.
 
-_("swapoff", "-a")
+_msg = 'Deactivate swap'
+do(lambda : _("swapoff", "-a"))
 
 
 
@@ -148,13 +184,15 @@ _("swapoff", "-a")
 # Unmount any non-API partitions that are backed by swap; we don't want to
 # move their contents into memory (waste of time and might cause OOM).
 
-umount_all("tmpfs")
+_msg = 'Unmount swap-backed filesystems'
+do(lambda : umount_all("tmpfs"))
 
 
 
 ### Unmount non-API filesystems
 
-umount_all()
+_msg = 'Unmount non-API filesystems'
+do(lambda : umount_all())
 
 
 
@@ -163,29 +201,37 @@ umount_all()
 if os.path.exists("£{ETC}/crypttab") and in_path("cryptsetup"):
     # Maybe somepony has LVM on an encrypted block device
     # executing an extra vgchange is errorless
-    if USELVM:
-        Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait()
+    _msg = 'Deactivating LVM groups'
+    do(lambda : USELVM and Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait())
     
-    crypttab, failed = None, False
-    with open("£{ETC}/crypttab", "rb") as file:
-        crypttab = file.read()
-    crypttab = sh_tab(crypttab.decode("utf-8", "replace"), 4)
-    crypttab = [e[:3] + [" ".join(e[3:])] for e in crypttab]
-    for (name, _device, _password, _options) in crypttab:
-        # Detaching encrypted device
-        Popen(["cryptsetup", "remove", name], stdout = PIPE, stderr = PIPE).wait()
+    _msg = 'Kill non-root encrypted partition mappings'
+    _working()
+    try:
+        crypttab, failed = None, False
+        with open("£{ETC}/crypttab", "rb") as file:
+            crypttab = file.read()
+        crypttab = sh_tab(crypttab.decode("utf-8", "replace"), 4)
+        crypttab = [e[:3] + [" ".join(e[3:])] for e in crypttab]
+        for (name, _device, _password, _options) in crypttab:
+            # Detaching encrypted device
+            Popen(["cryptsetup", "remove", name], stdout = PIPE, stderr = PIPE).wait()
+        _done()
+    except:
+        _failure()
 
 
 
 ### Deactivating LVM groups
 
-if USELVM and in_path("lvm"):
-    Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait()
+_msg = 'Deactivating LVM groups'
+do(lambda : USELVM and in_path("lvm") and Popen(["vgchange", "--sysinit", "-a", "n"], stdout = PIPE, stderr = PIPE).wait())
 
 
 
 if os.access("£{RUN}/initramfs/shutdown", os.F_OK | os.R_OK | os.X_OK):
     ### Decide what we want to do
+    _msg = 'Decide what we want to do'
+    _working()
     action = "poweroff"
     if os.getenv("RUNLEVEL", "") == "0":
         action = "reboot"
@@ -195,47 +241,77 @@ if os.access("£{RUN}/initramfs/shutdown", os.F_OK | os.R_OK | os.X_OK):
                     action = "kexec"
         except:
             pass
+    _done()
     
     ### Make /run/initramfs a mount
-    _("mount", "--bind", "£{RUN}/initramfs", "£{RUN}/initramfs")
+    _msg = 'Make /run/initramfs a mount'
+    do(lambda : _("mount", "--bind", "£{RUN}/initramfs", "£{RUN}/initramfs"))
     
     ### In case somepony has shared our mountpoints, unshare them
-    _("mount", "--make-private", "£{RUN}/initramfs")
-    _("mount", "--make-private", "/")
+    _msg  'Unshared mountpoints'
+    _working()
+    try_invoke(_("mount", "--make-private", "£{RUN}/initramfs"))
+    try_invoke(_("mount", "--make-private", "/"))
+    _done()
     
     ### Bind all API mounts
-    if not os.path.exists("/oldroot"):
-        os.mkdir("/oldroot")
-    for mount_point in ["£{SYS}", "£{PROC}", "£{DEV}", "£{RUN}"]:
-        os.makedirs("£{RUN}/initramfs" + mount_point, exist_ok = True)
-        _("mount", "--bind", mount_point, "£{RUN}/initramfs" + mount_point)
+    _msg = 'Bind all API mounts'
+    _working()
+    try:
+        all_mounted = True
+        if not os.path.exists("/oldroot"):
+            os.mkdir("/oldroot")
+        for mount_point in ["£{SYS}", "£{PROC}", "£{DEV}", "£{RUN}"]:
+            os.makedirs("£{RUN}/initramfs" + mount_point, exist_ok = True)
+            try:
+                _("mount", "--bind", mount_point, "£{RUN}/initramfs" + mount_point)
+            except:
+                all_mounted = False
+        (all_mounted and _done()) or _failure()
+    except:
+        _failure()
     
     ### Enter shutdownramfs
-    os.chdir("£{RUN}/initramfs")
-    _("pivot_root", ".", "oldroot")
+    _msg = 'Enter shutdownramfs'
+    _working()
+    try:
+        os.chdir("£{RUN}/initramfs")
+        _("pivot_root", ".", "oldroot")
+        _done()
+    except:
+        _failure()
     
     ### Reexec init
-    _("/oldroot£{SBIN}/init", "u")
+    _msg = 'Reexec init'
+    do(lambda : _("/oldroot£{SBIN}/init", "u"))
     
     ### Run /shutdown in the new root
+    _msg = 'Switch to £{DEV}/console'
+    _working()
     os.close(0)
     os.close(1)
     os.close(2)
     os.open("£{DEV}/console", os.O_RDWR)
     os.dup2(0, 1)
     os.dup2(0, 2)
+    _done()
+    _singular('chroot /shutdown')
     os.execlp("chroot", "chroot", ".", "/shutdown", action)
 
 else:
-    ### Remounting root filesystem read-only
-    _("mount", "-o", "remount,ro", "/")
+    ### Remount root filesystem read-only
+    _msg = 'Remount root filesystem read-only'
+    do(lambda : _("mount", "-o", "remount,ro", "/"))
 
     ### Power off or reboot
     if os.getenv("RUNLEVEL", "") == "0":
-        _("poweroff", "-d", "-f", "-h", "-i")
+        _singular('Power off')
+        try_invoke(lambda : _("poweroff", "-d", "-f", "-h", "-i"))
     else:
         # If kexec is installed and a kernel is loaded, use it
         if in_path("kexec"):
-            Popen(["kexec", "-e"], stdout = PIPE, stderr = PIPE).wait()
-        _("reboot", "-d", "-f", "-i")
+            _msg = 'Run kexec'
+            do(lambda : Popen(["kexec", "-e"], stdout = PIPE, stderr = PIPE).wait())
+        _singular('Reboot')
+        try_invoke(lambda : _("reboot", "-d", "-f", "-i"))
 
