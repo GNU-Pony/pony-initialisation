@@ -73,8 +73,7 @@ if not os.getenv("PREVLEVEL", "") == "N":
                 if proc.returncode == 2:
                     return True
             return False
-        kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60)
-        _done()
+        (kill_all_wait(signal.SIGTERM, 40) or kill_all_wait(signal.SIGKILL, 60) or _failure()) and _done()
     except:
         _failure()
     
