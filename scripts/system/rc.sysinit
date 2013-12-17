@@ -4,11 +4,13 @@
 #
 
 ### Load locale
+echo -e '\e[01;33mLoad locale\e[00;30m [WORK]\e[00m'
 if [ -z "${LANG}" ]; then
     if [ -e "£{ETC}/profile.d/read_locale.sh" ]; then
 	. "£{ETC}/profile.d/read_locale.sh"
     fi
 fi
+echo -e '\e[A\e[01;33mLoad locale\e[00;30m [DONE]\e[00m'
 
 ### Override process with rc.sysinit.py
 exec "£{PREFIX}${LIBEXEC}/rc.sysinit.py"
