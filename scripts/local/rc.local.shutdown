@@ -13,8 +13,10 @@ if [ -d "${dir}" ]; then
     for file in $(ls -1 "${dir}"); do
 	file="${dir}/${file}"
 	if [ -f "${file}" ] && [ -x "${file}" ]; then
-	    "${file}"
+	    "${file}" &
 	fi
     done
 fi
+
+wait
 
